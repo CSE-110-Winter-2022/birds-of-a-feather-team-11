@@ -20,6 +20,7 @@
         android:id="@+id/photo_submit"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:onClick="onSubmitButtonClick"
         android:text="Submit"
         tools:layout_editor_absoluteX="273dp"
         tools:layout_editor_absoluteY="435dp" />
@@ -28,6 +29,7 @@
         android:id="@+id/photo_skip"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:onClick="onSkipButtonClick"
         android:text="Skip"
         tools:layout_editor_absoluteX="275dp"
         tools:layout_editor_absoluteY="516dp" />

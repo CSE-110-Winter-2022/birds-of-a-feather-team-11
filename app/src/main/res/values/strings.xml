@@ -6,7 +6,7 @@
     <string name="second_fragment_label">Second Fragment</string>
     <string name="next">Next</string>
     <string name="previous">Previous</string>
-
+    <string name="default_photo_url">https://www.google.com/url?sa=i&url=https%3A%2F%2Fbuildyourspechere.com%2Fcontact-3%2Fattachment%2Fplaceholder-image-person-jpg%2F&psig=AOvVaw3dEQgPH9ClCdcAFY5CTXpw&ust=1643933146971000&source=images&cd=vfe&ved=0CAsQjRxqFwoTCOCgsK2e4vUCFQAAAAAdAAAAABAD</string>
     <string name="hello_first_fragment">Hello first fragment</string>
     <string name="hello_second_fragment">Hello second fragment. Arg: %1$s</string>
 </resources>
