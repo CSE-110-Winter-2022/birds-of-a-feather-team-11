@@ -10,36 +10,60 @@
         android:id="@+id/photo_url"
         android:layout_width="329dp"
         android:layout_height="49dp"
+        android:layout_marginStart="34dp"
+        android:layout_marginTop="80dp"
+        android:layout_marginEnd="48dp"
+        android:layout_marginBottom="144dp"
         android:ems="10"
-        android:hint="Photo URL"
+        android:hint="@string/photo_url"
         android:inputType="textPersonName"
-        tools:layout_editor_absoluteX="34dp"
-        tools:layout_editor_absoluteY="242dp" />
+        app:layout_constraintBottom_toTopOf="@+id/photo_submit"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView" />
 
     <Button
         android:id="@+id/photo_submit"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginStart="275dp"
+        android:layout_marginTop="32dp"
+        android:layout_marginEnd="48dp"
+        android:layout_marginBottom="13dp"
         android:onClick="onSubmitButtonClick"
         android:text="Submit"
-        tools:layout_editor_absoluteX="273dp"
-        tools:layout_editor_absoluteY="435dp" />
+        app:layout_constraintBottom_toTopOf="@+id/photo_skip"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/photo_url" />
 
     <Button
         android:id="@+id/photo_skip"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginStart="275dp"
+        android:layout_marginTop="32dp"
+        android:layout_marginEnd="48dp"
+        android:layout_marginBottom="167dp"
         android:onClick="onSkipButtonClick"
-        android:text="Skip"
-        tools:layout_editor_absoluteX="275dp"
-        tools:layout_editor_absoluteY="516dp" />
+        android:text="@string/skip"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/photo_submit" />
 
     <TextView
         android:id="@+id/textView"
         android:layout_width="327dp"
         android:layout_height="64dp"
-        android:text="Please provide a URL that contains a headshot photo of yourself:"
+        android:layout_marginStart="34dp"
+        android:layout_marginTop="100dp"
+        android:layout_marginEnd="50dp"
+        android:layout_marginBottom="16dp"
+        android:text="@string/please_provide_a_url_that_contains_a_headshot_photo_of_yourself"
         android:textSize="20sp"
-        tools:layout_editor_absoluteX="34dp"
-        tools:layout_editor_absoluteY="98dp" />
+        app:layout_constraintBottom_toTopOf="@+id/photo_url"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>

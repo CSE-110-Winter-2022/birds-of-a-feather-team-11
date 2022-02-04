@@ -6,7 +6,11 @@
     <string name="second_fragment_label">Second Fragment</string>
     <string name="next">Next</string>
     <string name="previous">Previous</string>
-    <string name="default_photo_url">https://www.google.com/url?sa=i&url=https%3A%2F%2Fbuildyourspechere.com%2Fcontact-3%2Fattachment%2Fplaceholder-image-person-jpg%2F&psig=AOvVaw3dEQgPH9ClCdcAFY5CTXpw&ust=1643933146971000&source=images&cd=vfe&ved=0CAsQjRxqFwoTCOCgsK2e4vUCFQAAAAAdAAAAABAD</string>
+    <string name="default_photo_url">https://www.google.com/url?sa=i&amp;url=https%3A%2F%2Fbuildyourspechere.com%2Fcontact-3%2Fattachment%2Fplaceholder-image-person-jpg%2F&amp;psig=AOvVaw3dEQgPH9ClCdcAFY5CTXpw&amp;ust=1643933146971000&amp;source=images&amp;cd=vfe&amp;ved=0CAsQjRxqFwoTCOCgsK2e4vUCFQAAAAAdAAAAABAD</string>
     <string name="hello_first_fragment">Hello first fragment</string>
     <string name="hello_second_fragment">Hello second fragment. Arg: %1$s</string>
+    <string name="photo_url">Photo URL</string>
+    <string name="submit">Submit</string>
+    <string name="skip">Skip</string>
+    <string name="please_provide_a_url_that_contains_a_headshot_photo_of_yourself">Please provide a URL that contains a headshot photo of yourself:</string>
 </resources>

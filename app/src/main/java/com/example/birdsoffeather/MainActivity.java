@@ -1,5 +1,6 @@
 package com.example.birdsoffeather;
 
+import android.content.Intent;
 import android.os.Bundle;
 
 import com.google.android.material.snackbar.Snackbar;
@@ -35,6 +36,9 @@ public class MainActivity extends AppCompatActivity {
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_content_main);
         appBarConfiguration = new AppBarConfiguration.Builder(navController.getGraph()).build();
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
+
+        //Intent intent = new Intent(this, UploadPhoto.class);
+        //startActivity(intent);
 
         binding.fab.setOnClickListener(new View.OnClickListener() {
             @Override
