@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
@@ -13,19 +14,42 @@ import android.widget.TextView;
 
 import com.example.birdsoffeather.model.db.AppDatabase;
 import com.example.birdsoffeather.model.db.Course;
+import com.example.birdsoffeather.model.db.Person;
+import com.example.birdsoffeather.model.db.PersonWithCourses;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 public class EnterClasses extends AppCompatActivity{
 
     private AppDatabase db;
-
+    private ExecutorService backgroundThreadExecutor = Executors.newSingleThreadExecutor();
+    private Future<Void> future;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_enter_classes);
-        db = AppDatabase.singleton(getApplicationContext());
+
+        this.future = backgroundThreadExecutor.submit(() -> {
+            db = AppDatabase.singleton(getApplicationContext());
+
+            db.coursesDao().deleteAll();
+            db.personsWithCoursesDao().deleteAll();
+
+            SharedPreferences preferences = getPreferences(MODE_PRIVATE);
+            String name = preferences.getString("name", "No Name");
+            String url = preferences.getString("Photo URL", "No URL");
+
+            Person user = new Person(0, name, url);
+            db.personsWithCoursesDao().insertPerson(user);
+
+            return null;
+        });
+
 
         Spinner yearSpinner = (Spinner) findViewById(R.id.year_input);
         ArrayAdapter<CharSequence> yearAdapter = ArrayAdapter.createFromResource(this,
@@ -42,7 +66,6 @@ public class EnterClasses extends AppCompatActivity{
     }
 
     public void onEnterClicked(View view) {
-        int newCourseId = db.coursesDao().count() + 1;
         int personId = 0;
         Spinner yearInput = findViewById(R.id.year_input);
         String courseYear = yearInput.getSelectedItem().toString();
@@ -64,15 +87,28 @@ public class EnterClasses extends AppCompatActivity{
             return;
         }
 
-        Course newCourse = new Course(newCourseId, personId, courseYear, courseQuarter, courseSubject, courseNumber);
-        for(Course c: db.coursesDao().getForPerson(personId)){
-            if(c.year.equals(courseYear) && c.quarter.equals(courseQuarter) && c.subject.equals(courseSubject) && c.number.equals(courseNumber)){
-                Utilities.showAlert(this, "Duplicate Entry");
-                return;
+        this.future = backgroundThreadExecutor.submit(() -> {
+            int newCourseId = db.coursesDao().count() + 1;
+
+            Course newCourse = new Course(newCourseId, personId, courseYear, courseQuarter, courseSubject, courseNumber);
+            for(Course c: db.coursesDao().getForPerson(personId)){
+                if(c.year.equals(courseYear) && c.quarter.equals(courseQuarter) && c.subject.equals(courseSubject) && c.number.equals(courseNumber)){
+                    runOnUiThread(() -> {
+                        Utilities.showAlert(this, "Duplicate Entry");
+                    });
+                    return null;
+                }
             }
-        }
-        db.coursesDao().insert(newCourse);
-        //Utilities.showAlert(this, db.coursesDao().getForPerson(personId).toString());
+            db.coursesDao().insert(newCourse);
+
+            return null;
+        });
+
+    }
+
+    public void onDoneClicked(View view) {
+        //Utilities.showAlert(this, db.personsWithCoursesDao().get(0).getName() + db.personsWithCoursesDao().get(0).getCourses());
+        Utilities.showAlert(this, "done");
     }
 
 }

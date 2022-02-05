@@ -1,6 +1,7 @@
 package com.example.birdsoffeather.model.db;
 
 import androidx.room.Dao;
+import androidx.room.Insert;
 import androidx.room.Query;
 import androidx.room.Transaction;
 
@@ -17,4 +18,10 @@ public interface PersonWithCoursesDao {
 
     @Query("SELECT COUNT(*) FROM persons")
     int count();
+
+    @Insert
+    void insertPerson(Person person);
+
+    @Query("DELETE FROM persons")
+    void deleteAll();
 }

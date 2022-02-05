@@ -21,7 +21,10 @@ public class PersonWithCourses{
         return this.person.name;
     }
 
+    public String getUrl() { return this.person.profile_url; }
+
     public List<Course> getCourses() {
         return this.courses;
     }
+
 }

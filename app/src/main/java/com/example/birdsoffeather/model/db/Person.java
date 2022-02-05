@@ -17,4 +17,10 @@ public class Person {
     @ColumnInfo(name = "profile_url")
     public String profile_url;
 
+    public Person(int personId, String name, String profile_url){
+        this.personId = personId;
+        this.name = name;
+        this.profile_url = profile_url;
+    }
+
 }
