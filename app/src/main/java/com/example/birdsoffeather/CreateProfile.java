@@ -7,7 +7,6 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.EditText;
-import android.widget.TextView;
 
 public class CreateProfile extends AppCompatActivity {
 
@@ -19,9 +18,11 @@ public class CreateProfile extends AppCompatActivity {
         SharedPreferences preferences = getPreferences(MODE_PRIVATE);
 
         if (preferences.getString("Name", null) != null) {
-            Intent intent = new Intent(this, EnterClasses.class);
+            Intent intent = new Intent(this, UploadPhoto.class);
             startActivity(intent);
         }
+
+        //TODO: add google fill in here
     }
 
     public void onClickConfirm(View view) {
@@ -36,7 +37,7 @@ public class CreateProfile extends AppCompatActivity {
             editor.putString("Name", enteredName);
             editor.apply();
 
-            Intent intent = new Intent(this, EnterClasses.class);
+            Intent intent = new Intent(this, UploadPhoto.class);
             startActivity(intent);
         } else {
             Utilities.showAlert(this,"Please enter a valid name");
