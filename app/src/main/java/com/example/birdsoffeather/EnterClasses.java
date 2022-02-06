@@ -91,19 +91,24 @@ public class EnterClasses extends AppCompatActivity{
             int newCourseId = db.coursesDao().count() + 1;
 
             Course newCourse = new Course(newCourseId, personId, courseYear, courseQuarter, courseSubject, courseNumber);
-            for(Course c: db.coursesDao().getForPerson(personId)){
-                if(c.year.equals(courseYear) && c.quarter.equals(courseQuarter) && c.subject.equals(courseSubject) && c.number.equals(courseNumber)){
-                    runOnUiThread(() -> {
-                        Utilities.showAlert(this, "Duplicate Entry");
-                    });
-                    return null;
-                }
+            if(isDuplicate(newCourse, db.coursesDao().getForPerson(personId))){
+                runOnUiThread(() -> {
+                    Utilities.showAlert(this, "Duplicate Entry");
+                });
+                return null;
             }
             db.coursesDao().insert(newCourse);
 
             return null;
         });
 
+    }
+
+    public boolean isDuplicate(Course newCourse, List<Course> courses){
+        for(Course c: courses)
+            if (c.year.equals(newCourse.year) && c.quarter.equals(newCourse.quarter) && c.subject.equals(newCourse.subject) && c.number.equals(newCourse.number))
+                return true;
+        return false;
     }
 
     public void onDoneClicked(View view) {
