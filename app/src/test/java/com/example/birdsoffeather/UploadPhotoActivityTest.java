@@ -7,6 +7,8 @@ import org.junit.runner.RunWith;
 import static org.junit.Assert.*;
 
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.widget.Button;
 import android.widget.TextView;
 
@@ -34,10 +36,10 @@ public class UploadPhotoActivityTest {
 
         scenario.onActivity(activity -> {
             Button skipButton = activity.findViewById(R.id.photo_skip);
-            TextView photoURLView = activity.findViewById(R.id.photo_url);
 
             skipButton.performClick();
-            assertEquals(defaultPhoto, photoURLView.getText().toString());
+            SharedPreferences preferences = activity.getPreferences(Context.MODE_PRIVATE);
+            assertEquals(defaultPhoto, preferences.getString("Photo URL", null));
 
         });
     }
@@ -56,7 +58,8 @@ public class UploadPhotoActivityTest {
             photoURLView.setText(profilePic);
 
             submitButton.performClick();
-            assertEquals(profilePic, photoURLView.getText().toString());
+            SharedPreferences preferences = activity.getPreferences(Context.MODE_PRIVATE);
+            assertEquals(profilePic, preferences.getString("Photo URL", null));
         });
     }
 
