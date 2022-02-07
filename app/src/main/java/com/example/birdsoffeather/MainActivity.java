@@ -25,7 +25,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        Intent intent = new Intent(this, UploadPhoto.class);
+        Intent intent = new Intent(this, CreateProfile.class);
         startActivity(intent);
 
     }
