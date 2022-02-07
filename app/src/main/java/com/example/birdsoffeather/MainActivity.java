@@ -77,4 +77,9 @@ public class MainActivity extends AppCompatActivity {
         return NavigationUI.navigateUp(navController, appBarConfiguration)
                 || super.onSupportNavigateUp();
     }
+
+    public void onButtonClick(View view) {
+        Intent intent = new Intent(this, EnterClasses.class);
+        startActivity(intent);
+    }
 }
