@@ -1,5 +1,6 @@
 package com.example.birdsoffeather;
 
+import android.bluetooth.BluetoothAdapter;
 import android.content.Intent;
 import android.os.Bundle;
 
@@ -25,8 +26,19 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        Intent intent = new Intent(this, CreateProfile.class);
-        startActivity(intent);
+
+        BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+        if (bluetoothAdapter != null && !bluetoothAdapter.isEnabled()) {
+            Utilities.showAlert(this, "Please turn on your Bluetooth", ((dialogInterface, i) -> {
+                Intent intent = new Intent(this, CreateProfile.class);
+                startActivity(intent);
+                finish();
+            }));
+        } else {
+            Intent intent = new Intent(this, CreateProfile.class);
+            startActivity(intent);
+            finish();
+        }
 
     }
 }
