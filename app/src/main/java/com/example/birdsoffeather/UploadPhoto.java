@@ -2,6 +2,7 @@ package com.example.birdsoffeather;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
@@ -19,19 +20,18 @@ public class UploadPhoto extends AppCompatActivity {
         setContentView(R.layout.activity_upload_photo);
         SharedPreferences preferences = getPreferences(MODE_PRIVATE);
         if (preferences.getString("Name", null) != null) {
-            //Intent intent = new Intent(this, EnterClasses.class);
-            //startActivity(intent);
+            Intent intent = new Intent(this, EnterClasses.class);
+            startActivity(intent);
             finish();
         }
     }
     public void onSkipButtonClick(View view) {
-        TextView photoURLView = findViewById(R.id.photo_url);
-        submitURL(photoURLView, getResources().getString(R.string.default_photo_url));
+        submitURL(getResources().getString(R.string.default_photo_url));
     }
     public void onSubmitButtonClick(View view) {
         TextView photoURLView = findViewById(R.id.photo_url);
         String photoURL = photoURLView.getText().toString();
-        submitURL(photoURLView, photoURL);
+        submitURL(photoURL);
         /*
         boolean isValidImage = false;
         try {
@@ -47,15 +47,13 @@ public class UploadPhoto extends AppCompatActivity {
         }*/
     }
 
-    public void submitURL(TextView photoURLView, String url) {
-        photoURLView.setText("");
+    public void submitURL(String url) {
         SharedPreferences preferences = getPreferences(MODE_PRIVATE);
         SharedPreferences.Editor editor = preferences.edit();
         editor.putString("Photo URL", url);
         editor.apply();
-        photoURLView.setText(preferences.getString("Photo URL", null));
-        //Intent intent = new Intent(this, EnterClasses.class);
-        //startActivity(intent);
+        Intent intent = new Intent(this, EnterClasses.class);
+        startActivity(intent);
         finish();
     }
 }
