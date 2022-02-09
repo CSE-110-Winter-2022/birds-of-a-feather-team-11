@@ -6,6 +6,9 @@ import android.os.Bundle;
 
 import com.google.android.material.snackbar.Snackbar;
 
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.view.View;
@@ -28,12 +31,21 @@ public class MainActivity extends AppCompatActivity {
 
 
         BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+
+        // If Bluetooth capable and Bluetooth off, request to turn on (let them pass even if they deny
         if (bluetoothAdapter != null && !bluetoothAdapter.isEnabled()) {
-            Utilities.showAlert(this, "Please turn on your Bluetooth", ((dialogInterface, i) -> {
+            Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+            registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
+                Intent intent = new Intent(MainActivity.this, CreateProfile.class);
+                startActivity(intent);
+                finish();
+            }).launch(enableBtIntent);
+
+            /*Utilities.showAlert(this, "Please turn on your Bluetooth", ((dialogInterface, i) -> {
                 Intent intent = new Intent(this, CreateProfile.class);
                 startActivity(intent);
                 finish();
-            }));
+            }));*/
         } else {
             Intent intent = new Intent(this, CreateProfile.class);
             startActivity(intent);
