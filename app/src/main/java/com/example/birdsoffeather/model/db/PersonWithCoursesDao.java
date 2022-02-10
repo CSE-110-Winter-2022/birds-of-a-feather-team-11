@@ -24,4 +24,7 @@ public interface PersonWithCoursesDao {
 
     @Query("DELETE FROM persons")
     void deleteAll();
+
+    @Query("DELETE FROM persons WHERE id != 0")
+    void deleteBOFs();
 }
