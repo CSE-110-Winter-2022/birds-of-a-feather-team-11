@@ -31,6 +31,7 @@ public class ListingBOF extends AppCompatActivity {
         setContentView(R.layout.activity_listing_bof);
     }
 
+    /*
     public void inputBOF(PersonWithCourses potentialBOF) {
         this.future = backgroundThreadExecutor.submit(() -> {
             db = AppDatabase.singleton(getApplicationContext());
@@ -49,9 +50,7 @@ public class ListingBOF extends AppCompatActivity {
         // call function to re-render UI
     }
 
-    /**
-     * Gets called when the UI is being refreshed for the BOF page
-     */
+
     public void similarityOrder() {
         this.future = backgroundThreadExecutor.submit(() -> {
             db = AppDatabase.singleton(getApplicationContext());
@@ -59,5 +58,5 @@ public class ListingBOF extends AppCompatActivity {
             orderedBOFs = orderedIds.stream().map((id) -> db.personsWithCoursesDao().get(id)).collect(Collectors.toList());
             return null;
         });
-    }
+    }*/
 }
