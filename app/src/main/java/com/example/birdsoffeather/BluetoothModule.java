@@ -7,19 +7,18 @@ import com.google.android.gms.nearby.Nearby;
 import com.google.android.gms.nearby.messages.Message;
 import com.google.android.gms.nearby.messages.MessageListener;
 
-public class RealBluetoothAdapter{
+public class BluetoothModule {
 
 
     public final MessageListener messageListener;
     public final Context context;
     public Message message;
-    public RealBluetoothAdapter(MessageListener messageListener, Context context) {
+    public BluetoothModule(MessageListener messageListener, Context context) {
         this.messageListener = messageListener;
         this.context = context;
     }
 
-    public void publish(Person person) {
-        message = new Message(person.toString().getBytes());
+    public void publish(Message message) {
         Nearby.getMessagesClient(context).publish(message);
     }
 

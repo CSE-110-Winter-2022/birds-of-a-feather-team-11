@@ -16,6 +16,9 @@
             android:name="com.google.android.nearby.messages.API_KEY"
             android:value="AIzaSyCE-SG9_KEWSOEC5itcqGZ44L_F3IPYDfE" />
         <activity
+            android:name=".ListingBOF"
+            android:exported="false" />
+        <activity
             android:name=".CreateProfile"
             android:exported="false" />
         <activity

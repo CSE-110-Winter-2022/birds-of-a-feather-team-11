@@ -2,12 +2,14 @@ package com.example.birdsoffeather;
 
 import android.bluetooth.BluetoothAdapter;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 
+import com.example.birdsoffeather.model.db.AppDatabase;
+import com.example.birdsoffeather.model.db.Course;
+import com.example.birdsoffeather.model.db.Person;
 import com.google.android.material.snackbar.Snackbar;
 
-import androidx.activity.result.ActivityResult;
-import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -23,34 +25,60 @@ import com.example.birdsoffeather.databinding.ActivityMainBinding;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+
 public class MainActivity extends AppCompatActivity {
+
+    private AppDatabase db;
+    private ExecutorService backgroundThreadExecutor = Executors.newSingleThreadExecutor();
+    private Future<Void> future;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
 
+        clearBOFs();
+
+        SharedPreferences preferences = getPreferences(MODE_PRIVATE);
 
         BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 
-        // If Bluetooth capable and Bluetooth off, request to turn on (let them pass even if they deny
+        // If Bluetooth capable and Bluetooth off, request to turn on (let them pass even if they deny)
         if (bluetoothAdapter != null && !bluetoothAdapter.isEnabled()) {
             Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
-                Intent intent = new Intent(MainActivity.this, CreateProfile.class);
-                startActivity(intent);
-                finish();
+                nextActivity(preferences);
             }).launch(enableBtIntent);
 
-            /*Utilities.showAlert(this, "Please turn on your Bluetooth", ((dialogInterface, i) -> {
-                Intent intent = new Intent(this, CreateProfile.class);
-                startActivity(intent);
-                finish();
-            }));*/
         } else {
-            Intent intent = new Intent(this, CreateProfile.class);
-            startActivity(intent);
-            finish();
+            nextActivity(preferences);
         }
+    }
 
+    public void nextActivity(SharedPreferences preferences) {
+        Intent intent;
+        if (preferences.getBoolean("Entered Classes", false))
+            intent = new Intent(this, ListingBOF.class);
+        else if (preferences.getString("Photo URL", null) != null)
+            intent = new Intent(this, EnterClasses.class);
+        else if (preferences.getString("Name", null) != null)
+            intent = new Intent(this, UploadPhoto.class);
+        else
+            intent = new Intent(this, CreateProfile.class);
+        startActivity(intent);
+
+    }
+
+    public void clearBOFs() {
+        this.future = backgroundThreadExecutor.submit(() -> {
+            db = AppDatabase.singleton(getApplicationContext());
+            db.coursesDao().deleteBOFs();
+            db.personsWithCoursesDao().deleteBOFs();
+            return null;
+        });
     }
 }

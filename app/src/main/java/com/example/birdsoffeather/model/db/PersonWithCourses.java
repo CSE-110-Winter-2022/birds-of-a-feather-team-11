@@ -2,9 +2,10 @@ package com.example.birdsoffeather.model.db;
 import androidx.room.Embedded;
 import androidx.room.Relation;
 
+import java.io.Serializable;
 import java.util.List;
 
-public class PersonWithCourses{
+public class PersonWithCourses implements Serializable {
     @Embedded
     public Person person;
 
