@@ -10,6 +10,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.BirdsOfFeather">
         <activity
+            android:name=".ListingBOF"
+            android:exported="false" />
+        <activity
             android:name=".CreateProfile"
             android:exported="false" />
         <activity

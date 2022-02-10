@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
@@ -28,6 +29,8 @@ public class EnterClasses extends AppCompatActivity{
     private AppDatabase db;
     private ExecutorService backgroundThreadExecutor = Executors.newSingleThreadExecutor();
     private Future<Void> future;
+
+    static int counter = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -98,6 +101,7 @@ public class EnterClasses extends AppCompatActivity{
                 return null;
             }
             db.coursesDao().insert(newCourse);
+            counter++;
 
             return null;
         });
@@ -112,8 +116,17 @@ public class EnterClasses extends AppCompatActivity{
     }
 
     public void onDoneClicked(View view) {
-        //Utilities.showAlert(this, db.personsWithCoursesDao().get(0).getName() + db.personsWithCoursesDao().get(0).getCourses());
-        Utilities.showAlert(this, "done");
+        if (counter == 0) {
+            Utilities.showAlert(this, "You must enter in at least one class!");
+        } else {
+            SharedPreferences preferences = getPreferences(MODE_PRIVATE);
+            SharedPreferences.Editor editor = preferences.edit();
+            editor.putBoolean("Entered Classes", true);
+            editor.apply();
+            Intent intent = new Intent(this, ListingBOF.class);
+            startActivity(intent);
+            finish();
+        }
     }
 
 }
