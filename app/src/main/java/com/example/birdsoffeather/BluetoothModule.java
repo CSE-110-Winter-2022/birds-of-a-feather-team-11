@@ -13,12 +13,16 @@ public class BluetoothModule {
     public final MessageListener messageListener;
     public final Context context;
     public Message message;
-    public BluetoothModule(MessageListener messageListener, Context context) {
-        this.messageListener = messageListener;
+    public BluetoothModule(Context context, MessageListener messageListener) {
         this.context = context;
+        this.messageListener = messageListener;
     }
 
-    public void publish(Message message) {
+    public void setMessage(Message message) {
+        this.message = message;
+    }
+
+    public void publish() {
         Nearby.getMessagesClient(context).publish(message);
     }
 

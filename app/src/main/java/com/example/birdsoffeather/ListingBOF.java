@@ -9,6 +9,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Toast;
 
 import com.example.birdsoffeather.model.db.AppDatabase;
 import com.example.birdsoffeather.model.db.Course;
@@ -49,54 +50,60 @@ public class ListingBOF extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_listing_bof);
 
-        updateSelf();
-
         running = false;
-
+        updateSelf();
         setupBluetooth();
 
+    }
+
+    private void setupBluetooth() {
+        // Check if phone is bluetooth capable
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-
-    }
-
-    public void setupBluetooth() {
-        bluetooth = new BluetoothModule(new MessageListener() {
-            @Override
-            public void onFound(@NonNull Message message) {
-                ByteArrayInputStream bis = new ByteArrayInputStream(message.getContent());
-                ObjectInputStream in = null;
-                PersonWithCourses personWithCourses = null;
-
-                try {
-                    in = new ObjectInputStream(bis);
-                    personWithCourses = (PersonWithCourses) in.readObject();
-                    inputBOF(personWithCourses);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                } catch (ClassNotFoundException e) {
-                    e.printStackTrace();
-                }
-                try {
-                    if (in != null) {
-                        in.close();
-                    }
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-
-            }
-        }, this);
-    }
-
-    public void onStartStopClicked(View view) {
-
         if (bluetoothAdapter == null) {
+            Utilities.showAlert(this, "Your phone is not Bluetooth capable. You will not be able to use this app.");
+            finish();
             return;
         } else if (!bluetoothAdapter.isEnabled()) {
             Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
 
             }).launch(enableBtIntent);
+        }
+
+        // Set up bluetooth Module
+        try {
+            Message selfMessage = new Message(Utilities.serializePerson(selfPerson));
+            bluetooth = new BluetoothModule(this, new MessageListener() {
+                @Override
+                public void onFound(@NonNull Message message) {
+                    try {
+                        PersonWithCourses person = Utilities.deserializePerson(message.getContent());
+                        inputBOF(person);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    } catch (ClassNotFoundException e) {
+                        e.printStackTrace();
+                    }
+
+                }
+            });
+            bluetooth.setMessage(selfMessage);
+        } catch (IOException e) {
+            Toast.makeText(this, "Failed to setup bluetooth! Try restarting app.", Toast.LENGTH_SHORT).show();
+            finish();
+            e.printStackTrace();
+        }
+    }
+
+    public void setCustomBluetooth(BluetoothModule bluetoothModule, BluetoothAdapter bluetoothAdapter) {
+        this.bluetoothAdapter = bluetoothAdapter;
+        this.bluetooth = bluetoothModule;
+    }
+
+    public void onStartStopClicked(View view) {
+
+        if (!bluetoothAdapter.isEnabled()) {
+            Utilities.showAlert(this,"Don't forget to turn on Bluetooth");
             return;
         }
 
@@ -113,36 +120,16 @@ public class ListingBOF extends AppCompatActivity {
 
         } else {
 
-            ByteArrayOutputStream bos = new ByteArrayOutputStream();
-            ObjectOutputStream out = null;
-            try {
-                // Deserialize
-                out = new ObjectOutputStream(bos);
-                out.writeObject(selfPerson);
-                out.flush();
-                Message selfMessage = new Message(bos.toByteArray());
+            // Publish and Listen
+            bluetooth.publish();
+            bluetooth.subscribe();
 
-                // Publish and Listen
-                bluetooth.publish(selfMessage);
-                bluetooth.subscribe();
-
-                // Update State
-                startStopBtn.setText("Stop");
-                running = true;
-
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            try {
-                bos.close();
-            } catch (IOException ex) {
-                // ignore close exception
-            }
-
+            // Update State
+            startStopBtn.setText("Stop");
+            running = true;
         }
 
     }
-
 
     public void inputBOF(PersonWithCourses potentialBOF) {
         this.future = backgroundThreadExecutor.submit(() -> {
@@ -162,12 +149,9 @@ public class ListingBOF extends AppCompatActivity {
         // call function to re-render UI
     }
 
-    public void updateSelf() {
-        this.future = backgroundThreadExecutor.submit(() -> {
-            db = AppDatabase.singleton(getApplicationContext());
-            selfPerson = db.personsWithCoursesDao().get(0);
-            return null;
-        });
+    private void updateSelf() {
+        db = AppDatabase.singleton(getApplicationContext());
+        selfPerson = db.personsWithCoursesDao().get(0);
     }
 
     public void similarityOrder() {
