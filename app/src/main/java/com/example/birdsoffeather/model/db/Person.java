@@ -5,6 +5,7 @@ import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 @Entity(tableName = "persons")
 public class Person implements Serializable {
@@ -25,4 +26,11 @@ public class Person implements Serializable {
         this.profile_url = profile_url;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Person person = (Person) o;
+        return personId == person.personId && Objects.equals(name, person.name) && Objects.equals(profile_url, person.profile_url);
+    }
 }
