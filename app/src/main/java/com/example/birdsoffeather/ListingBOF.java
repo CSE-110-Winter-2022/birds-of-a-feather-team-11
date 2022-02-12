@@ -163,4 +163,15 @@ public class ListingBOF extends AppCompatActivity {
             return null;
         });
     }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        if (running) {
+            // Unpublish and stop Listening
+            bluetooth.unpublish();
+            bluetooth.unsubscribe();
+        }
+    }
 }

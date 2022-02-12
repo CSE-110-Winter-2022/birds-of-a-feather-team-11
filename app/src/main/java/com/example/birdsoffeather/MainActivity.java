@@ -6,26 +6,10 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 
 import com.example.birdsoffeather.model.db.AppDatabase;
-import com.example.birdsoffeather.model.db.Course;
-import com.example.birdsoffeather.model.db.Person;
-import com.google.android.material.snackbar.Snackbar;
 
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.view.View;
-
-import androidx.navigation.NavController;
-import androidx.navigation.Navigation;
-import androidx.navigation.ui.AppBarConfiguration;
-import androidx.navigation.ui.NavigationUI;
-
-import com.example.birdsoffeather.databinding.ActivityMainBinding;
-
-import android.view.Menu;
-import android.view.MenuItem;
-
-import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -70,6 +54,7 @@ public class MainActivity extends AppCompatActivity {
         else
             intent = new Intent(this, CreateProfile.class);
         startActivity(intent);
+        finish();
 
     }
 
