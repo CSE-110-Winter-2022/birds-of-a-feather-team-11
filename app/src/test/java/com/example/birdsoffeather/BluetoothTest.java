@@ -22,9 +22,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -36,45 +34,12 @@ public class BluetoothTest {
     public ActivityScenarioRule<ListingBOF> scenarioRule = new ActivityScenarioRule<>(ListingBOF.class);
 
     @Test
-    public void testFakePersonSend() {
-
-        ActivityScenario<ListingBOF> scenario = scenarioRule.getScenario();
-
-        scenario.moveToState(Lifecycle.State.CREATED);
-
-        scenario.onActivity(activity -> {
-            PersonWithCourses fakePerson = new PersonWithCourses();
-            fakePerson.person = new Person(0, "John", "www.google.com");
-            List<Course> courses = new ArrayList<Course>();
-            courses.add(new Course(1, 0, "2022", "Winter", "CSE", "110"));
-            fakePerson.courses = courses;
-            MessageListener fake = new FakeMessageListener(activity.getMessageListener(), fakePerson);
-            activity.setMessageListener(fake);
-
-            backgroundThreadExecutor.submit(() -> {
-                AppDatabase db = AppDatabase.useTestSingleton(getApplicationContext());
-
-                int numPeople = db.personsWithCoursesDao().count();
-                int numCourses = db.coursesDao().count();
-
-                assertEquals(1, numPeople);
-                assertEquals(1, numCourses);
-
-                String personName = db.personsWithCoursesDao().get(0).person.name;
-
-                assertEquals("John", personName);
-
-                return null;
-            });
-        });
-    }
-
-    @Test
     public void serializeTest() {
 
         PersonWithCourses person = new PersonWithCourses();
-        List<Course> courses = Arrays.asList(new Course[]{new Course(1, 0, "1999", "WI", "C", "1"),new Course(1, 0, "1999", "FA", "C", "2")});
-        person.courses = courses;
+        person.courses = Arrays.asList(
+                new Course(1, 0, "1999", "WI", "C", "1"),
+                new Course(1, 0, "1999", "FA", "C", "2"));
         person.person = new Person(0,"John","");
 
         PersonWithCourses personCopy = null;
@@ -88,4 +53,40 @@ public class BluetoothTest {
         assertEquals(person, personCopy);
 
     }
+
+    @Test
+    public void testFakePersonSend() {
+
+        ActivityScenario<ListingBOF> scenario = scenarioRule.getScenario();
+
+        scenario.moveToState(Lifecycle.State.CREATED);
+
+        scenario.onActivity(activity -> {
+            AppDatabase db = AppDatabase.singleton(getApplicationContext());
+
+            PersonWithCourses fakePerson = new PersonWithCourses();
+            fakePerson.person = new Person(0, "John", "www.google.com");
+            fakePerson.courses = Arrays.asList(
+                    new Course(0, 0, "2022", "Winter", "CSE", "110"));
+            MessageListener fake = new FakeMessageListener(activity.getMessageListener(), fakePerson);
+            activity.setMessageListener(fake);
+
+            backgroundThreadExecutor.submit(() -> {
+                int numPeople = db.personsWithCoursesDao().count();
+                int numCourses = db.coursesDao().count();
+
+                assertEquals(1, numPeople);
+                assertEquals(1, numCourses);
+
+                String personName = db.personsWithCoursesDao().get(0).person.name;
+
+                assertEquals("John", personName);
+
+                db.close();
+
+                return null;
+            });
+        });
+    }
+
 }

@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.bluetooth.BluetoothAdapter;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -51,9 +52,16 @@ public class ListingBOF extends AppCompatActivity {
         setContentView(R.layout.activity_listing_bof);
 
         running = false;
-        updateSelf();
-        setupBluetooth();
 
+        this.future = backgroundThreadExecutor.submit(() -> {
+            db = AppDatabase.singleton(getApplicationContext());
+
+            selfPerson = db.personsWithCoursesDao().get(0);
+
+            return null;
+        });
+
+        setupBluetooth();
     }
 
     private void setupBluetooth() {
@@ -134,7 +142,6 @@ public class ListingBOF extends AppCompatActivity {
 
     public void inputBOF(PersonWithCourses potentialBOF) {
         this.future = backgroundThreadExecutor.submit(() -> {
-            db = AppDatabase.singleton(getApplicationContext());
             Person userInfo = potentialBOF.person;
             int personId = db.personsWithCoursesDao().count();
             Person user = new Person(personId, userInfo.name, userInfo.profile_url);
@@ -150,14 +157,8 @@ public class ListingBOF extends AppCompatActivity {
         // call function to re-render UI
     }
 
-    private void updateSelf() {
-        db = AppDatabase.singleton(getApplicationContext());
-        selfPerson = db.personsWithCoursesDao().get(0);
-    }
-
     public void similarityOrder() {
         this.future = backgroundThreadExecutor.submit(() -> {
-            db = AppDatabase.singleton(getApplicationContext());
             List<Integer> orderedIds = db.coursesDao().getSimilarityOrdering();
             orderedBOFs = orderedIds.stream().map((id) -> db.personsWithCoursesDao().get(id)).collect(Collectors.toList());
             return null;
