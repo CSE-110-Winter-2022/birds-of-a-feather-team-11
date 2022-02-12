@@ -57,7 +57,7 @@ public class ListingBOF extends AppCompatActivity {
     }
 
     private void setupBluetooth() {
-        // Check if phone is bluetooth capable
+        // Check if phone is bluetooth capable and if enabled
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         if (bluetoothAdapter == null) {
             Utilities.showAlert(this, "Your phone is not Bluetooth capable. You will not be able to use this app.");
@@ -91,11 +91,6 @@ public class ListingBOF extends AppCompatActivity {
             finish();
             e.printStackTrace();
         }
-    }
-
-    public void setCustomBluetooth(BluetoothModule bluetoothModule, BluetoothAdapter bluetoothAdapter) {
-        this.bluetoothAdapter = bluetoothAdapter;
-        this.bluetooth = bluetoothModule;
     }
 
     public void setMessageListener(MessageListener listener) {

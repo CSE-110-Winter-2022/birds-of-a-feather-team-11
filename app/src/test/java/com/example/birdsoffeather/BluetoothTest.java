@@ -14,13 +14,16 @@ import com.example.birdsoffeather.model.db.AppDatabase;
 import com.example.birdsoffeather.model.db.Course;
 import com.example.birdsoffeather.model.db.Person;
 import com.example.birdsoffeather.model.db.PersonWithCourses;
+import com.google.android.gms.nearby.messages.Message;
 import com.google.android.gms.nearby.messages.MessageListener;
 
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -64,5 +67,25 @@ public class BluetoothTest {
                 return null;
             });
         });
+    }
+
+    @Test
+    public void serializeTest() {
+
+        PersonWithCourses person = new PersonWithCourses();
+        List<Course> courses = Arrays.asList(new Course[]{new Course(1, 0, "1999", "WI", "C", "1"),new Course(1, 0, "1999", "FA", "C", "2")});
+        person.courses = courses;
+        person.person = new Person(0,"John","");
+
+        PersonWithCourses personCopy = null;
+        try {
+            Message message = new Message(Utilities.serializePerson(person));
+            personCopy = Utilities.deserializePerson(message.getContent());
+        } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        assertEquals(person, personCopy);
+
     }
 }
