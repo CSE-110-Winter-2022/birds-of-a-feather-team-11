@@ -4,7 +4,7 @@ import androidx.room.Relation;
 
 import java.util.List;
 
-public class PersonWithCourses{
+public class PersonWithCourses implements IPerson{
     @Embedded
     public Person person;
 

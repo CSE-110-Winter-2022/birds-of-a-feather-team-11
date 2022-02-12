@@ -1,12 +1,19 @@
 package com.example.birdsoffeather;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.View;
+import android.widget.Button;
 
 import com.example.birdsoffeather.model.db.AppDatabase;
 import com.example.birdsoffeather.model.db.Course;
+import com.example.birdsoffeather.model.db.IPerson;
 import com.example.birdsoffeather.model.db.Person;
 import com.example.birdsoffeather.model.db.PersonWithCourses;
 
@@ -25,11 +32,56 @@ public class ListingBOF extends AppCompatActivity {
 
     private List<PersonWithCourses> orderedBOFs = new ArrayList<>();
 
+    protected RecyclerView personsRecyclerView;
+    protected RecyclerView.LayoutManager personsLayoutManager;
+    protected PersonsViewAdapter personsViewAdapter;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_listing_bof);
+
+
+        Button start_stop_btn = (Button) findViewById(R.id.start_stop_btn);
+        start_stop_btn.setText("START"); // default button text
+        start_stop_btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // changes button color
+                start_stop_btn.setSelected(!start_stop_btn.isSelected());
+
+                // START button clicked
+                if(start_stop_btn.getText().toString() == "START") {
+                    // button text changes to STOP once START is clicked
+                    start_stop_btn.setText("STOP");
+
+                    // show list of students
+                    updateUI(orderedBOFs);
+                }
+                // STOP button clicked
+                else {
+                    // button text changes to START once STOP is clicked
+                    start_stop_btn.setText("START");
+                }
+            }
+        });
+
+
+        }
+
+    public void updateUI(List<? extends IPerson> persons) {
+        personsRecyclerView.findViewById(R.id.persons_view);
+
+        // set layout manager
+        personsLayoutManager = new LinearLayoutManager(this);
+        personsRecyclerView.setLayoutManager(personsLayoutManager);
+
+        // set adapter
+        personsViewAdapter = new PersonsViewAdapter(persons);
+        personsRecyclerView.setAdapter(personsViewAdapter);
     }
+
+
 
     /*
     public void inputBOF(PersonWithCourses potentialBOF) {

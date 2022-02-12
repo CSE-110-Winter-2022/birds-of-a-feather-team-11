@@ -17,6 +17,7 @@ import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.birdsoffeather.databinding.ActivityMainBinding;
 
@@ -34,6 +35,10 @@ public class MainActivity extends AppCompatActivity {
     private ExecutorService backgroundThreadExecutor = Executors.newSingleThreadExecutor();
     private Future<Void> future;
 
+    protected RecyclerView personsRecyclerView;
+    protected RecyclerView.LayoutManager personsLayoutManager;
+    protected PersonsViewAdapter personsViewAdapter;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -47,7 +52,7 @@ public class MainActivity extends AppCompatActivity {
         else if (preferences.getString("Name", null) != null)
             intent = new Intent(this, UploadPhoto.class);
         else
-            intent = new Intent(this, CreateProfile.class);
+            intent = new Intent(this, GoogleSignInPrompt.class);
         startActivity(intent);
     }
 
