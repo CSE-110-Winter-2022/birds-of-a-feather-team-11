@@ -15,7 +15,7 @@ public class CreateProfile extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_profile);
 
-        SharedPreferences preferences = getPreferences(MODE_PRIVATE);
+        SharedPreferences preferences = getSharedPreferences("BoF", MODE_PRIVATE);
 
         if (preferences.getString("Name", null) != null) {
             Intent intent = new Intent(this, UploadPhoto.class);
@@ -32,7 +32,7 @@ public class CreateProfile extends AppCompatActivity {
 
         if (isValidName(enteredName)) {
 
-            SharedPreferences preferences = getPreferences(MODE_PRIVATE);
+            SharedPreferences preferences = getSharedPreferences("BoF", MODE_PRIVATE);
             SharedPreferences.Editor editor = preferences.edit();
             editor.putString("Name", enteredName);
             editor.apply();

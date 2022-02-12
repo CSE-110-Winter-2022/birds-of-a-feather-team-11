@@ -38,7 +38,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         clearBOFs();
-        SharedPreferences preferences = getPreferences(MODE_PRIVATE);
+        SharedPreferences preferences = getSharedPreferences("BoF", MODE_PRIVATE);
         Intent intent;
         if (preferences.getBoolean("Entered Classes", false))
             intent = new Intent(this, ListingBOF.class);

@@ -23,7 +23,6 @@ public class ListingBOF extends AppCompatActivity {
     private ExecutorService backgroundThreadExecutor = Executors.newSingleThreadExecutor();
     private Future<Void> future;
 
-    private List<PersonWithCourses> orderedBOFs = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,7 +30,7 @@ public class ListingBOF extends AppCompatActivity {
         setContentView(R.layout.activity_listing_bof);
     }
 
-    /*
+
     public void inputBOF(PersonWithCourses potentialBOF) {
         this.future = backgroundThreadExecutor.submit(() -> {
             db = AppDatabase.singleton(getApplicationContext());
@@ -55,8 +54,9 @@ public class ListingBOF extends AppCompatActivity {
         this.future = backgroundThreadExecutor.submit(() -> {
             db = AppDatabase.singleton(getApplicationContext());
             List<Integer> orderedIds = db.coursesDao().getSimilarityOrdering();
-            orderedBOFs = orderedIds.stream().map((id) -> db.personsWithCoursesDao().get(id)).collect(Collectors.toList());
+            List<PersonWithCourses> orderedBOFs = orderedIds.stream().map((id) -> db.personsWithCoursesDao().get(id)).collect(Collectors.toList());
+            //updateUI(orderedBOFs);
             return null;
         });
-    }*/
+    }
 }
