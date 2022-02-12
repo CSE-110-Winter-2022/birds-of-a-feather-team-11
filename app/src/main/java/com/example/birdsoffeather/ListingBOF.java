@@ -79,9 +79,7 @@ public class ListingBOF extends AppCompatActivity {
                     try {
                         PersonWithCourses person = Utilities.deserializePerson(message.getContent());
                         inputBOF(person);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    } catch (ClassNotFoundException e) {
+                    } catch (IOException | ClassNotFoundException e) {
                         e.printStackTrace();
                     }
 
@@ -98,6 +96,14 @@ public class ListingBOF extends AppCompatActivity {
     public void setCustomBluetooth(BluetoothModule bluetoothModule, BluetoothAdapter bluetoothAdapter) {
         this.bluetoothAdapter = bluetoothAdapter;
         this.bluetooth = bluetoothModule;
+    }
+
+    public void setMessageListener(MessageListener listener) {
+        bluetooth = new BluetoothModule(this, listener);
+    }
+
+    public MessageListener getMessageListener() {
+        return bluetooth.messageListener;
     }
 
     public void onStartStopClicked(View view) {
