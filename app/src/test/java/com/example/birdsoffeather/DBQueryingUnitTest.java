@@ -88,7 +88,7 @@ public class DBQueryingUnitTest {
                 List<Course> before = db.coursesDao().getForPerson(1);
                 assertEquals(0, before.size());
                 for(int i = 0; i<testPersons.size(); i++){
-                    activity.inputBOF(testPersons.get(i));
+                    Utilities.inputBOF(testPersons.get(i), db);
                 }
 
                 List<Course> person1 = db.coursesDao().getForPerson(1);
@@ -124,10 +124,10 @@ public class DBQueryingUnitTest {
             backgroundThreadExecutor.submit(() -> {
                 addPersons();
                 for(int i = 0; i<testPersons.size(); i++){
-                    activity.inputBOF(testPersons.get(i));
+                    Utilities.inputBOF(testPersons.get(i), db);
                 }
 
-                List<PersonWithCourses> ordering = activity.generateSimilarityOrder();
+                List<PersonWithCourses> ordering = Utilities.generateSimilarityOrder(db);
 
                 assertEquals(1, (int) ordering.get(0).person.personId);
                 assertEquals(3, (int) ordering.get(1).person.personId);
