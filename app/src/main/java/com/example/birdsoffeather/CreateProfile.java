@@ -33,7 +33,7 @@ public class CreateProfile extends AppCompatActivity {
         super.onStart();
 
         // Display previously entered name if activity started using back arrow
-        SharedPreferences preferences = getPreferences(MODE_PRIVATE);
+        SharedPreferences preferences = getSharedPreferences("BoF",MODE_PRIVATE);
         String storedName = preferences.getString("Name", null);
 
         if (storedName != null) {

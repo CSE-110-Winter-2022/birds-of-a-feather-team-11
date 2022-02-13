@@ -43,7 +43,7 @@ public class EnterClasses extends AppCompatActivity{
             db.coursesDao().deleteAll();
             db.personsWithCoursesDao().deleteAll();
 
-            SharedPreferences preferences = getPreferences(MODE_PRIVATE);
+            SharedPreferences preferences = getSharedPreferences("BoF", MODE_PRIVATE);
             String name = preferences.getString("name", "No Name");
             String url = preferences.getString("Photo URL", "No URL");
 
