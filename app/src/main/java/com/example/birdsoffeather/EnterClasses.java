@@ -108,7 +108,7 @@ public class EnterClasses extends AppCompatActivity{
 
     }
 
-    public boolean isDuplicate(Course newCourse, List<Course> courses){
+    public static boolean isDuplicate(Course newCourse, List<Course> courses){
         for(Course c: courses)
             if (c.year.equals(newCourse.year) && c.quarter.equals(newCourse.quarter) && c.subject.equals(newCourse.subject) && c.number.equals(newCourse.number))
                 return true;

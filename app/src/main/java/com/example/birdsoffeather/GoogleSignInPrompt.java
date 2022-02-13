@@ -103,6 +103,7 @@ public class GoogleSignInPrompt extends AppCompatActivity {
             Log.w("ERROR", "signInResult:failed code=" + e.getStatusCode());
 
             Intent intent = new Intent(this, CreateProfile.class);
+            startActivity(intent);
         }
     }
 
