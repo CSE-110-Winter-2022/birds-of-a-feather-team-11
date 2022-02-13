@@ -3,10 +3,11 @@ package com.example.birdsoffeather;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.bluetooth.BluetoothAdapter;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -14,12 +15,14 @@ import android.widget.Toast;
 
 import com.example.birdsoffeather.model.db.AppDatabase;
 import com.example.birdsoffeather.model.db.Course;
+import com.example.birdsoffeather.model.db.IPerson;
 import com.example.birdsoffeather.model.db.Person;
 import com.example.birdsoffeather.model.db.PersonWithCourses;
 import com.google.android.gms.nearby.messages.Message;
 import com.google.android.gms.nearby.messages.MessageListener;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -40,6 +43,10 @@ public class ListingBOF extends AppCompatActivity {
 
     private PersonWithCourses selfPerson;
 
+    protected RecyclerView personsRecyclerView;
+    protected RecyclerView.LayoutManager personsLayoutManager;
+    protected PersonsViewAdapter personsViewAdapter;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -57,6 +64,20 @@ public class ListingBOF extends AppCompatActivity {
 
         setupBluetooth();
     }
+
+    public void updateUI(List<? extends IPerson> persons) {
+        personsRecyclerView.findViewById(R.id.persons_view);
+
+        // set layout manager
+        personsLayoutManager = new LinearLayoutManager(this);
+        personsRecyclerView.setLayoutManager(personsLayoutManager);
+
+        // set adapter
+        personsViewAdapter = new PersonsViewAdapter(persons);
+        personsRecyclerView.setAdapter(personsViewAdapter);
+    }
+
+
 
     private void setupBluetooth() {
         // Check if phone is bluetooth capable and if enabled
@@ -110,7 +131,9 @@ public class ListingBOF extends AppCompatActivity {
             return;
         }
 
-        Button startStopBtn = findViewById(R.id.start_stop_button);
+        Button startStopBtn = findViewById(R.id.start_stop_btn);
+        startStopBtn.setSelected(!startStopBtn.isSelected());
+
 
         if (running) {
             // Unpublish and stop Listening
