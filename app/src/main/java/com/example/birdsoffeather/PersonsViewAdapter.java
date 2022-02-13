@@ -72,7 +72,9 @@ public class PersonsViewAdapter extends RecyclerView.Adapter<PersonsViewAdapter.
             this.personNameView.setText(person.getName());
 
             // set numberOf_courses view
-            this.similarCourses_num.setText(this.person.getCourses().size());
+            int num_courses = this.person.getCourses().size();
+            String msg = "Number of courses taken together: " + String.valueOf(num_courses);
+            this.similarCourses_num.setText(msg);
 
             // set profile pic
             LoadImage loadImage = new LoadImage(personPicView);
