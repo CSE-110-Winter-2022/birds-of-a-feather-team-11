@@ -1,15 +1,13 @@
 package com.example.birdsoffeather;
 
-import androidx.activity.result.ActivityResult;
-import androidx.activity.result.ActivityResultCallback;
-import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.bluetooth.BluetoothAdapter;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -17,12 +15,14 @@ import android.widget.Toast;
 
 import com.example.birdsoffeather.model.db.AppDatabase;
 import com.example.birdsoffeather.model.db.Course;
+import com.example.birdsoffeather.model.db.IPerson;
 import com.example.birdsoffeather.model.db.Person;
 import com.example.birdsoffeather.model.db.PersonWithCourses;
 import com.google.android.gms.nearby.messages.Message;
 import com.google.android.gms.nearby.messages.MessageListener;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -43,6 +43,10 @@ public class ListingBOF extends AppCompatActivity {
 
     private PersonWithCourses selfPerson;
 
+    protected RecyclerView personsRecyclerView;
+    protected RecyclerView.LayoutManager personsLayoutManager;
+    protected PersonsViewAdapter personsViewAdapter;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -60,6 +64,31 @@ public class ListingBOF extends AppCompatActivity {
 
         setupBluetooth();
     }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+        this.future = backgroundThreadExecutor.submit(() -> {
+            updateUI(Utilities.generateSimilarityOrder(db));
+            return null;
+        });
+
+    }
+
+    public void updateUI(List<? extends IPerson> persons) {
+        personsRecyclerView.findViewById(R.id.persons_view);
+
+        // set layout manager
+        personsLayoutManager = new LinearLayoutManager(this);
+        personsRecyclerView.setLayoutManager(personsLayoutManager);
+
+        // set adapter
+        personsViewAdapter = new PersonsViewAdapter(persons);
+        personsRecyclerView.setAdapter(personsViewAdapter);
+    }
+
+
 
     private void setupBluetooth() {
         // Check if phone is bluetooth capable and if enabled
@@ -83,7 +112,11 @@ public class ListingBOF extends AppCompatActivity {
                 public void onFound(@NonNull Message message) {
                     try {
                         PersonWithCourses person = Utilities.deserializePerson(message.getContent());
-                        inputBOF(person);
+                        future = backgroundThreadExecutor.submit(() -> {
+                            Utilities.inputBOF(person, db);
+                            updateUI(Utilities.generateSimilarityOrder(db));
+                            return null;
+                        });
                     } catch (IOException | ClassNotFoundException e) {
                         e.printStackTrace();
                     }
@@ -113,7 +146,9 @@ public class ListingBOF extends AppCompatActivity {
             return;
         }
 
-        Button startStopBtn = findViewById(R.id.start_stop_button);
+        Button startStopBtn = findViewById(R.id.start_stop_btn);
+        startStopBtn.setSelected(!startStopBtn.isSelected());
+
 
         if (running) {
             // Unpublish and stop Listening
@@ -135,30 +170,6 @@ public class ListingBOF extends AppCompatActivity {
             running = true;
         }
 
-    }
-
-    public void onAddMockClicked() {
-        Intent intent = new Intent(this, NearbyMock.class);
-        startActivity(intent);
-    }
-
-    public void inputBOF(PersonWithCourses potentialBOF) {
-        Person userInfo = potentialBOF.person;
-        int personId = db.personsWithCoursesDao().count();
-        Person user = new Person(personId, userInfo.name, userInfo.profile_url);
-        db.personsWithCoursesDao().insertPerson(user);
-        List<Course> courses = potentialBOF.getCourses();
-        for (Course course : courses) {
-            if (db.coursesDao().similarCourse(course.year, course.quarter, course.subject, course.number) != 0)
-                db.coursesDao().insert(new Course(db.coursesDao().count(), personId, course.year, course.quarter, course.subject, course.number));
-        }
-        similarityOrder();
-    }
-
-    public void similarityOrder() {
-        List<Integer> orderedIds = db.coursesDao().getSimilarityOrdering();
-        List<PersonWithCourses> orderedBOFs = orderedIds.stream().map((id) -> db.personsWithCoursesDao().get(id)).collect(Collectors.toList());
-        //updateUI(orderedBOFs);
     }
 
     @Override
