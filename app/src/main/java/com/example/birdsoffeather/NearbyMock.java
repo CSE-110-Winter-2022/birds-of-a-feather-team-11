@@ -39,7 +39,7 @@ public class NearbyMock extends AppCompatActivity {
 
     }
 
-    public PersonWithCourses generatePerson(String data) {
+    public static PersonWithCourses generatePerson(String data) {
         String [] lines = data.split("\n");
         if (lines.length < 3) return null;
         String name = lines[0].split(",")[0];
