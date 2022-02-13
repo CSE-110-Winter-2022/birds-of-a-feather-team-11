@@ -6,11 +6,8 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.EditText;
 import android.widget.TextView;
-
-import java.io.IOException;
-import java.net.URL;
-import java.net.URLConnection;
 
 public class UploadPhoto extends AppCompatActivity {
 
@@ -18,18 +15,27 @@ public class UploadPhoto extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_upload_photo);
-        SharedPreferences preferences = getSharedPreferences("BoF", MODE_PRIVATE);
-        if (preferences.getString("Photo URL", null) != null) {
-            Intent intent = new Intent(this, EnterClasses.class);
-            startActivity(intent);
-            finish();
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+        // Display previously entered url if activity started using back arrow
+        SharedPreferences preferences = getSharedPreferences("BoF",MODE_PRIVATE);
+        String storedName = preferences.getString("Photo URL", null);
+
+        if (storedName != null) {
+            EditText nameEditText = findViewById(R.id.photo_url_edit_text);
+            nameEditText.setText(storedName);
         }
     }
+
     public void onSkipButtonClick(View view) {
         submitURL(getResources().getString(R.string.default_photo_url));
     }
     public void onSubmitButtonClick(View view) {
-        TextView photoURLView = findViewById(R.id.photo_url);
+        EditText photoURLView = findViewById(R.id.photo_url_edit_text);
         String photoURL = photoURLView.getText().toString();
         submitURL(photoURL);
         /*
@@ -54,6 +60,5 @@ public class UploadPhoto extends AppCompatActivity {
         editor.apply();
         Intent intent = new Intent(this, EnterClasses.class);
         startActivity(intent);
-        finish();
     }
 }

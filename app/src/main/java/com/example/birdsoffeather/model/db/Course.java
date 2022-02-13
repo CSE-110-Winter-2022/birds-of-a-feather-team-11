@@ -3,8 +3,12 @@ package com.example.birdsoffeather.model.db;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
+
+import java.io.Serializable;
+import java.util.Objects;
+
 @Entity(tableName = "courses")
-public class Course {
+public class Course implements Serializable {
     @PrimaryKey
     @ColumnInfo(name = "id")
     public int courseId;
@@ -35,5 +39,13 @@ public class Course {
 
     public String toString(){
         return year + quarter + subject+ number;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Course course = (Course) o;
+        return courseId == course.courseId && personId == course.personId && Objects.equals(year, course.year) && Objects.equals(quarter, course.quarter) && Objects.equals(subject, course.subject) && Objects.equals(number, course.number);
     }
 }

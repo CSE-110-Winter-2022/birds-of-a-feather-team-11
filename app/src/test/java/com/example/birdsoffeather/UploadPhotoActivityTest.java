@@ -54,7 +54,7 @@ public class UploadPhotoActivityTest {
 
         scenario.onActivity(activity -> {
             Button submitButton = activity.findViewById(R.id.photo_submit);
-            TextView photoURLView = activity.findViewById(R.id.photo_url);
+            TextView photoURLView = activity.findViewById(R.id.photo_url_edit_text);
             photoURLView.setText(profilePic);
 
             submitButton.performClick();

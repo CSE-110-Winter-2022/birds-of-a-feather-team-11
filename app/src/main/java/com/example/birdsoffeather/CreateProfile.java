@@ -2,6 +2,7 @@ package com.example.birdsoffeather;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.bluetooth.BluetoothAdapter;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -15,14 +16,21 @@ public class CreateProfile extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_profile);
 
-        SharedPreferences preferences = getSharedPreferences("BoF", MODE_PRIVATE);
-
-        if (preferences.getString("Name", null) != null) {
-            Intent intent = new Intent(this, UploadPhoto.class);
-            startActivity(intent);
-        }
-
         //TODO: add google fill in here
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+        // Display previously entered name if activity started using back arrow
+        SharedPreferences preferences = getSharedPreferences("BoF",MODE_PRIVATE);
+        String storedName = preferences.getString("Name", null);
+
+        if (storedName != null) {
+            EditText nameEditText = findViewById(R.id.name_edit_text);
+            nameEditText.setText(storedName);
+        }
     }
 
     public void onClickConfirm(View view) {
@@ -31,7 +39,6 @@ public class CreateProfile extends AppCompatActivity {
         String enteredName = nameEditText.getText().toString();
 
         if (isValidName(enteredName)) {
-
             SharedPreferences preferences = getSharedPreferences("BoF", MODE_PRIVATE);
             SharedPreferences.Editor editor = preferences.edit();
             editor.putString("Name", enteredName);
