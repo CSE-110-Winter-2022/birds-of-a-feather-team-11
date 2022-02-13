@@ -39,7 +39,9 @@ public class PersonDetailActivity extends AppCompatActivity {
         person = db.personsWithCoursesDao().get(personId);
         List<Course> courses = db.coursesDao().getForPerson(personId);
 
-        setTitle(person.getName());
+        // set name
+        TextView nameView = findViewById(R.id.personName);
+        nameView.setText(person.getName());
 
         // set profile pic of person
         ImageView imageView = findViewById(R.id.pd_profilePic);

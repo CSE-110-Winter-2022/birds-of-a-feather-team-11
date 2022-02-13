@@ -1,30 +1,14 @@
 package com.example.birdsoffeather;
 
+import android.bluetooth.BluetoothAdapter;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 
 import com.example.birdsoffeather.model.db.AppDatabase;
-import com.example.birdsoffeather.model.db.Course;
-import com.example.birdsoffeather.model.db.Person;
-import com.google.android.material.snackbar.Snackbar;
 
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
-
-import android.view.View;
-
-import androidx.navigation.NavController;
-import androidx.navigation.Navigation;
-import androidx.navigation.ui.AppBarConfiguration;
-import androidx.navigation.ui.NavigationUI;
-import androidx.recyclerview.widget.RecyclerView;
-
-import com.example.birdsoffeather.databinding.ActivityMainBinding;
-
-import android.view.Menu;
-import android.view.MenuItem;
-
-import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -35,15 +19,30 @@ public class MainActivity extends AppCompatActivity {
     private ExecutorService backgroundThreadExecutor = Executors.newSingleThreadExecutor();
     private Future<Void> future;
 
-    protected RecyclerView personsRecyclerView;
-    protected RecyclerView.LayoutManager personsLayoutManager;
-    protected PersonsViewAdapter personsViewAdapter;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
+
         clearBOFs();
-        SharedPreferences preferences = getPreferences(MODE_PRIVATE);
+
+        SharedPreferences preferences = getSharedPreferences("BoF", MODE_PRIVATE);
+
+        BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+
+        // If Bluetooth capable and Bluetooth off, request to turn on (let them pass even if they deny)
+        if (bluetoothAdapter != null && !bluetoothAdapter.isEnabled()) {
+            Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+            registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
+                nextActivity(preferences);
+            }).launch(enableBtIntent);
+
+        } else {
+            nextActivity(preferences);
+        }
+    }
+
+    public void nextActivity(SharedPreferences preferences) {
         Intent intent;
         if (preferences.getBoolean("Entered Classes", false))
             intent = new Intent(this, ListingBOF.class);

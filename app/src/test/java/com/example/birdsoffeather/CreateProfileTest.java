@@ -44,7 +44,7 @@ public class CreateProfileTest {
             Button button = activity.findViewById(R.id.confirm_button);
             button.performClick();
 
-            SharedPreferences preferences = activity.getPreferences(Context.MODE_PRIVATE);
+            SharedPreferences preferences = activity.getSharedPreferences("BoF", Context.MODE_PRIVATE);
             assertEquals("John", preferences.getString("Name", null));
         });
     }

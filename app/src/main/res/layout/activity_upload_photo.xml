@@ -7,7 +7,7 @@
     tools:context=".UploadPhoto">
 
     <EditText
-        android:id="@+id/photo_url"
+        android:id="@+id/photo_url_edit_text"
         android:layout_width="329dp"
         android:layout_height="49dp"
         android:layout_marginStart="34dp"
@@ -35,7 +35,7 @@
         app:layout_constraintBottom_toTopOf="@+id/photo_skip"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/photo_url" />
+        app:layout_constraintTop_toBottomOf="@+id/photo_url_edit_text" />
 
     <Button
         android:id="@+id/photo_skip"
@@ -62,7 +62,7 @@
         android:layout_marginBottom="16dp"
         android:text="@string/please_provide_a_url_that_contains_a_headshot_photo_of_yourself"
         android:textSize="20sp"
-        app:layout_constraintBottom_toTopOf="@+id/photo_url"
+        app:layout_constraintBottom_toTopOf="@+id/photo_url_edit_text"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />

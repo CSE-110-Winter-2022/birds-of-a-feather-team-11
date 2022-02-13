@@ -43,7 +43,7 @@ public class EnterClasses extends AppCompatActivity{
             db.coursesDao().deleteAll();
             db.personsWithCoursesDao().deleteAll();
 
-            SharedPreferences preferences = getPreferences(MODE_PRIVATE);
+            SharedPreferences preferences = getSharedPreferences("BoF", MODE_PRIVATE);
             String name = preferences.getString("name", "No Name");
             String url = preferences.getString("Photo URL", "No URL");
 
@@ -119,13 +119,12 @@ public class EnterClasses extends AppCompatActivity{
         if (counter == 0) {
             Utilities.showAlert(this, "You must enter in at least one class!");
         } else {
-            SharedPreferences preferences = getPreferences(MODE_PRIVATE);
+            SharedPreferences preferences = getSharedPreferences("BoF", MODE_PRIVATE);
             SharedPreferences.Editor editor = preferences.edit();
             editor.putBoolean("Entered Classes", true);
             editor.apply();
             Intent intent = new Intent(this, ListingBOF.class);
             startActivity(intent);
-            finish();
         }
     }
 

@@ -52,19 +52,27 @@ public class PersonsViewAdapter extends RecyclerView.Adapter<PersonsViewAdapter.
     /** VIewHolder class */
     public static class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         private final TextView personNameView;
+        private final TextView similarCourses_num;
         private final ImageView personPicView;
         private IPerson person;
 
         ViewHolder(View itemView) {
             super(itemView);
             this.personNameView = itemView.findViewById(R.id.person_row_name);
+            this.similarCourses_num = itemView.findViewById(R.id.numberOf_courses);
             this.personPicView = itemView.findViewById(R.id.profile_pic);
             itemView.setOnClickListener(this);
         }
 
         public void setPerson(IPerson person) {
+
             this.person = person;
+
+            // set name view
             this.personNameView.setText(person.getName());
+
+            // set numberOf_courses view
+            this.similarCourses_num.setText(this.person.getCourses().size());
 
             // set profile pic
             LoadImage loadImage = new LoadImage(personPicView);

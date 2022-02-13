@@ -6,6 +6,7 @@
     android:layout_height="match_parent"
     tools:context=".ListingBOF">
 
+
     <TextView
         android:id="@+id/bof_title"
         android:layout_width="wrap_content"
@@ -24,6 +25,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
+        android:text="START"
+        android:onClick="onStartStopClicked"
         android:backgroundTint="@drawable/button_text_color"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
@@ -34,8 +37,21 @@
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/persons_view"
-        android:layout_width="409dp"
-        android:layout_height="652dp"
-        tools:layout_editor_absoluteX="1dp"
-        tools:layout_editor_absoluteY="78dp" />
+        android:layout_width="370dp"
+        android:layout_height="620dp"
+        android:layout_marginStart="50dp"
+        android:layout_marginEnd="50dp"
+        android:layout_marginBottom="20dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <Button
+        android:id="@+id/button2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Add mock"
+        tools:layout_editor_absoluteX="288dp"
+        tools:layout_editor_absoluteY="28dp" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>
