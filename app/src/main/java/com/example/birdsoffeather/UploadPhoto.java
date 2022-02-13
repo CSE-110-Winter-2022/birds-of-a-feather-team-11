@@ -15,12 +15,6 @@ public class UploadPhoto extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_upload_photo);
-
-        SharedPreferences preferences = getSharedPreferences("BoF", MODE_PRIVATE);
-        if (preferences.getString("Photo URL", null) != null) {
-            Intent intent = new Intent(this, EnterClasses.class);
-            startActivity(intent);
-        }
     }
 
     @Override

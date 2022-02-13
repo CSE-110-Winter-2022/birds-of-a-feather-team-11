@@ -46,7 +46,7 @@ public class EnterClassesUnitTest {
 
         scenario.onActivity(activity -> {
             backgroundThreadExecutor.submit(() -> {
-                AppDatabase db = AppDatabase.useTestSingleton(getApplicationContext());
+                AppDatabase db = AppDatabase.singleton(getApplicationContext());
                 List<Course> before = db.coursesDao().getForPerson(0);
 
                 assertEquals(0, before.size());
@@ -70,7 +70,7 @@ public class EnterClassesUnitTest {
 
         scenario.onActivity(activity -> {
             backgroundThreadExecutor.submit(() -> {
-                AppDatabase db = AppDatabase.useTestSingleton(getApplicationContext());
+                AppDatabase db = AppDatabase.singleton(getApplicationContext());
                 EditText subjectView = activity.findViewById(R.id.subject_input);
                 EditText numView = activity.findViewById(R.id.course_nbr_input);
                 subjectView.setText("CSE");
@@ -99,7 +99,7 @@ public class EnterClassesUnitTest {
 
         scenario.onActivity(activity -> {
             backgroundThreadExecutor.submit(() -> {
-                AppDatabase db = AppDatabase.useTestSingleton(getApplicationContext());
+                AppDatabase db = AppDatabase.singleton(getApplicationContext());
                 EditText subjectView = activity.findViewById(R.id.subject_input);
                 EditText numView = activity.findViewById(R.id.course_nbr_input);
                 Spinner yearSpinner = activity.findViewById(R.id.year_input);

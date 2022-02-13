@@ -125,7 +125,6 @@ public class EnterClasses extends AppCompatActivity{
             editor.apply();
             Intent intent = new Intent(this, ListingBOF.class);
             startActivity(intent);
-            finish();
         }
     }
 

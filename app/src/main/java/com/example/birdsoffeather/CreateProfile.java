@@ -16,15 +16,6 @@ public class CreateProfile extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_create_profile);
 
-        SharedPreferences preferences = getSharedPreferences("BoF", MODE_PRIVATE);
-        String storedName = preferences.getString("Name", null);
-
-        if (storedName != null) {
-            Intent intent = new Intent(this, UploadPhoto.class);
-            startActivity(intent);
-        }
-
-
         //TODO: add google fill in here
     }
 
@@ -48,7 +39,6 @@ public class CreateProfile extends AppCompatActivity {
         String enteredName = nameEditText.getText().toString();
 
         if (isValidName(enteredName)) {
-
             SharedPreferences preferences = getSharedPreferences("BoF", MODE_PRIVATE);
             SharedPreferences.Editor editor = preferences.edit();
             editor.putString("Name", enteredName);

@@ -54,7 +54,6 @@ public class MainActivity extends AppCompatActivity {
         else
             intent = new Intent(this, CreateProfile.class);
         startActivity(intent);
-        finish();
     }
 
     public void clearBOFs() {
