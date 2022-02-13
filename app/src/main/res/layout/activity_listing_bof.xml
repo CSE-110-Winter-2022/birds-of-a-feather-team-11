@@ -48,11 +48,12 @@
         app:layout_constraintStart_toStartOf="parent" />
 
     <Button
-        android:id="@+id/button2"
+        android:id="@+id/add_mock"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="28dp"
         android:layout_marginBottom="15dp"
+        android:onClick="onAddMockClicked"
         android:text="Add mock"
         app:layout_constraintBottom_toTopOf="@+id/persons_view"
         app:layout_constraintEnd_toEndOf="parent"

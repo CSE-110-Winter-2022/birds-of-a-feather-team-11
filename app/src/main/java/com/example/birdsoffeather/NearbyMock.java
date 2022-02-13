@@ -2,6 +2,7 @@ package com.example.birdsoffeather;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.EditText;
@@ -12,6 +13,7 @@ import com.example.birdsoffeather.model.db.Course;
 import com.example.birdsoffeather.model.db.Person;
 import com.example.birdsoffeather.model.db.PersonWithCourses;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,8 +31,9 @@ public class NearbyMock extends AppCompatActivity {
         String entryData = personEntryEditText.getText().toString();
         PersonWithCourses person = generatePerson(entryData);
 
+        // If successful, clear text and add to database
         if (person != null) {
-            //Utilities.inputBOF(person, AppDatabase.singleton(getApplicationContext()));
+            Utilities.inputBOF(person, AppDatabase.singleton(getApplicationContext()));
             personEntryEditText.setText("");
             Toast.makeText(this, "Added person successfully", Toast.LENGTH_SHORT).show();
         } else {
@@ -39,6 +42,10 @@ public class NearbyMock extends AppCompatActivity {
 
     }
 
+    /*
+    Helper method to create a PersonWithCourses object using a CSV-like input
+    Returns null if
+     */
     public static PersonWithCourses generatePerson(String data) {
         String [] lines = data.split("\n");
         if (lines.length < 3) return null;

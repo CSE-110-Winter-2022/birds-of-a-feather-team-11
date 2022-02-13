@@ -172,6 +172,11 @@ public class ListingBOF extends AppCompatActivity {
 
     }
 
+    public void onAddMockClicked(View view) {
+        Intent intent = new Intent(this, NearbyMock.class);
+        startActivity(intent);
+    }
+
     @Override
     protected void onDestroy() {
         super.onDestroy();
