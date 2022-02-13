@@ -9,7 +9,6 @@ import com.example.birdsoffeather.model.db.AppDatabase;
 
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
-
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -52,7 +51,7 @@ public class MainActivity extends AppCompatActivity {
         else if (preferences.getString("Name", null) != null)
             intent = new Intent(this, UploadPhoto.class);
         else
-            intent = new Intent(this, CreateProfile.class);
+            intent = new Intent(this, GoogleSignInPrompt.class);
         startActivity(intent);
     }
 
