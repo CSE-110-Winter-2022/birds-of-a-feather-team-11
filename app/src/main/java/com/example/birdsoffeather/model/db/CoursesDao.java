@@ -29,7 +29,7 @@ public interface CoursesDao {
     @Query("DELETE FROM courses")
     void deleteAll();
 
-    @Query("SELECT person_id FROM courses GROUP BY person_id ORDER BY COUNT(*) DESC")
+    @Query("SELECT person_id FROM courses WHERE person_id != 0 GROUP BY person_id ORDER BY COUNT(*) DESC")
     List<Integer> getSimilarityOrdering();
 
     @Query("SELECT COUNT(*) FROM courses WHERE person_id = 0 AND year=:year AND quarter=:quarter AND subject=:subject AND number=:number")

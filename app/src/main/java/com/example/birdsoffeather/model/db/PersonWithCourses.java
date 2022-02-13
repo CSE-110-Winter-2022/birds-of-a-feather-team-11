@@ -27,4 +27,11 @@ public class PersonWithCourses{
         return this.courses;
     }
 
+    public PersonWithCourses() {}
+
+    public PersonWithCourses(Person person, List<Course> courses) {
+        this.person = person;
+        this.courses = courses;
+    }
+
 }

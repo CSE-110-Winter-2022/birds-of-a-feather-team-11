@@ -119,7 +119,7 @@ public class EnterClasses extends AppCompatActivity{
         if (counter == 0) {
             Utilities.showAlert(this, "You must enter in at least one class!");
         } else {
-            SharedPreferences preferences = getPreferences(MODE_PRIVATE);
+            SharedPreferences preferences = getSharedPreferences("BoF", MODE_PRIVATE);
             SharedPreferences.Editor editor = preferences.edit();
             editor.putBoolean("Entered Classes", true);
             editor.apply();
