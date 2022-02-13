@@ -1,5 +1,8 @@
 package com.example.birdsoffeather;
 
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -132,6 +135,11 @@ public class ListingBOF extends AppCompatActivity {
             running = true;
         }
 
+    }
+
+    public void onAddMockClicked() {
+        Intent intent = new Intent(this, NearbyMock.class);
+        startActivity(intent);
     }
 
     public void inputBOF(PersonWithCourses potentialBOF) {
