@@ -16,12 +16,8 @@ public class UploadPhoto extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_upload_photo);
 
-        // Jump to next activity if url set
-        SharedPreferences preferences = getPreferences(MODE_PRIVATE);
-        String storedName = preferences.getString("Photo URL", null);
-
-        if (storedName != null) {
-
+        SharedPreferences preferences = getSharedPreferences("BoF", MODE_PRIVATE);
+        if (preferences.getString("Photo URL", null) != null) {
             Intent intent = new Intent(this, EnterClasses.class);
             startActivity(intent);
         }
@@ -64,7 +60,7 @@ public class UploadPhoto extends AppCompatActivity {
     }
 
     public void submitURL(String url) {
-        SharedPreferences preferences = getPreferences(MODE_PRIVATE);
+        SharedPreferences preferences = getSharedPreferences("BoF", MODE_PRIVATE);
         SharedPreferences.Editor editor = preferences.edit();
         editor.putString("Photo URL", url);
         editor.apply();

@@ -37,7 +37,6 @@ public class ListingBOF extends AppCompatActivity {
     private ExecutorService backgroundThreadExecutor = Executors.newSingleThreadExecutor();
     private Future<Void> future;
 
-    private List<PersonWithCourses> orderedBOFs = new ArrayList<>();
 
     private boolean running;
     private BluetoothAdapter bluetoothAdapter;
@@ -141,28 +140,22 @@ public class ListingBOF extends AppCompatActivity {
     }
 
     public void inputBOF(PersonWithCourses potentialBOF) {
-        this.future = backgroundThreadExecutor.submit(() -> {
-            Person userInfo = potentialBOF.person;
-            int personId = db.personsWithCoursesDao().count();
-            Person user = new Person(personId, userInfo.name, userInfo.profile_url);
-            db.personsWithCoursesDao().insertPerson(user);
-            List<Course> courses = potentialBOF.getCourses();
-            for (Course course : courses) {
-                if (db.coursesDao().similarCourse(course.year, course.quarter, course.subject, course.number) != 0)
-                    db.coursesDao().insert(new Course(db.coursesDao().count(), personId, course.year, course.quarter, course.subject, course.number));
-            }
-            return null;
-        });
-
-        // call function to re-render UI
+        Person userInfo = potentialBOF.person;
+        int personId = db.personsWithCoursesDao().count();
+        Person user = new Person(personId, userInfo.name, userInfo.profile_url);
+        db.personsWithCoursesDao().insertPerson(user);
+        List<Course> courses = potentialBOF.getCourses();
+        for (Course course : courses) {
+            if (db.coursesDao().similarCourse(course.year, course.quarter, course.subject, course.number) != 0)
+                db.coursesDao().insert(new Course(db.coursesDao().count(), personId, course.year, course.quarter, course.subject, course.number));
+        }
+        similarityOrder();
     }
 
     public void similarityOrder() {
-        this.future = backgroundThreadExecutor.submit(() -> {
-            List<Integer> orderedIds = db.coursesDao().getSimilarityOrdering();
-            orderedBOFs = orderedIds.stream().map((id) -> db.personsWithCoursesDao().get(id)).collect(Collectors.toList());
-            return null;
-        });
+        List<Integer> orderedIds = db.coursesDao().getSimilarityOrdering();
+        List<PersonWithCourses> orderedBOFs = orderedIds.stream().map((id) -> db.personsWithCoursesDao().get(id)).collect(Collectors.toList());
+        //updateUI(orderedBOFs);
     }
 
     @Override

@@ -36,4 +36,12 @@ public class PersonWithCourses implements Serializable {
         PersonWithCourses person1 = (PersonWithCourses) o;
         return Objects.equals(person, person1.person) && Objects.equals(courses, person1.courses);
     }
+
+    public PersonWithCourses() {}
+
+    public PersonWithCourses(Person person, List<Course> courses) {
+        this.person = person;
+        this.courses = courses;
+    }
+
 }

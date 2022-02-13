@@ -38,7 +38,7 @@ public class UploadPhotoActivityTest {
             Button skipButton = activity.findViewById(R.id.photo_skip);
 
             skipButton.performClick();
-            SharedPreferences preferences = activity.getPreferences(Context.MODE_PRIVATE);
+            SharedPreferences preferences = activity.getSharedPreferences("BoF", Context.MODE_PRIVATE);
             assertEquals(defaultPhoto, preferences.getString("Photo URL", null));
 
         });
@@ -58,7 +58,7 @@ public class UploadPhotoActivityTest {
             photoURLView.setText(profilePic);
 
             submitButton.performClick();
-            SharedPreferences preferences = activity.getPreferences(Context.MODE_PRIVATE);
+            SharedPreferences preferences = activity.getSharedPreferences("BoF", Context.MODE_PRIVATE);
             assertEquals(profilePic, preferences.getString("Photo URL", null));
         });
     }

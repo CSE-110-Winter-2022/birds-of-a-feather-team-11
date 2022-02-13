@@ -27,7 +27,7 @@ public class MainActivity extends AppCompatActivity {
 
         clearBOFs();
 
-        SharedPreferences preferences = getPreferences(MODE_PRIVATE);
+        SharedPreferences preferences = getSharedPreferences("BoF", MODE_PRIVATE);
 
         BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 
@@ -55,7 +55,6 @@ public class MainActivity extends AppCompatActivity {
             intent = new Intent(this, CreateProfile.class);
         startActivity(intent);
         finish();
-
     }
 
     public void clearBOFs() {
