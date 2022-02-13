@@ -144,13 +144,14 @@ public class ListingBOF extends AppCompatActivity {
             if (db.coursesDao().similarCourse(course.year, course.quarter, course.subject, course.number) != 0)
                 db.coursesDao().insert(new Course(db.coursesDao().count(), personId, course.year, course.quarter, course.subject, course.number));
         }
-        similarityOrder();
+        generateSimilarityOrder();
     }
 
-    public void similarityOrder() {
+    public List<PersonWithCourses> generateSimilarityOrder() {
         List<Integer> orderedIds = db.coursesDao().getSimilarityOrdering();
         List<PersonWithCourses> orderedBOFs = orderedIds.stream().map((id) -> db.personsWithCoursesDao().get(id)).collect(Collectors.toList());
         //updateUI(orderedBOFs);
+        return orderedBOFs;
     }
 
     @Override
