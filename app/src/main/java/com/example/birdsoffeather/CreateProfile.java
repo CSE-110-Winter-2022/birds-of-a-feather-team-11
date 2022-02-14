@@ -67,6 +67,8 @@ public class CreateProfile extends AppCompatActivity {
             editor.putString("Name", enteredName);
             editor.apply();
 
+            Log.i("Shared Preferences", "Name set to be: "+ enteredName);
+
             Intent intent = new Intent(this, UploadPhoto.class);
             startActivity(intent);
         } else {
