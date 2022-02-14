@@ -1,6 +1,7 @@
 package com.example.birdsoffeather;
 
 import android.content.Context;
+import android.util.Log;
 
 import com.example.birdsoffeather.model.db.Person;
 import com.google.android.gms.nearby.Nearby;
@@ -24,17 +25,21 @@ public class BluetoothModule {
 
     public void publish() {
         Nearby.getMessagesClient(context).publish(message);
+        Log.i("Bluetooth","User's Message Published");
     }
 
     public void unpublish() {
         Nearby.getMessagesClient(context).unpublish(message);
+        Log.i("Bluetooth","User's Message Unpublished");
     }
 
     public void subscribe() {
         Nearby.getMessagesClient(context).subscribe(messageListener);
+        Log.i("Bluetooth","Listening to Messages");
     }
 
     public void unsubscribe() {
         Nearby.getMessagesClient(context).unsubscribe(messageListener);
+        Log.i("Bluetooth","Stopped listening for Messages");
     }
 }
