@@ -1,6 +1,7 @@
 package com.example.birdsoffeather;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -49,5 +50,23 @@ public class CreateProfileTest {
         });
     }
 
+    @Test
+    public void modifyNameFailTest() {
+
+        ActivityScenario<CreateProfile> scenario = scenarioRule.getScenario();
+
+        scenario.moveToState(Lifecycle.State.CREATED);
+
+        scenario.onActivity(activity -> {
+            EditText nameEditText = activity.findViewById(R.id.name_edit_text);
+            nameEditText.setText("");
+
+            Button button = activity.findViewById(R.id.confirm_button);
+            button.performClick();
+
+            SharedPreferences preferences = activity.getSharedPreferences("BoF", Context.MODE_PRIVATE);
+            assertEquals(null, preferences.getString("Name", null));
+        });
+    }
 
 }

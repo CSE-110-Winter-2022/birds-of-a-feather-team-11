@@ -45,7 +45,7 @@ public class EnterClasses extends AppCompatActivity{
             db.personsWithCoursesDao().deleteAll();
 
             SharedPreferences preferences = getSharedPreferences("BoF", MODE_PRIVATE);
-            String name = preferences.getString("name", "No Name");
+            String name = preferences.getString("Name", "No Name");
             String url = preferences.getString("Photo URL", "No URL");
 
             Person user = new Person(0, name, url);
@@ -70,6 +70,11 @@ public class EnterClasses extends AppCompatActivity{
 
     }
 
+    /**
+     * Inputs the filled out class into the database when enter is clicked
+     *
+     * @param view
+     */
     public void onEnterClicked(View view) {
         int personId = 0;
         Spinner yearInput = findViewById(R.id.year_input);
@@ -109,6 +114,13 @@ public class EnterClasses extends AppCompatActivity{
 
     }
 
+    /**
+     * Checks if the course entered has already been entered by the user
+     *
+     * @param newCourse the course just entered by the user
+     * @param courses list of courses already entered by the user
+     * @return whether or not the course had already been entered by the user
+     */
     public boolean isDuplicate(Course newCourse, List<Course> courses){
         for(Course c: courses)
             if (c.year.equals(newCourse.year) && c.quarter.equals(newCourse.quarter) && c.subject.equals(newCourse.subject) && c.number.equals(newCourse.number)) {
@@ -118,6 +130,11 @@ public class EnterClasses extends AppCompatActivity{
         return false;
     }
 
+    /**
+     * Indicates that the user's classes have been entered when the done button is clicked.
+     *
+     * @param view
+     */
     public void onDoneClicked(View view) {
         if (counter == 0) {
             Utilities.showAlert(this, "You must enter in at least one class!");
@@ -126,6 +143,7 @@ public class EnterClasses extends AppCompatActivity{
             SharedPreferences.Editor editor = preferences.edit();
             editor.putBoolean("Entered Classes", true);
             editor.apply();
+            Log.i("Shared Preferences", "Done adding classes");
             Intent intent = new Intent(this, ListingBOF.class);
             startActivity(intent);
         }
