@@ -91,9 +91,7 @@ public class EnterClasses extends AppCompatActivity{
         }
 
         this.future = backgroundThreadExecutor.submit(() -> {
-            int newCourseId = db.coursesDao().count() + 1;
-
-            Course newCourse = new Course(newCourseId, personId, courseYear, courseQuarter, courseSubject, courseNumber);
+            Course newCourse = new Course(personId, courseYear, courseQuarter, courseSubject, courseNumber);
             if(isDuplicate(newCourse, db.coursesDao().getForPerson(personId))){
                 runOnUiThread(() -> {
                     Utilities.showAlert(this, "Duplicate Entry");

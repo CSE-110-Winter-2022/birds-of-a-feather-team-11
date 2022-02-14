@@ -9,7 +9,7 @@ import java.util.Objects;
 
 @Entity(tableName = "courses")
 public class Course implements Serializable {
-    @PrimaryKey
+    @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "id")
     public int courseId;
 
@@ -28,8 +28,7 @@ public class Course implements Serializable {
     @ColumnInfo(name = "number")
     public String number;
 
-    public Course(int courseId, int personId, String year, String quarter, String subject, String number) {
-        this.courseId = courseId;
+    public Course(int personId, String year, String quarter, String subject, String number) {
         this.personId = personId;
         this.year = year;
         this.quarter = quarter;

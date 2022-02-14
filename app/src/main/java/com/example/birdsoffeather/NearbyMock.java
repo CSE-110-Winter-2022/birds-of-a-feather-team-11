@@ -27,6 +27,7 @@ public class NearbyMock extends AppCompatActivity {
 
 
     public void onAddButtonClicked(View view) {
+        Toast.makeText(this, "L Added person successfully", Toast.LENGTH_SHORT).show();
         EditText personEntryEditText = findViewById(R.id.person_entry_edit_text);
         String entryData = personEntryEditText.getText().toString();
         PersonWithCourses person = generatePerson(entryData);
@@ -53,17 +54,15 @@ public class NearbyMock extends AppCompatActivity {
         String uri = lines[1].split(",")[0];
         Person person = new Person(0, name, uri);
         List<Course> courseList = new ArrayList<>();
-
         for (int i = 2; i < lines.length; i++) {
             if (lines[i].length() == 0) continue;
             String [] course = lines[i].split(",");
             if (course.length != 4) {
                 return null;
             }
-            courseList.add(new Course(0, 0, course[0], course[1], course[2], course[3]));
+            courseList.add(new Course(0, course[0], course[1], course[2], course[3]));
 
         }
-
         PersonWithCourses personWithCourses = new PersonWithCourses();
         personWithCourses.person = person;
         personWithCourses.courses = courseList;

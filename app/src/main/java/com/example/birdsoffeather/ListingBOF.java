@@ -68,7 +68,6 @@ public class ListingBOF extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-
         this.future = backgroundThreadExecutor.submit(() -> {
             updateUI(Utilities.generateSimilarityOrder(db));
             return null;
