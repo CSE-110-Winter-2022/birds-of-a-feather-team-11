@@ -53,7 +53,7 @@ public class PersonDetailActivity extends AppCompatActivity {
         coursesLayoutManager = new LinearLayoutManager(this);
         coursesRecyclerView.setLayoutManager(coursesLayoutManager);
 
-        coursesViewAdapter = new CourseViewAdapter(courses, (course -> db.coursesDao().delete(course)));
+        coursesViewAdapter = new CourseViewAdapter(courses);
         coursesRecyclerView.setAdapter(coursesViewAdapter);
     }
 

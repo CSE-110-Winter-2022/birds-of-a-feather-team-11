@@ -18,7 +18,7 @@ public class CourseViewAdapter extends RecyclerView.Adapter<CourseViewAdapter.Vi
 
     private final List<Course> courses;
 
-    public CourseViewAdapter(List<Course> courses, Consumer<Course> onCourseRemoved) {
+    public CourseViewAdapter(List<Course> courses) {
         super();
         this.courses = courses;
     }

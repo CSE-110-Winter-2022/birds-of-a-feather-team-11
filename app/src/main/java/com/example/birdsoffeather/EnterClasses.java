@@ -99,7 +99,7 @@ public class EnterClasses extends AppCompatActivity{
 
         this.future = backgroundThreadExecutor.submit(() -> {
             Course newCourse = new Course(personId, courseYear, courseQuarter, courseSubject, courseNumber);
-            if(isDuplicate(newCourse, db.coursesDao().getForPerson(personId))){
+            if(Utilities.isDuplicate(newCourse, db.coursesDao().getForPerson(personId))){
                 runOnUiThread(() -> {
                     Utilities.showAlert(this, "Duplicate Entry");
                 });
@@ -112,22 +112,6 @@ public class EnterClasses extends AppCompatActivity{
             return null;
         });
 
-    }
-
-    /**
-     * Checks if the course entered has already been entered by the user
-     *
-     * @param newCourse the course just entered by the user
-     * @param courses list of courses already entered by the user
-     * @return whether or not the course had already been entered by the user
-     */
-    public boolean isDuplicate(Course newCourse, List<Course> courses){
-        for(Course c: courses)
-            if (c.year.equals(newCourse.year) && c.quarter.equals(newCourse.quarter) && c.subject.equals(newCourse.subject) && c.number.equals(newCourse.number)) {
-                Log.i("database", "Duplicate course: " + c.toString());
-                return true;
-            }
-        return false;
     }
 
     /**
