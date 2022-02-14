@@ -36,9 +36,9 @@ public class DBQueryingUnitTest {
         Person user = new Person(0, "user", "");
         db.personsWithCoursesDao().insertPerson(user);
         ArrayList<Course> courses= new ArrayList<>();
-        courses.add(new Course(0,0,"2021", "FA", "CSE", "110"));
-        courses.add(new Course(1,0,"2021", "FA", "CSE", "10"));
-        courses.add(new Course(2,0,"2021", "FA", "CSE", "12"));
+        courses.add(new Course(0,0,"2021", "Fall", "CSE", "110"));
+        courses.add(new Course(1,0,"2021", "Fall", "CSE", "10"));
+        courses.add(new Course(2,0,"2021", "Fall", "CSE", "12"));
 
         db.coursesDao().insert(courses.get(0));
         db.coursesDao().insert(courses.get(1));
@@ -47,23 +47,23 @@ public class DBQueryingUnitTest {
         testPersons.add(new PersonWithCourses(new Person(0,"person 1",""), courses));
 
         courses = new ArrayList<>();
-        courses.add(new Course(0,0,"2021", "FA", "ECE", "110"));
-        courses.add(new Course(1,0,"2021", "SP", "CSE", "10"));
-        courses.add(new Course(2,0,"2021", "FA", "CSE", "12"));
+        courses.add(new Course(0,0,"2021", "Fall", "ECE", "110"));
+        courses.add(new Course(1,0,"2021", "Spring", "CSE", "10"));
+        courses.add(new Course(2,0,"2021", "Fall", "CSE", "12"));
 
         testPersons.add(new PersonWithCourses(new Person(0,"person 2",""), courses));
 
         courses = new ArrayList<>();
-        courses.add(new Course(0,0,"2019", "FA", "CSE", "110"));
-        courses.add(new Course(1,0,"2021", "FA", "CSE", "10"));
-        courses.add(new Course(2,0,"2021", "FA", "CSE", "12"));
+        courses.add(new Course(0,0,"2019", "Fall", "CSE", "110"));
+        courses.add(new Course(1,0,"2021", "Fall", "CSE", "10"));
+        courses.add(new Course(2,0,"2021", "Fall", "CSE", "12"));
 
         testPersons.add(new PersonWithCourses(new Person(0,"person 3",""), courses));
 
         courses = new ArrayList<>();
-        courses.add(new Course(0,0,"2019", "SP", "MAE", "110"));
-        courses.add(new Course(1,0,"2020", "FA", "ECE", "10"));
-        courses.add(new Course(2,0,"2015", "SP", "MAE", "1"));
+        courses.add(new Course(0,0,"2019", "Spring", "MAE", "110"));
+        courses.add(new Course(1,0,"2020", "Fall", "ECE", "10"));
+        courses.add(new Course(2,0,"2015", "Spring", "MAE", "1"));
 
         testPersons.add(new PersonWithCourses(new Person(0,"person 4",""), courses));
     }
@@ -79,8 +79,8 @@ public class DBQueryingUnitTest {
 
             backgroundThreadExecutor.submit(() -> {
                 addPersons();
-                int similarClass = db.coursesDao().similarCourse("2021", "FA", "CSE", "110");
-                int notSimilarClass = db.coursesDao().similarCourse("2019", "FA", "CSE", "110");
+                int similarClass = db.coursesDao().similarCourse("2021", "Fall", "CSE", "110");
+                int notSimilarClass = db.coursesDao().similarCourse("2019", "Fall", "CSE", "110");
 
                 assertNotEquals(0, similarClass); //There should be a match in the database
                 assertEquals(0, notSimilarClass); //There should not be a match in the database
@@ -91,6 +91,7 @@ public class DBQueryingUnitTest {
             });
         });
     }
+
 
     @Test
     public void addOneBOFTest() {
@@ -197,6 +198,28 @@ public class DBQueryingUnitTest {
 
         });
 
+    }
+
+    @Test
+    public  void getSimilarityOrderingTest(){
+        ActivityScenario<ListingBOF> scenario = scenarioRule.getScenario();
+
+        scenario.moveToState(Lifecycle.State.CREATED);
+
+        scenario.onActivity(activity -> {
+            db = AppDatabase.singleton(getApplicationContext());
+
+            backgroundThreadExecutor.submit(() -> {
+                addPersons();
+                for (int i = 0; i < testPersons.size(); i++) {
+                    Utilities.inputBOF(testPersons.get(i), db);
+                }
+                List<Integer> orderingByID = db.coursesDao().getSimilarityOrdering();
+                assertEquals(1, (int) orderingByID.get(0));
+                assertEquals(3, (int) orderingByID.get(1));
+                assertEquals(2, (int) orderingByID.get(2));
+            });
+        });
     }
 
     @Test
