@@ -36,9 +36,9 @@ public class DBQueryingUnitTest {
         Person user = new Person(0, "user", "");
         db.personsWithCoursesDao().insertPerson(user);
         ArrayList<Course> courses= new ArrayList<>();
-        courses.add(new Course(0,0,"2021", "Fall", "CSE", "110"));
-        courses.add(new Course(1,0,"2021", "Fall", "CSE", "10"));
-        courses.add(new Course(2,0,"2021", "Fall", "CSE", "12"));
+        courses.add(new Course(0,"2021", "Fall", "CSE", "110"));
+        courses.add(new Course(0,"2021", "Fall", "CSE", "10"));
+        courses.add(new Course(0,"2021", "Fall", "CSE", "12"));
 
         db.coursesDao().insert(courses.get(0));
         db.coursesDao().insert(courses.get(1));
@@ -47,23 +47,23 @@ public class DBQueryingUnitTest {
         testPersons.add(new PersonWithCourses(new Person(0,"person 1",""), courses));
 
         courses = new ArrayList<>();
-        courses.add(new Course(0,0,"2021", "Fall", "ECE", "110"));
-        courses.add(new Course(1,0,"2021", "Spring", "CSE", "10"));
-        courses.add(new Course(2,0,"2021", "Fall", "CSE", "12"));
+        courses.add(new Course(0,"2021", "Fall", "ECE", "110"));
+        courses.add(new Course(0,"2021", "Spring", "CSE", "10"));
+        courses.add(new Course(0,"2021", "Fall", "CSE", "12"));
 
         testPersons.add(new PersonWithCourses(new Person(0,"person 2",""), courses));
 
         courses = new ArrayList<>();
-        courses.add(new Course(0,0,"2019", "Fall", "CSE", "110"));
-        courses.add(new Course(1,0,"2021", "Fall", "CSE", "10"));
-        courses.add(new Course(2,0,"2021", "Fall", "CSE", "12"));
+        courses.add(new Course(0,"2019", "Fall", "CSE", "110"));
+        courses.add(new Course(0,"2021", "Fall", "CSE", "10"));
+        courses.add(new Course(0,"2021", "Fall", "CSE", "12"));
 
         testPersons.add(new PersonWithCourses(new Person(0,"person 3",""), courses));
 
         courses = new ArrayList<>();
-        courses.add(new Course(0,0,"2019", "Spring", "MAE", "110"));
-        courses.add(new Course(1,0,"2020", "Fall", "ECE", "10"));
-        courses.add(new Course(2,0,"2015", "Spring", "MAE", "1"));
+        courses.add(new Course(0,"2019", "Spring", "MAE", "110"));
+        courses.add(new Course(0,"2020", "Fall", "ECE", "10"));
+        courses.add(new Course(0,"2015", "Spring", "MAE", "1"));
 
         testPersons.add(new PersonWithCourses(new Person(0,"person 4",""), courses));
     }
