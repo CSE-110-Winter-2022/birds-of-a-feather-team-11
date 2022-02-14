@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.bluetooth.BluetoothAdapter;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
@@ -96,6 +97,7 @@ public class ListingBOF extends AppCompatActivity {
         if (bluetoothAdapter == null) {
             Utilities.showAlert(this, "Your phone is not Bluetooth capable. You will not be able to use this app.");
             finish();
+            Log.w("Bluetooth", "Phone is not bluetooth capable");
             return;
         } else if (!bluetoothAdapter.isEnabled()) {
             Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
@@ -127,6 +129,7 @@ public class ListingBOF extends AppCompatActivity {
         } catch (IOException e) {
             Toast.makeText(this, "Failed to setup bluetooth! Try restarting app.", Toast.LENGTH_SHORT).show();
             finish();
+            Log.w("Bluetooth","Bluetooth setup failed");
             e.printStackTrace();
         }
     }
