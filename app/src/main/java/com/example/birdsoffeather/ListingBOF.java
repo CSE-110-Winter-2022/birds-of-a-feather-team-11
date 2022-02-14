@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.bluetooth.BluetoothAdapter;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
@@ -43,9 +44,8 @@ public class ListingBOF extends AppCompatActivity {
 
     private PersonWithCourses selfPerson;
 
-    protected RecyclerView personsRecyclerView;
-    protected RecyclerView.LayoutManager personsLayoutManager;
-    protected PersonsViewAdapter personsViewAdapter;
+    private RecyclerView personsRecyclerView;
+    private PersonsViewAdapter personsViewAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,31 +63,34 @@ public class ListingBOF extends AppCompatActivity {
         });
 
         setupBluetooth();
+
+        personsRecyclerView = findViewById(R.id.persons_view);
+
+        // set layout manager
+        RecyclerView.LayoutManager personsLayoutManager = new LinearLayoutManager(this);
+        personsRecyclerView.setLayoutManager(personsLayoutManager);
+
+        // set adapter
+        personsViewAdapter = new PersonsViewAdapter(new ArrayList<>());
+        personsRecyclerView.setAdapter(personsViewAdapter);
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-
         this.future = backgroundThreadExecutor.submit(() -> {
-            updateUI(Utilities.generateSimilarityOrder(db));
+            List<PersonWithCourses> persons = Utilities.generateSimilarityOrder(db);
+            runOnUiThread(() -> {
+                updateUI(persons);
+            });
             return null;
         });
 
     }
 
     public void updateUI(List<? extends IPerson> persons) {
-        personsRecyclerView.findViewById(R.id.persons_view);
-
-        // set layout manager
-        personsLayoutManager = new LinearLayoutManager(this);
-        personsRecyclerView.setLayoutManager(personsLayoutManager);
-
-        // set adapter
-        personsViewAdapter = new PersonsViewAdapter(persons);
-        personsRecyclerView.setAdapter(personsViewAdapter);
+        personsViewAdapter.updateList(persons);
     }
-
 
 
     private void setupBluetooth() {
@@ -170,6 +173,11 @@ public class ListingBOF extends AppCompatActivity {
             running = true;
         }
 
+    }
+
+    public void onAddMockClicked(View view) {
+        Intent intent = new Intent(this, NearbyMock.class);
+        startActivity(intent);
     }
 
     @Override

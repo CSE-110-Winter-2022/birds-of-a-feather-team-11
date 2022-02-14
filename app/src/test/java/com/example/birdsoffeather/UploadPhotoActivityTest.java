@@ -21,8 +21,8 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 @RunWith(AndroidJUnit4.class)
 public class UploadPhotoActivityTest {
 
-    String defaultPhoto = "https://www.google.com/url?sa=i&url=https%3A%2F%2Fbuildyourspechere.com%2Fcontact-3%2Fattachment%2Fplaceholder-image-person-jpg%2F&psig=AOvVaw3dEQgPH9ClCdcAFY5CTXpw&ust=1643933146971000&source=images&cd=vfe&ved=0CAsQjRxqFwoTCOCgsK2e4vUCFQAAAAAdAAAAABAD";
-    String profilePic = "https://www.google.com/imgres?imgurl=https%3A%2F%2Fupload.wikimedia.org%2Fwikipedia%2Fcommons%2Fe%2Feb%2FAsh_Tree_-_geograph.org.uk_-_590710.jpg&imgrefurl=https%3A%2F%2Fen.wikipedia.org%2Fwiki%2FTree&tbnid=V_YlBpZ51iMzqM&vet=12ahUKEwj47o6FsO31AhVNATQIHRatAsEQMygAegUIARDUAQ..i&docid=wHCoEH9G9w_hKM&w=480&h=640&itg=1&q=tree&ved=2ahUKEwj47o6FsO31AhVNATQIHRatAsEQMygAegUIARDUAQ";
+    String defaultPhoto = "https://www.personality-insights.com/wp-content/uploads/2017/12/default-profile-pic-e1513291410505.jpg";
+    String profilePic = "https://lh3.googleusercontent.com/pw/AM-JKLXQ2ix4dg-PzLrPOSMOOy6M3PSUrijov9jCLXs4IGSTwN73B4kr-F6Nti_4KsiUU8LzDSGPSWNKnFdKIPqCQ2dFTRbARsW76pevHPBzc51nceZDZrMPmDfAYyI4XNOnPrZarGlLLUZW9wal6j-z9uA6WQ=w854-h924-no?authuser=0";
 
     @Rule
     public ActivityScenarioRule<UploadPhoto> scenarioRule = new ActivityScenarioRule<>(UploadPhoto.class);
@@ -63,26 +63,40 @@ public class UploadPhotoActivityTest {
         });
     }
 
-    /*
     @Test
-    public void test_use_invalid_photo() {
-        // Create a "scenario" to move through the activity lifecycle.
-        // https://developer.android.com/guide/components/activities/activity-lifecycle
+    public void test_use_valid_photo() {
         ActivityScenario<UploadPhoto> scenario = scenarioRule.getScenario();
 
-        // Make sure the activity is in the created state (so onCreated is called).
         scenario.moveToState(Lifecycle.State.CREATED);
 
-        // When it's ready, we're ready to test inside this lambda (anonymous inline function).
         scenario.onActivity(activity -> {
             Button submitButton = activity.findViewById(R.id.photo_submit);
-            TextView photoURLView = activity.findViewById(R.id.photo_url);
+            TextView photoURLView = activity.findViewById(R.id.photo_url_edit_text);
 
-            photoURLView.setText("abcdefg");
+            photoURLView.setText(profilePic);
             submitButton.performClick();
 
-            assertEquals("", photoURLView.getText().toString());
+            SharedPreferences preferences = activity.getSharedPreferences("BoF", Context.MODE_PRIVATE);
+            assertEquals(profilePic, preferences.getString("Photo URL", null));
         });
-    }*/
+    }
+
+    @Test
+    public void test_use_invalid_photo() {
+        ActivityScenario<UploadPhoto> scenario = scenarioRule.getScenario();
+
+        scenario.moveToState(Lifecycle.State.CREATED);
+
+        scenario.onActivity(activity -> {
+            Button submitButton = activity.findViewById(R.id.photo_submit);
+            TextView photoURLView = activity.findViewById(R.id.photo_url_edit_text);
+
+            photoURLView.setText("https://www.google.com/");
+            submitButton.performClick();
+
+            SharedPreferences preferences = activity.getSharedPreferences("BoF", Context.MODE_PRIVATE);
+            assertEquals(null, preferences.getString("Photo URL", null));
+        });
+    }
 
 }

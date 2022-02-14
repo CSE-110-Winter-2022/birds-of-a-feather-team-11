@@ -9,6 +9,10 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import java.io.IOException;
+import java.net.URL;
+import java.net.URLConnection;
+
 public class UploadPhoto extends AppCompatActivity {
 
     @Override
@@ -34,11 +38,12 @@ public class UploadPhoto extends AppCompatActivity {
     public void onSkipButtonClick(View view) {
         submitURL(getResources().getString(R.string.default_photo_url));
     }
+
     public void onSubmitButtonClick(View view) {
         EditText photoURLView = findViewById(R.id.photo_url_edit_text);
         String photoURL = photoURLView.getText().toString();
-        submitURL(photoURL);
-        /*
+        //submitURL(photoURL);
+
         boolean isValidImage = false;
         try {
             URLConnection connection = new URL(photoURL).openConnection();
@@ -46,11 +51,11 @@ public class UploadPhoto extends AppCompatActivity {
             isValidImage = contentType.startsWith("image/");
         } catch (IOException e) {}
         if (isValidImage) {
-            submitURL(photoURLView, photoURL);
+            submitURL(photoURL);
         } else {
             Utilities.showAlert(this, "Please input a valid image URL!");
             photoURLView.setText("");
-        }*/
+        }
     }
 
     public void submitURL(String url) {

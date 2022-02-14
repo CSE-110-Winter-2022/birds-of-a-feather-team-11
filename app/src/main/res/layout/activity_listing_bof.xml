@@ -11,53 +11,45 @@
         android:id="@+id/bof_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="BOF"
+        android:layout_marginTop="28dp"
+        android:layout_marginEnd="180dp"
+        android:text="@string/bof"
         android:textSize="25dp"
         android:textStyle="bold"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toLeftOf="@+id/start_stop_btn"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.043" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 
     <Button
         android:id="@+id/start_stop_btn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="20dp"
-        android:layout_marginTop="28dp"
-        android:layout_marginBottom="15dp"
+        android:layout_marginEnd="48dp"
         android:backgroundTint="@drawable/button_text_color"
         android:onClick="onStartStopClicked"
-        android:text="START"
-        app:layout_constraintBottom_toTopOf="@+id/persons_view"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="@+id/bof_title"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:text="@string/start"
+        app:layout_constraintEnd_toStartOf="@+id/bof_title"
+        app:layout_constraintTop_toTopOf="@+id/bof_title" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/persons_view"
         android:layout_width="370dp"
         android:layout_height="620dp"
         android:layout_marginStart="50dp"
+        android:layout_marginTop="32dp"
         android:layout_marginEnd="50dp"
-        android:layout_marginBottom="20dp"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintHorizontal_bias="0.508"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/bof_title" />
 
     <Button
-        android:id="@+id/button2"
+        android:id="@+id/add_mock"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="28dp"
-        android:layout_marginBottom="15dp"
-        android:text="Add mock"
-        app:layout_constraintBottom_toTopOf="@+id/persons_view"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.733"
+        android:layout_marginStart="36dp"
+        android:onClick="onAddMockClicked"
+        android:text="@string/add_mock"
         app:layout_constraintStart_toEndOf="@+id/bof_title"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="@+id/bof_title" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
