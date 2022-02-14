@@ -50,6 +50,7 @@ public class EnterClasses extends AppCompatActivity{
 
             Person user = new Person(0, name, url);
             db.personsWithCoursesDao().insertPerson(user);
+            Log.i("Database", "Added person: " + user.toString());
 
             return null;
         });
@@ -105,6 +106,7 @@ public class EnterClasses extends AppCompatActivity{
                 return null;
             }
             db.coursesDao().insert(newCourse);
+            Log.i("Database", "Added course: " + newCourse.toString());
             counter++;
 
             return null;
@@ -121,8 +123,10 @@ public class EnterClasses extends AppCompatActivity{
      */
     public boolean isDuplicate(Course newCourse, List<Course> courses){
         for(Course c: courses)
-            if (c.year.equals(newCourse.year) && c.quarter.equals(newCourse.quarter) && c.subject.equals(newCourse.subject) && c.number.equals(newCourse.number))
+            if (c.year.equals(newCourse.year) && c.quarter.equals(newCourse.quarter) && c.subject.equals(newCourse.subject) && c.number.equals(newCourse.number)) {
+                Log.i("database", "Duplicate course: " + c.toString());
                 return true;
+            }
         return false;
     }
 
