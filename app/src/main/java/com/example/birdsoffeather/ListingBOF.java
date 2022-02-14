@@ -32,6 +32,7 @@ public class ListingBOF extends AppCompatActivity {
     private ExecutorService backgroundThreadExecutor = Executors.newSingleThreadExecutor();
     private Future<Void> future;
 
+
     private boolean bluetoothStarted;
     private BluetoothAdapter bluetoothAdapter;
 
@@ -74,9 +75,11 @@ public class ListingBOF extends AppCompatActivity {
 
     }
 
+
     /**
-     * Refreshes recycler view with new list of peopl
-     * @param persons list of persons in sorted order according to similar classes
+     * Updates UI to show recycler view, i.e. list of students
+     *
+     * @param persons - List of persons to show in recycler view
      */
     public void updateUI(List<? extends IPerson> persons) {
         personsRecyclerView.findViewById(R.id.persons_view);
@@ -149,6 +152,18 @@ public class ListingBOF extends AppCompatActivity {
         return bluetooth.messageListener;
     }
 
+
+    /**
+     * Start button changes to Stop button when clicked, and vice versa.
+     *
+     * When START is clicked, the app will fetch nearby students using the same app who
+     * have bluetooth on (via bluetooth), then display the students that have taken the same course
+     * as the user.
+     * When STOP is clicked, the app will no longer fetch for new students, but the UI will still
+     * display the old list of students that were fetched.
+     *
+     * @param view - Button view
+     */
     public void onStartStopClicked(View view) {
 
         // Stop button from being used if Bluetooth is not enabled
@@ -180,6 +195,7 @@ public class ListingBOF extends AppCompatActivity {
             startStopBtn.setText("Stop");
             bluetoothStarted = true;
         }
+
     }
 
     @Override
