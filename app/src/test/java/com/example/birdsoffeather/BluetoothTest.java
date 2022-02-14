@@ -2,8 +2,7 @@ package com.example.birdsoffeather;
 
 import static androidx.test.core.app.ApplicationProvider.getApplicationContext;
 import static org.junit.Assert.assertEquals;
-
-import android.widget.Button;
+import static org.junit.Assert.assertNotEquals;
 
 import androidx.lifecycle.Lifecycle;
 import androidx.test.core.app.ActivityScenario;
@@ -33,14 +32,19 @@ public class BluetoothTest {
     @Rule
     public ActivityScenarioRule<ListingBOF> scenarioRule = new ActivityScenarioRule<>(ListingBOF.class);
 
-    @Test
-    public void serializeTest() {
-
+    public static PersonWithCourses createTestPersonJohn() {
         PersonWithCourses person = new PersonWithCourses();
         person.courses = Arrays.asList(
                 new Course(1, 0, "1999", "WI", "C", "1"),
                 new Course(1, 0, "1999", "FA", "C", "2"));
-        person.person = new Person(0,"John","");
+        person.person = new Person(0,"John","url");
+        return person;
+    }
+
+    @Test
+    public void serializeTest() {
+
+        PersonWithCourses person = createTestPersonJohn();
 
         PersonWithCourses personCopy = null;
         try {
@@ -52,6 +56,48 @@ public class BluetoothTest {
 
         assertEquals(person, personCopy);
 
+    }
+
+    @Test
+    public void serializeDifferentObjectTest() {
+
+        PersonWithCourses person1 = createTestPersonJohn();
+
+        // Create different object
+        PersonWithCourses person2 = createTestPersonJohn();
+
+        PersonWithCourses serializedPerson = null;
+        try {
+            Message message = new Message(Utilities.serializePerson(person1));
+            serializedPerson = Utilities.deserializePerson(message.getContent());
+        } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        assertEquals(person2, serializedPerson);
+
+    }
+
+    @Test
+    public void serializeDifferentCoursesTest() {
+
+        PersonWithCourses person1 = createTestPersonJohn();
+
+        PersonWithCourses person2 = new PersonWithCourses();
+        person2.courses = Arrays.asList(
+                new Course(1, 0, "1999", "WI", "C", "1")
+        );
+        person2.person = new Person(0,"John","url");
+
+        PersonWithCourses serializedPerson = null;
+        try {
+            Message message = new Message(Utilities.serializePerson(person1));
+            serializedPerson = Utilities.deserializePerson(message.getContent());
+        } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        assertNotEquals(person2, serializedPerson);
     }
 
     @Test
