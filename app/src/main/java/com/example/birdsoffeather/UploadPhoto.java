@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -40,10 +41,20 @@ public class UploadPhoto extends AppCompatActivity {
         }
     }
 
+    /**
+     * Set the profile picture url to the default url if the skip button is clicked
+     *
+     * @param view
+     */
     public void onSkipButtonClick(View view) {
         submitURL(getResources().getString(R.string.default_photo_url));
     }
 
+    /**
+     * Set the inputted url as the profile picture url if the submit button is clicked
+     *
+     * @param view
+     */
     public void onSubmitButtonClick(View view) {
         EditText photoURLView = findViewById(R.id.photo_url_edit_text);
         String photoURL = photoURLView.getText().toString();
@@ -71,11 +82,17 @@ public class UploadPhoto extends AppCompatActivity {
         });
     }
 
+    /**
+     * Adds the given profile picture url to the user's stored information
+     *
+     * @param url the profile picture url to associate with the user
+     */
     public void submitURL(String url) {
         SharedPreferences preferences = getSharedPreferences("BoF", MODE_PRIVATE);
         SharedPreferences.Editor editor = preferences.edit();
         editor.putString("Photo URL", url);
         editor.apply();
+        Log.i("Shared Preferences", "Stored photo_url");
         Intent intent = new Intent(this, EnterClasses.class);
         startActivity(intent);
     }

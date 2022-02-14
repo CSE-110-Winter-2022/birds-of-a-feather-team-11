@@ -7,6 +7,7 @@ import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -49,6 +50,7 @@ public class EnterClasses extends AppCompatActivity{
 
             Person user = new Person(0, name, url);
             db.personsWithCoursesDao().insertPerson(user);
+            Log.i("Database", "Added person: " + user.toString());
 
             return null;
         });
@@ -68,6 +70,11 @@ public class EnterClasses extends AppCompatActivity{
 
     }
 
+    /**
+     * Inputs the filled out class into the database when enter is clicked
+     *
+     * @param view
+     */
     public void onEnterClicked(View view) {
         int personId = 0;
         Spinner yearInput = findViewById(R.id.year_input);
@@ -92,13 +99,14 @@ public class EnterClasses extends AppCompatActivity{
 
         this.future = backgroundThreadExecutor.submit(() -> {
             Course newCourse = new Course(personId, courseYear, courseQuarter, courseSubject, courseNumber);
-            if(isDuplicate(newCourse, db.coursesDao().getForPerson(personId))){
+            if(Utilities.isDuplicate(newCourse, db.coursesDao().getForPerson(personId))){
                 runOnUiThread(() -> {
                     Utilities.showAlert(this, "Duplicate Entry");
                 });
                 return null;
             }
             db.coursesDao().insert(newCourse);
+            Log.i("Database", "Added course: " + newCourse.toString());
             counter++;
 
             return null;
@@ -106,13 +114,11 @@ public class EnterClasses extends AppCompatActivity{
 
     }
 
-    public boolean isDuplicate(Course newCourse, List<Course> courses){
-        for(Course c: courses)
-            if (c.year.equals(newCourse.year) && c.quarter.equals(newCourse.quarter) && c.subject.equals(newCourse.subject) && c.number.equals(newCourse.number))
-                return true;
-        return false;
-    }
-
+    /**
+     * Indicates that the user's classes have been entered when the done button is clicked.
+     *
+     * @param view
+     */
     public void onDoneClicked(View view) {
         if (counter == 0) {
             Utilities.showAlert(this, "You must enter in at least one class!");
@@ -121,6 +127,7 @@ public class EnterClasses extends AppCompatActivity{
             SharedPreferences.Editor editor = preferences.edit();
             editor.putBoolean("Entered Classes", true);
             editor.apply();
+            Log.i("Shared Preferences", "Done adding classes");
             Intent intent = new Intent(this, ListingBOF.class);
             startActivity(intent);
         }

@@ -42,6 +42,11 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Redirects to a new activity depending on how much data of the user is already stored.
+     *
+     * @param preferences SharedPreferences of the user
+     */
     public void nextActivity(SharedPreferences preferences) {
         Intent intent;
         if (preferences.getBoolean("Entered Classes", false))
@@ -55,6 +60,9 @@ public class MainActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
+    /**
+     * Removes all of the previously generated BOFs from the database
+     */
     public void clearBOFs() {
         this.future = backgroundThreadExecutor.submit(() -> {
             db = AppDatabase.singleton(getApplicationContext());
