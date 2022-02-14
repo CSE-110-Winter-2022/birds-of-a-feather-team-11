@@ -157,6 +157,8 @@ public class ListingBOF extends AppCompatActivity {
         return bluetooth.messageListener;
     }
 
+    public PersonsViewAdapter getPersonsViewAdapter() { return personsViewAdapter; }
+
 
     /**
      * Start button changes to Stop button when clicked, and vice versa.
@@ -203,6 +205,10 @@ public class ListingBOF extends AppCompatActivity {
 
     }
 
+    /**
+     * Redirects to add mock screen which can be used for testing
+     * @param view - Button view
+     */
     public void onAddMockClicked(View view) {
         Intent intent = new Intent(this, NearbyMock.class);
         startActivity(intent);

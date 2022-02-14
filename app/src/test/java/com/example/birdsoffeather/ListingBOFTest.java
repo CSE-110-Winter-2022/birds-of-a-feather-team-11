@@ -35,9 +35,9 @@ public class ListingBOFTest {
     public void testUIRefresh() {
         Person person1 = new Person(0, "John", "url");
         ArrayList<Course> courses= new ArrayList<>();
-        courses.add(new Course(0,0,"2021", "Spring", "CSE", "110"));
-        courses.add(new Course(1,0,"2021", "Winter", "CSE", "100"));
-        courses.add(new Course(2,0,"2020", "Spring", "CSE", "12"));
+        courses.add(new Course(0,"2021", "Spring", "CSE", "110"));
+        courses.add(new Course(1,"2021", "Winter", "CSE", "100"));
+        courses.add(new Course(2,"2020", "Spring", "CSE", "12"));
         PersonWithCourses personWithCourses1 = new PersonWithCourses();
         personWithCourses1.courses = courses;
         personWithCourses1.person = person1;
@@ -58,7 +58,7 @@ public class ListingBOFTest {
                     personWithCourses2
             ));
 
-            assertEquals(2, activity.personsViewAdapter.getItemCount());
+            assertEquals(2, activity.getPersonsViewAdapter().getItemCount());
         });
     }
 
@@ -73,7 +73,7 @@ public class ListingBOFTest {
         scenario.onActivity(activity -> {
             activity.updateUI(new ArrayList<>());
 
-            assertEquals(0, activity.personsViewAdapter.getItemCount());
+            assertEquals(0, activity.getPersonsViewAdapter().getItemCount());
         });
     }
 
