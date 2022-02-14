@@ -32,7 +32,6 @@ public class ListingBOF extends AppCompatActivity {
     private ExecutorService backgroundThreadExecutor = Executors.newSingleThreadExecutor();
     private Future<Void> future;
 
-
     private boolean bluetoothStarted;
     private BluetoothAdapter bluetoothAdapter;
 
@@ -67,6 +66,7 @@ public class ListingBOF extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
 
+        // Get updated list of similar classes in background thread and then use ui thread to update UI
         this.future = backgroundThreadExecutor.submit(() -> {
             updateUI(Utilities.generateSimilarityOrder(db));
             return null;
@@ -74,6 +74,10 @@ public class ListingBOF extends AppCompatActivity {
 
     }
 
+    /**
+     * Refreshes recycler view with new list of peopl
+     * @param persons list of persons in sorted order according to similar classes
+     */
     public void updateUI(List<? extends IPerson> persons) {
         personsRecyclerView.findViewById(R.id.persons_view);
 
@@ -115,6 +119,7 @@ public class ListingBOF extends AppCompatActivity {
                         future = backgroundThreadExecutor.submit(() -> {
                             Utilities.inputBOF(person, db);
                             updateUI(Utilities.generateSimilarityOrder(db));
+                            Log.i("Bluetooth",person.toString() + " found");
                             return null;
                         });
                     } catch (IOException | ClassNotFoundException e) {
@@ -132,6 +137,10 @@ public class ListingBOF extends AppCompatActivity {
         }
     }
 
+    /**
+     * Allows for easy faking and testing of app by passing custom fake listeners
+     * @param listener A custom listener can be passed in
+     */
     public void setMessageListener(MessageListener listener) {
         bluetooth = new BluetoothModule(this, listener);
     }
@@ -171,7 +180,6 @@ public class ListingBOF extends AppCompatActivity {
             startStopBtn.setText("Stop");
             bluetoothStarted = true;
         }
-
     }
 
     @Override
