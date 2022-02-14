@@ -77,6 +77,7 @@ public class ListingBOF extends AppCompatActivity {
 
     /**
      * Updates UI to show recycler view, i.e. list of students
+     *
      * @param persons - List of persons to show in recycler view
      */
     public void updateUI(List<? extends IPerson> persons) {
