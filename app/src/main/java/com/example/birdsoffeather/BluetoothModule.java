@@ -9,7 +9,7 @@ import com.google.android.gms.nearby.messages.Message;
 import com.google.android.gms.nearby.messages.MessageListener;
 
 /**
- * Adapater class for Nearby interface to work with our function calls
+ * Adapter class for Nearby interface to work with our function calls
  */
 public class BluetoothModule {
 
