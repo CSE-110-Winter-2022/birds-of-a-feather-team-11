@@ -35,16 +35,9 @@ public class BluetoothTest {
     public static PersonWithCourses createTestPersonJohn() {
         PersonWithCourses person = new PersonWithCourses();
         person.courses = Arrays.asList(
-                new Course(1, 0, "1999", "WI", "C", "1"),
-                new Course(1, 0, "1999", "FA", "C", "2"));
-        person.person = new Person(0,"John","url");
-        return person;
-    }
-
-    @Test
-    public void serializeTest() {
-
-        PersonWithCourses person = createTestPersonJohn();
+                new Course(0, "1999", "WI", "C", "1"),
+                new Course(0, "1999", "FA", "C", "2"));
+        person.person = new Person(0,"John","");
 
         PersonWithCourses personCopy = null;
         try {
@@ -113,7 +106,7 @@ public class BluetoothTest {
             PersonWithCourses fakePerson = new PersonWithCourses();
             fakePerson.person = new Person(0, "John", "www.google.com");
             fakePerson.courses = Arrays.asList(
-                    new Course(0, 0, "2022", "Winter", "CSE", "110"));
+                    new Course(0, "2022", "Winter", "CSE", "110"));
             MessageListener fake = new FakeMessageListener(activity.getMessageListener(), fakePerson);
             activity.setMessageListener(fake);
 

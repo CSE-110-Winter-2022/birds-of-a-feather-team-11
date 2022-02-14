@@ -78,23 +78,21 @@ public class EnterClasses extends AppCompatActivity{
         String courseQuarter = quarterInput.getSelectedItem().toString();
 
         TextView subjectInput = findViewById(R.id.subject_input);
-        String courseSubject = subjectInput.getText().toString().trim().toLowerCase();
+        String courseSubject = subjectInput.getText().toString();
         if(courseSubject.length() == 0){
             Utilities.showAlert(this, "Subject has not been entered!");
             return;
         }
 
         TextView nbrInput = findViewById(R.id.course_nbr_input);
-        String courseNumber = nbrInput.getText().toString().trim().toLowerCase();
+        String courseNumber = nbrInput.getText().toString();
         if(courseNumber.length() == 0){
             Utilities.showAlert(this, "Course number has not been entered!");
             return;
         }
 
         this.future = backgroundThreadExecutor.submit(() -> {
-            int newCourseId = db.coursesDao().count() + 1;
-
-            Course newCourse = new Course(newCourseId, personId, courseYear, courseQuarter, courseSubject, courseNumber);
+            Course newCourse = new Course(personId, courseYear, courseQuarter, courseSubject, courseNumber);
             if(isDuplicate(newCourse, db.coursesDao().getForPerson(personId))){
                 runOnUiThread(() -> {
                     Utilities.showAlert(this, "Duplicate Entry");

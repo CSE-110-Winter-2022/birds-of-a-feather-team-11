@@ -73,7 +73,7 @@ public class Utilities {
         List<Course> courses = potentialBOF.getCourses();
         for (Course course : courses) {
             if (db.coursesDao().similarCourse(course.year, course.quarter, course.subject, course.number) != 0)
-                db.coursesDao().insert(new Course(db.coursesDao().count(), personId, course.year, course.quarter, course.subject, course.number));
+                db.coursesDao().insert(new Course(personId, course.year, course.quarter, course.subject, course.number));
         }
     }
 

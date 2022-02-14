@@ -19,9 +19,10 @@ import java.io.InputStream;
 import java.util.List;
 
 import com.example.birdsoffeather.model.db.IPerson;
+import com.example.birdsoffeather.model.db.PersonWithCourses;
 
 public class PersonsViewAdapter extends RecyclerView.Adapter<PersonsViewAdapter.ViewHolder> {
-    private final List<? extends IPerson> persons;
+    private List<? extends IPerson> persons;
 
     public PersonsViewAdapter(List<? extends IPerson> persons) {
         super();
@@ -41,6 +42,11 @@ public class PersonsViewAdapter extends RecyclerView.Adapter<PersonsViewAdapter.
     @Override
     public void onBindViewHolder(@NonNull PersonsViewAdapter.ViewHolder holder, int position) {
         holder.setPerson(persons.get(position));
+    }
+
+    public void updateList(List<? extends IPerson> newList) {
+        persons = newList;
+        this.notifyDataSetChanged();
     }
 
     @Override
@@ -73,7 +79,7 @@ public class PersonsViewAdapter extends RecyclerView.Adapter<PersonsViewAdapter.
 
             // set numberOf_courses view
             int num_courses = this.person.getCourses().size();
-            String msg = "Number of courses taken together: " + String.valueOf(num_courses);
+            String msg = "Matching Classes: " + String.valueOf(num_courses);
             this.similarCourses_num.setText(msg);
 
             // set profile pic
