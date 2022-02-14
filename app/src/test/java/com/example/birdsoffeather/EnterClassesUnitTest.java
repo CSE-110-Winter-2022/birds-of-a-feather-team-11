@@ -18,6 +18,7 @@ import androidx.lifecycle.Lifecycle;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.robolectric.util.Util;
 
 import androidx.test.core.app.ActivityScenario;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
@@ -146,31 +147,31 @@ public class EnterClassesUnitTest {
     @Test
     public void testIsDuplicateTrue() {
         List<Course> courses = Arrays.asList(
-                new Course(1, 0, "2019", "Winter", "CSE", "1"),
-                new Course(1, 0, "2020", "Fall", "CSE", "2"),
-                new Course(0, 0, "2022", "Winter", "CSE", "110"));
+                new Course(0, "2019", "Winter", "CSE", "1"),
+                new Course(0, "2020", "Fall", "CSE", "2"),
+                new Course(0, "2022", "Winter", "CSE", "110"));
 
-        Course cse110Duplicate = new Course(0, 1, "2022", "Winter", "CSE", "110");
+        Course cse110Duplicate = new Course(1, "2022", "Winter", "CSE", "110");
 
-        assertTrue(EnterClasses.isDuplicate(cse110Duplicate, courses));
+        assertTrue(Utilities.isDuplicate(cse110Duplicate, courses));
     }
 
     @Test
     public void testIsDuplicateFalse() {
         List<Course> courses = Arrays.asList(
-                new Course(1, 0, "2019", "Winter", "CSE", "1"),
-                new Course(1, 0, "2020", "Fall", "CSE", "2"),
-                new Course(0, 0, "2022", "Winter", "CSE", "110"));
+                new Course(0, "2019", "Winter", "CSE", "1"),
+                new Course(0, "2020", "Fall", "CSE", "2"),
+                new Course(0, "2022", "Winter", "CSE", "110"));
 
-        Course cse110DiffYear = new Course(0, 1, "2021", "Winter", "CSE", "110");
-        Course cse110DiffQuarter = new Course(0, 1, "2022", "Fall", "CSE", "110");
-        Course cse110DiffSubject = new Course(0, 1, "2022", "Winter", "ECE", "110");
-        Course cse110DiffNumber = new Course(0, 1, "2022", "Winter", "CSE", "100");
+        Course cse110DiffYear = new Course(1, "2021", "Winter", "CSE", "110");
+        Course cse110DiffQuarter = new Course(1, "2022", "Fall", "CSE", "110");
+        Course cse110DiffSubject = new Course(1, "2022", "Winter", "ECE", "110");
+        Course cse110DiffNumber = new Course(1, "2022", "Winter", "CSE", "100");
 
-        assertFalse(EnterClasses.isDuplicate(cse110DiffYear, courses));
-        assertFalse(EnterClasses.isDuplicate(cse110DiffQuarter, courses));
-        assertFalse(EnterClasses.isDuplicate(cse110DiffSubject, courses));
-        assertFalse(EnterClasses.isDuplicate(cse110DiffNumber, courses));
+        assertFalse(Utilities.isDuplicate(cse110DiffYear, courses));
+        assertFalse(Utilities.isDuplicate(cse110DiffQuarter, courses));
+        assertFalse(Utilities.isDuplicate(cse110DiffSubject, courses));
+        assertFalse(Utilities.isDuplicate(cse110DiffNumber, courses));
 
     }
 
