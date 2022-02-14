@@ -48,6 +48,7 @@ public class BluetoothTest {
         }
 
         assertEquals(person, personCopy);
+        return person;
 
     }
 
@@ -78,7 +79,7 @@ public class BluetoothTest {
 
         PersonWithCourses person2 = new PersonWithCourses();
         person2.courses = Arrays.asList(
-                new Course(1, 0, "1999", "WI", "C", "1")
+                new Course(0, "1999", "WI", "C", "1")
         );
         person2.person = new Person(0,"John","url");
 

@@ -64,7 +64,7 @@ public class UploadPhoto extends AppCompatActivity {
         SharedPreferences.Editor editor = preferences.edit();
         editor.putString("Photo URL", url);
         editor.apply();
-        Log.i("Shared Preferences", "Stored photo_url")
+        Log.i("Shared Preferences", "Stored photo_url");
         Intent intent = new Intent(this, EnterClasses.class);
         startActivity(intent);
     }
