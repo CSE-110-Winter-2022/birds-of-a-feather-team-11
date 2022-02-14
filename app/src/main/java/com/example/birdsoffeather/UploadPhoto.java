@@ -12,8 +12,13 @@ import android.widget.TextView;
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 public class UploadPhoto extends AppCompatActivity {
+    private ExecutorService backgroundThreadExecutor = Executors.newSingleThreadExecutor();
+    private Future<Void> future;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,20 +47,28 @@ public class UploadPhoto extends AppCompatActivity {
     public void onSubmitButtonClick(View view) {
         EditText photoURLView = findViewById(R.id.photo_url_edit_text);
         String photoURL = photoURLView.getText().toString();
-        //submitURL(photoURL);
 
-        boolean isValidImage = false;
-        try {
-            URLConnection connection = new URL(photoURL).openConnection();
-            String contentType = connection.getHeaderField("Content-Type");
-            isValidImage = contentType.startsWith("image/");
-        } catch (IOException e) {}
-        if (isValidImage) {
-            submitURL(photoURL);
-        } else {
-            Utilities.showAlert(this, "Please input a valid image URL!");
-            photoURLView.setText("");
-        }
+        this.future = backgroundThreadExecutor.submit(() -> {
+            boolean isValidImage = false;
+            try {
+                URLConnection connection = new URL(photoURL).openConnection();
+                String contentType = connection.getHeaderField("Content-Type");
+                isValidImage = contentType.startsWith("image/");
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            if (isValidImage) {
+                submitURL(photoURL);
+            } else {
+                runOnUiThread(() -> {
+                    Utilities.showAlert(this, "Please input a valid image URL!");
+                    photoURLView.setText("");
+                });
+            }
+
+            return null;
+        });
     }
 
     public void submitURL(String url) {
