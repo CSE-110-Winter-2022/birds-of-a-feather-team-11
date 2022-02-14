@@ -46,42 +46,6 @@ public class UploadPhotoActivityTest {
 
 
     @Test
-    public void test_use_inputted_profile_photo() {
-
-        ActivityScenario<UploadPhoto> scenario = scenarioRule.getScenario();
-
-        scenario.moveToState(Lifecycle.State.CREATED);
-
-        scenario.onActivity(activity -> {
-            Button submitButton = activity.findViewById(R.id.photo_submit);
-            TextView photoURLView = activity.findViewById(R.id.photo_url_edit_text);
-            photoURLView.setText(profilePic);
-
-            submitButton.performClick();
-            SharedPreferences preferences = activity.getSharedPreferences("BoF", Context.MODE_PRIVATE);
-            assertEquals(profilePic, preferences.getString("Photo URL", null));
-        });
-    }
-
-    @Test
-    public void test_use_valid_photo() {
-        ActivityScenario<UploadPhoto> scenario = scenarioRule.getScenario();
-
-        scenario.moveToState(Lifecycle.State.CREATED);
-
-        scenario.onActivity(activity -> {
-            Button submitButton = activity.findViewById(R.id.photo_submit);
-            TextView photoURLView = activity.findViewById(R.id.photo_url_edit_text);
-
-            photoURLView.setText(profilePic);
-            submitButton.performClick();
-
-            SharedPreferences preferences = activity.getSharedPreferences("BoF", Context.MODE_PRIVATE);
-            assertEquals(profilePic, preferences.getString("Photo URL", null));
-        });
-    }
-
-    @Test
     public void test_use_invalid_photo() {
         ActivityScenario<UploadPhoto> scenario = scenarioRule.getScenario();
 
