@@ -9,25 +9,22 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.bluetooth.BluetoothAdapter;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
 import com.example.birdsoffeather.model.db.AppDatabase;
-import com.example.birdsoffeather.model.db.Course;
 import com.example.birdsoffeather.model.db.IPerson;
-import com.example.birdsoffeather.model.db.Person;
 import com.example.birdsoffeather.model.db.PersonWithCourses;
 import com.google.android.gms.nearby.messages.Message;
 import com.google.android.gms.nearby.messages.MessageListener;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import java.util.stream.Collectors;
 
 public class ListingBOF extends AppCompatActivity {
 
@@ -36,7 +33,7 @@ public class ListingBOF extends AppCompatActivity {
     private Future<Void> future;
 
 
-    private boolean running;
+    private boolean bluetoothStarted;
     private BluetoothAdapter bluetoothAdapter;
 
     private BluetoothModule bluetooth;
@@ -52,8 +49,9 @@ public class ListingBOF extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_listing_bof);
 
-        running = false;
+        bluetoothStarted = false;
 
+        // Obtain details of use
         this.future = backgroundThreadExecutor.submit(() -> {
             db = AppDatabase.singleton(getApplicationContext());
 
@@ -93,14 +91,16 @@ public class ListingBOF extends AppCompatActivity {
         personsRecyclerView.setAdapter(personsViewAdapter);
     }
 
-
-
+    /**
+     * Runs the process of setting up Message Listeners and messages so we can use BluetoothModule
+     */
     private void setupBluetooth() {
         // Check if phone is bluetooth capable and if enabled
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         if (bluetoothAdapter == null) {
             Utilities.showAlert(this, "Your phone is not Bluetooth capable. You will not be able to use this app.");
             finish();
+            Log.w("Bluetooth", "Phone is not bluetooth capable");
             return;
         } else if (!bluetoothAdapter.isEnabled()) {
             Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
@@ -132,6 +132,7 @@ public class ListingBOF extends AppCompatActivity {
         } catch (IOException e) {
             Toast.makeText(this, "Failed to setup bluetooth! Try restarting app.", Toast.LENGTH_SHORT).show();
             finish();
+            Log.w("Bluetooth","Bluetooth setup failed");
             e.printStackTrace();
         }
     }
@@ -158,6 +159,7 @@ public class ListingBOF extends AppCompatActivity {
      */
     public void onStartStopClicked(View view) {
 
+        // Stop button from being used if Bluetooth is not enabled
         if (!bluetoothAdapter.isEnabled()) {
             Utilities.showAlert(this,"Don't forget to turn on Bluetooth");
             return;
@@ -167,14 +169,14 @@ public class ListingBOF extends AppCompatActivity {
         startStopBtn.setSelected(!startStopBtn.isSelected());
 
 
-        if (running) {
+        if (bluetoothStarted) {
             // Unpublish and stop Listening
             bluetooth.unpublish();
             bluetooth.unsubscribe();
 
             // Update State
             startStopBtn.setText("Start");
-            running = false;
+            bluetoothStarted = false;
 
         } else {
 
@@ -184,7 +186,7 @@ public class ListingBOF extends AppCompatActivity {
 
             // Update State
             startStopBtn.setText("Stop");
-            running = true;
+            bluetoothStarted = true;
         }
 
     }
@@ -193,7 +195,7 @@ public class ListingBOF extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
 
-        if (running) {
+        if (bluetoothStarted) {
             // Unpublish and stop Listening
             bluetooth.unpublish();
             bluetooth.unsubscribe();
