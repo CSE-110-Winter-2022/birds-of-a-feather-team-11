@@ -50,6 +50,7 @@ public class EnterClasses extends AppCompatActivity{
 
             Person user = new Person(0, name, url);
             db.personsWithCoursesDao().insertPerson(user);
+            Log.i("Database", "Added person: " + user.toString());
 
             return null;
         });
@@ -105,6 +106,7 @@ public class EnterClasses extends AppCompatActivity{
                 return null;
             }
             db.coursesDao().insert(newCourse);
+            Log.i("Database", "Added course: " + newCourse.toString());
             counter++;
 
             return null;
