@@ -79,8 +79,10 @@ public class ListingBOF extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
         this.future = backgroundThreadExecutor.submit(() -> {
-
-            updateUI(Utilities.generateSimilarityOrder(db));
+            List<PersonWithCourses> persons = Utilities.generateSimilarityOrder(db);
+            runOnUiThread(() -> {
+                updateUI(persons);
+            });
             return null;
         });
 
