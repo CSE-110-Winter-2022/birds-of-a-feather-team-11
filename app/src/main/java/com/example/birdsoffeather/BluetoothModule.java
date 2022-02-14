@@ -1,12 +1,16 @@
 package com.example.birdsoffeather;
 
 import android.content.Context;
+import android.util.Log;
 
 import com.example.birdsoffeather.model.db.Person;
 import com.google.android.gms.nearby.Nearby;
 import com.google.android.gms.nearby.messages.Message;
 import com.google.android.gms.nearby.messages.MessageListener;
 
+/**
+ * Adapter class for Nearby interface to work with our function calls
+ */
 public class BluetoothModule {
 
 
@@ -18,23 +22,43 @@ public class BluetoothModule {
         this.messageListener = messageListener;
     }
 
+    /**
+     * Setter for message to be broadcast
+     * @param message Serialised person object to be broadcast
+     */
     public void setMessage(Message message) {
         this.message = message;
     }
 
+    /**
+     * Starts broadcasting message set previously
+     */
     public void publish() {
         Nearby.getMessagesClient(context).publish(message);
+        Log.i("Bluetooth","User's Message Published");
     }
 
+    /**
+     * Stops broadcasting message set previously
+     */
     public void unpublish() {
         Nearby.getMessagesClient(context).unpublish(message);
+        Log.i("Bluetooth","User's Message Unpublished");
     }
 
+    /**
+     * Sets up the message listener to react to Bluetooth messaes
+     */
     public void subscribe() {
         Nearby.getMessagesClient(context).subscribe(messageListener);
+        Log.i("Bluetooth","Listening to Messages");
     }
 
+    /**
+     * Stops the message listener from listening to Bluetooth requests
+     */
     public void unsubscribe() {
         Nearby.getMessagesClient(context).unsubscribe(messageListener);
+        Log.i("Bluetooth","Stopped listening for Messages");
     }
 }
