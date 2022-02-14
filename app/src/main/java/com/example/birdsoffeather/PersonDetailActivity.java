@@ -37,7 +37,7 @@ public class PersonDetailActivity extends AppCompatActivity {
 
         db = AppDatabase.singleton(this);
         person = db.personsWithCoursesDao().get(personId);
-        List<Course> courses = db.coursesDao().getForPerson(personId);
+        List<Course> courses = person.getCourses();
 
         // set name
         TextView nameView = findViewById(R.id.personName);

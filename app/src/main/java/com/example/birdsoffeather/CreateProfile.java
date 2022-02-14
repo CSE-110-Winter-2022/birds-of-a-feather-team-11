@@ -50,7 +50,12 @@ public class CreateProfile extends AppCompatActivity {
     }
 
 
-
+    /**
+     * When CONFIRM is clicked, user's name will be stored in the app,
+     * and the app will go to the "enter classes" page.
+     *
+     * @param view - Button view
+     */
     public void onClickConfirm(View view) {
 
         EditText nameEditText = findViewById(R.id.name_edit_text);
@@ -62,6 +67,8 @@ public class CreateProfile extends AppCompatActivity {
             editor.putString("Name", enteredName);
             editor.apply();
 
+            Log.i("Shared Preferences", "Name set to be: "+ enteredName);
+
             Intent intent = new Intent(this, UploadPhoto.class);
             startActivity(intent);
         } else {
@@ -71,6 +78,12 @@ public class CreateProfile extends AppCompatActivity {
     }
 
 
+    /**
+     * Determines whether the given name is an empty string.
+     *
+     * @param name - Name of user
+     * @return Return true if name is valid, otherwise false.
+     */
     public static boolean isValidName(String name) {
         if (name == null || name.length() == 0) {
             return false;

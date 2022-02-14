@@ -7,6 +7,7 @@ import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -44,7 +45,7 @@ public class EnterClasses extends AppCompatActivity{
             db.personsWithCoursesDao().deleteAll();
 
             SharedPreferences preferences = getSharedPreferences("BoF", MODE_PRIVATE);
-            String name = preferences.getString("name", "No Name");
+            String name = preferences.getString("Name", "No Name");
             String url = preferences.getString("Photo URL", "No URL");
 
             Person user = new Person(0, name, url);
@@ -68,6 +69,11 @@ public class EnterClasses extends AppCompatActivity{
 
     }
 
+    /**
+     * Inputs the filled out class into the database when enter is clicked
+     *
+     * @param view
+     */
     public void onEnterClicked(View view) {
         int personId = 0;
         Spinner yearInput = findViewById(R.id.year_input);
@@ -77,23 +83,21 @@ public class EnterClasses extends AppCompatActivity{
         String courseQuarter = quarterInput.getSelectedItem().toString();
 
         TextView subjectInput = findViewById(R.id.subject_input);
-        String courseSubject = subjectInput.getText().toString().trim().toLowerCase();
+        String courseSubject = subjectInput.getText().toString();
         if(courseSubject.length() == 0){
             Utilities.showAlert(this, "Subject has not been entered!");
             return;
         }
 
         TextView nbrInput = findViewById(R.id.course_nbr_input);
-        String courseNumber = nbrInput.getText().toString().trim().toLowerCase();
+        String courseNumber = nbrInput.getText().toString();
         if(courseNumber.length() == 0){
             Utilities.showAlert(this, "Course number has not been entered!");
             return;
         }
 
         this.future = backgroundThreadExecutor.submit(() -> {
-            int newCourseId = db.coursesDao().count() + 1;
-
-            Course newCourse = new Course(newCourseId, personId, courseYear, courseQuarter, courseSubject, courseNumber);
+            Course newCourse = new Course(personId, courseYear, courseQuarter, courseSubject, courseNumber);
             if(isDuplicate(newCourse, db.coursesDao().getForPerson(personId))){
                 runOnUiThread(() -> {
                     Utilities.showAlert(this, "Duplicate Entry");
@@ -108,13 +112,25 @@ public class EnterClasses extends AppCompatActivity{
 
     }
 
-    public static boolean isDuplicate(Course newCourse, List<Course> courses){
+    /**
+     * Checks if the course entered has already been entered by the user
+     *
+     * @param newCourse the course just entered by the user
+     * @param courses list of courses already entered by the user
+     * @return whether or not the course had already been entered by the user
+     */
+    public boolean isDuplicate(Course newCourse, List<Course> courses){
         for(Course c: courses)
             if (c.year.equals(newCourse.year) && c.quarter.equals(newCourse.quarter) && c.subject.equals(newCourse.subject) && c.number.equals(newCourse.number))
                 return true;
         return false;
     }
 
+    /**
+     * Indicates that the user's classes have been entered when the done button is clicked.
+     *
+     * @param view
+     */
     public void onDoneClicked(View view) {
         if (counter == 0) {
             Utilities.showAlert(this, "You must enter in at least one class!");
@@ -123,6 +139,7 @@ public class EnterClasses extends AppCompatActivity{
             SharedPreferences.Editor editor = preferences.edit();
             editor.putBoolean("Entered Classes", true);
             editor.apply();
+            Log.i("Shared Preferences", "Done adding classes");
             Intent intent = new Intent(this, ListingBOF.class);
             startActivity(intent);
         }

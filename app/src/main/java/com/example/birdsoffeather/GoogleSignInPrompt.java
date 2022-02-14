@@ -26,10 +26,11 @@ public class GoogleSignInPrompt extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_google_sign_in_prompt);
 
-        // TODO: add google fill in here
         // Set the dimensions of the sign-in button.
         SignInButton signInButton = findViewById(R.id.sign_in_button);
         signInButton.setSize(SignInButton.SIZE_STANDARD);
+
+        // handle actions for sign in button
         signInButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -71,6 +72,9 @@ public class GoogleSignInPrompt extends AppCompatActivity {
         }
     }
 
+    /**
+     * Sign in prompt is displayed
+     */
     private void signIn() {
         Intent signInIntent = mGoogleSignInClient.getSignInIntent();
         startActivityForResult(signInIntent, RC_SIGN_IN);
@@ -89,6 +93,10 @@ public class GoogleSignInPrompt extends AppCompatActivity {
         }
     }
 
+    /**
+     * This method will handle sign in, as in, what occurs after user signs in.
+     * @param completedTask
+     */
     private void handleSignInResult(Task<GoogleSignInAccount> completedTask) {
         try {
             GoogleSignInAccount account = completedTask.getResult(ApiException.class);
@@ -107,6 +115,12 @@ public class GoogleSignInPrompt extends AppCompatActivity {
         }
     }
 
+
+    /**
+     * Move to Create Profile page when the SKIP button is clicked.
+     *
+     * @param view - Button view
+     */
     public void onSkipButtonClicked(View view) {
         Intent intent = new Intent(this, CreateProfile.class);
         finish();

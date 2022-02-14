@@ -28,6 +28,10 @@ public class LoadImage extends AsyncTask<String, Void, Bitmap> {
         return bitmap;
     }
 
+    /**
+     * Image will be assigned to the given imageView
+     * @param bitmap
+     */
     @Override
     protected void onPostExecute(Bitmap bitmap) {
         imageView.setImageBitmap(bitmap);

@@ -130,11 +130,11 @@ public class EnterClassesUnitTest {
                 assertEquals(5, addedCourses.size());
 
                 List<Course> expectedCourses = new ArrayList<>();
-                expectedCourses.add(new Course(0, 0, "2022", "Fall", "CSE", "110"));
-                expectedCourses.add(new Course(1, 0, "2021", "Fall", "CSE", "110"));
-                expectedCourses.add(new Course(2, 0, "2021", "Spring", "CSE", "110"));
-                expectedCourses.add(new Course(3, 0, "2021", "Spring", "ECE", "110"));
-                expectedCourses.add(new Course(4, 0, "2021", "Spring", "ECE", "101A"));
+                expectedCourses.add(new Course(0, "2022", "Fall", "CSE", "110"));
+                expectedCourses.add(new Course(0, "2021", "Fall", "CSE", "110"));
+                expectedCourses.add(new Course(0, "2021", "Spring", "CSE", "110"));
+                expectedCourses.add(new Course(0, "2021", "Spring", "ECE", "110"));
+                expectedCourses.add(new Course(0, "2021", "Spring", "ECE", "101A"));
 
                 assertEquals(expectedCourses.toString(), addedCourses.toString());
                 return null;

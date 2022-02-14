@@ -6,7 +6,7 @@
     <string name="second_fragment_label">Second Fragment</string>
     <string name="next">Next</string>
     <string name="previous">Previous</string>
-    <string name="default_photo_url">https://www.google.com/url?sa=i&amp;url=https%3A%2F%2Fbuildyourspechere.com%2Fcontact-3%2Fattachment%2Fplaceholder-image-person-jpg%2F&amp;psig=AOvVaw3dEQgPH9ClCdcAFY5CTXpw&amp;ust=1643933146971000&amp;source=images&amp;cd=vfe&amp;ved=0CAsQjRxqFwoTCOCgsK2e4vUCFQAAAAAdAAAAABAD</string>
+    <string name="default_photo_url">https://www.personality-insights.com/wp-content/uploads/2017/12/default-profile-pic-e1513291410505.jpg</string>
     <string name="hello_first_fragment">Hello first fragment</string>
     <string name="hello_second_fragment">Hello second fragment. Arg: %1$s</string>
     <string name="photo_url">Photo URL</string>
@@ -21,6 +21,11 @@
     <string name="enter">Enter</string>
     <string name="classes">Enter Past Classes:</string>
     <string name="enter_classes_description">Enter all of the classes you have previously taken to match with students from those classes</string>
+    <string name="classes_you_share">Classes you share</string>
+    <string name="back">BACK</string>
+    <string name="start">START</string>
+    <string name="bof">BOF</string>
+    <string name="add_mock">Add mock</string>
 
     <string-array name="years_array">
         <item>2022</item>

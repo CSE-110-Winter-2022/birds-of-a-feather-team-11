@@ -9,14 +9,13 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.bluetooth.BluetoothAdapter;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
 import com.example.birdsoffeather.model.db.AppDatabase;
-import com.example.birdsoffeather.model.db.Course;
 import com.example.birdsoffeather.model.db.IPerson;
-import com.example.birdsoffeather.model.db.Person;
 import com.example.birdsoffeather.model.db.PersonWithCourses;
 import com.google.android.gms.nearby.messages.Message;
 import com.google.android.gms.nearby.messages.MessageListener;
@@ -27,7 +26,6 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import java.util.stream.Collectors;
 
 public class ListingBOF extends AppCompatActivity {
 
@@ -36,24 +34,24 @@ public class ListingBOF extends AppCompatActivity {
     private Future<Void> future;
 
 
-    private boolean running;
+    private boolean bluetoothStarted;
     private BluetoothAdapter bluetoothAdapter;
 
     private BluetoothModule bluetooth;
 
     private PersonWithCourses selfPerson;
 
-    protected RecyclerView personsRecyclerView;
-    protected RecyclerView.LayoutManager personsLayoutManager;
-    protected PersonsViewAdapter personsViewAdapter;
+    private RecyclerView personsRecyclerView;
+    private PersonsViewAdapter personsViewAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_listing_bof);
 
-        running = false;
+        bluetoothStarted = false;
 
+        // Obtain details of use
         this.future = backgroundThreadExecutor.submit(() -> {
             db = AppDatabase.singleton(getApplicationContext());
 
@@ -63,28 +61,53 @@ public class ListingBOF extends AppCompatActivity {
         });
 
         setupBluetooth();
-    }
 
-    public void updateUI(List<? extends IPerson> persons) {
-        personsRecyclerView.findViewById(R.id.persons_view);
+        personsRecyclerView = findViewById(R.id.persons_view);
 
         // set layout manager
-        personsLayoutManager = new LinearLayoutManager(this);
+        RecyclerView.LayoutManager personsLayoutManager = new LinearLayoutManager(this);
         personsRecyclerView.setLayoutManager(personsLayoutManager);
 
         // set adapter
-        personsViewAdapter = new PersonsViewAdapter(persons);
+        personsViewAdapter = new PersonsViewAdapter(new ArrayList<>());
         personsRecyclerView.setAdapter(personsViewAdapter);
     }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+        // Get updated list of similar classes in background thread and then use ui thread to update UI
+        this.future = backgroundThreadExecutor.submit(() -> {
+            List<PersonWithCourses> persons = Utilities.generateSimilarityOrder(db);
+            runOnUiThread(() -> {
+                updateUI(persons);
+            });
+            return null;
+        });
+
+    }
 
 
+    /**
+     * Updates UI to show recycler view, i.e. list of students
+     *
+     * @param persons - List of persons to show in recycler view
+     */
+    public void updateUI(List<? extends IPerson> persons) {
+        personsViewAdapter.updateList(persons);
+    }
+
+    /**
+     * Runs the process of setting up Message Listeners and messages so we can use BluetoothModule
+     */
     private void setupBluetooth() {
         // Check if phone is bluetooth capable and if enabled
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         if (bluetoothAdapter == null) {
             Utilities.showAlert(this, "Your phone is not Bluetooth capable. You will not be able to use this app.");
             finish();
+            Log.w("Bluetooth", "Phone is not bluetooth capable");
             return;
         } else if (!bluetoothAdapter.isEnabled()) {
             Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
@@ -101,7 +124,12 @@ public class ListingBOF extends AppCompatActivity {
                 public void onFound(@NonNull Message message) {
                     try {
                         PersonWithCourses person = Utilities.deserializePerson(message.getContent());
-                        inputBOF(person);
+                        future = backgroundThreadExecutor.submit(() -> {
+                            Utilities.inputBOF(person, db);
+                            updateUI(Utilities.generateSimilarityOrder(db));
+                            Log.i("Bluetooth",person.toString() + " found");
+                            return null;
+                        });
                     } catch (IOException | ClassNotFoundException e) {
                         e.printStackTrace();
                     }
@@ -112,10 +140,15 @@ public class ListingBOF extends AppCompatActivity {
         } catch (IOException e) {
             Toast.makeText(this, "Failed to setup bluetooth! Try restarting app.", Toast.LENGTH_SHORT).show();
             finish();
+            Log.w("Bluetooth","Bluetooth setup failed");
             e.printStackTrace();
         }
     }
 
+    /**
+     * Allows for easy faking and testing of app by passing custom fake listeners
+     * @param listener A custom listener can be passed in
+     */
     public void setMessageListener(MessageListener listener) {
         bluetooth = new BluetoothModule(this, listener);
     }
@@ -124,8 +157,23 @@ public class ListingBOF extends AppCompatActivity {
         return bluetooth.messageListener;
     }
 
+    public PersonsViewAdapter getPersonsViewAdapter() { return personsViewAdapter; }
+
+
+    /**
+     * Start button changes to Stop button when clicked, and vice versa.
+     *
+     * When START is clicked, the app will fetch nearby students using the same app who
+     * have bluetooth on (via bluetooth), then display the students that have taken the same course
+     * as the user.
+     * When STOP is clicked, the app will no longer fetch for new students, but the UI will still
+     * display the old list of students that were fetched.
+     *
+     * @param view - Button view
+     */
     public void onStartStopClicked(View view) {
 
+        // Stop button from being used if Bluetooth is not enabled
         if (!bluetoothAdapter.isEnabled()) {
             Utilities.showAlert(this,"Don't forget to turn on Bluetooth");
             return;
@@ -135,14 +183,14 @@ public class ListingBOF extends AppCompatActivity {
         startStopBtn.setSelected(!startStopBtn.isSelected());
 
 
-        if (running) {
+        if (bluetoothStarted) {
             // Unpublish and stop Listening
             bluetooth.unpublish();
             bluetooth.unsubscribe();
 
             // Update State
             startStopBtn.setText("Start");
-            running = false;
+            bluetoothStarted = false;
 
         } else {
 
@@ -152,35 +200,25 @@ public class ListingBOF extends AppCompatActivity {
 
             // Update State
             startStopBtn.setText("Stop");
-            running = true;
+            bluetoothStarted = true;
         }
 
     }
 
-    public void inputBOF(PersonWithCourses potentialBOF) {
-        Person userInfo = potentialBOF.person;
-        int personId = db.personsWithCoursesDao().count();
-        Person user = new Person(personId, userInfo.name, userInfo.profile_url);
-        db.personsWithCoursesDao().insertPerson(user);
-        List<Course> courses = potentialBOF.getCourses();
-        for (Course course : courses) {
-            if (db.coursesDao().similarCourse(course.year, course.quarter, course.subject, course.number) != 0)
-                db.coursesDao().insert(new Course(db.coursesDao().count(), personId, course.year, course.quarter, course.subject, course.number));
-        }
-        similarityOrder();
-    }
-
-    public void similarityOrder() {
-        List<Integer> orderedIds = db.coursesDao().getSimilarityOrdering();
-        List<PersonWithCourses> orderedBOFs = orderedIds.stream().map((id) -> db.personsWithCoursesDao().get(id)).collect(Collectors.toList());
-        //updateUI(orderedBOFs);
+    /**
+     * Redirects to add mock screen which can be used for testing
+     * @param view - Button view
+     */
+    public void onAddMockClicked(View view) {
+        Intent intent = new Intent(this, NearbyMock.class);
+        startActivity(intent);
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
 
-        if (running) {
+        if (bluetoothStarted) {
             // Unpublish and stop Listening
             bluetooth.unpublish();
             bluetooth.unsubscribe();

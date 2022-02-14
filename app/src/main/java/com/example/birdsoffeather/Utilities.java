@@ -4,6 +4,9 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 
+import com.example.birdsoffeather.model.db.AppDatabase;
+import com.example.birdsoffeather.model.db.Course;
+import com.example.birdsoffeather.model.db.Person;
 import com.example.birdsoffeather.model.db.PersonWithCourses;
 import com.google.android.gms.nearby.messages.Message;
 
@@ -12,6 +15,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class Utilities {
     public static void showAlert(Activity activity, String message) {
@@ -33,6 +38,13 @@ public class Utilities {
         alertDialog.show();
     }
 
+    /**
+     * Serializes the user's information to send over bluetooth
+     *
+     * @param person user's information to be serialized to stream over bluetooth
+     * @return serialized representation of the user's information
+     * @throws IOException
+     */
     public static byte[] serializePerson(PersonWithCourses person) throws IOException {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         ObjectOutputStream out = new ObjectOutputStream(bos);
@@ -48,6 +60,14 @@ public class Utilities {
         return message;
     }
 
+    /**
+     * Deserializes a byte array into an object that represents a user's information
+     *
+     * @param message serialized representation of a user's information
+     * @return Object representation of the user's information
+     * @throws IOException
+     * @throws ClassNotFoundException
+     */
     public static PersonWithCourses deserializePerson(byte [] message) throws IOException, ClassNotFoundException {
         ByteArrayInputStream bis = new ByteArrayInputStream(message);
         ObjectInputStream in = new ObjectInputStream(bis);
@@ -58,5 +78,36 @@ public class Utilities {
         bis.close();
 
         return person;
+    }
+
+    /**
+     * Inputs a potential BOF into the Room database if they have similar courses with the user
+     *
+     * @param potentialBOF Object representing the other user who may qualify as a BOF
+     * @param db Singleton instance to access the Room database
+     */
+    public static void inputBOF(PersonWithCourses potentialBOF, AppDatabase db) {
+        Person userInfo = potentialBOF.person;
+        int personId = db.personsWithCoursesDao().count();
+        Person user = new Person(personId, userInfo.name, userInfo.profile_url);
+        db.personsWithCoursesDao().insertPerson(user);
+        List<Course> courses = potentialBOF.getCourses();
+        for (Course course : courses) {
+            if (db.coursesDao().similarCourse(course.year, course.quarter, course.subject, course.number) != 0)
+                db.coursesDao().insert(new Course(personId, course.year, course.quarter, course.subject, course.number));
+        }
+    }
+
+
+    /**
+     * Generates an ordering of the BOFs based on how many courses they have in common with the user
+     *
+     * @param db Singleton instance to access the Room database
+     * @return list of BOFs in order of how many courses they have in common with the user.
+     */
+    public static List<PersonWithCourses> generateSimilarityOrder(AppDatabase db) {
+        List<Integer> orderedIds = db.coursesDao().getSimilarityOrdering();
+        List<PersonWithCourses> orderedBOFs = orderedIds.stream().map((id) -> db.personsWithCoursesDao().get(id)).collect(Collectors.toList());
+        return orderedBOFs;
     }
 }
