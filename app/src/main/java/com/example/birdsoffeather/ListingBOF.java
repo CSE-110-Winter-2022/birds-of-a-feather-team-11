@@ -3,11 +3,15 @@ package com.example.birdsoffeather;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.Manifest;
 import android.bluetooth.BluetoothAdapter;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -33,7 +37,6 @@ public class ListingBOF extends AppCompatActivity {
     private ExecutorService backgroundThreadExecutor = Executors.newSingleThreadExecutor();
     private Future<Void> future;
 
-
     private boolean bluetoothStarted;
     private BluetoothAdapter bluetoothAdapter;
 
@@ -43,6 +46,8 @@ public class ListingBOF extends AppCompatActivity {
 
     private RecyclerView personsRecyclerView;
     private PersonsViewAdapter personsViewAdapter;
+
+    private static final int PERMISSIONS_REQUEST_CODE = 1111;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,6 +64,10 @@ public class ListingBOF extends AppCompatActivity {
 
             return null;
         });
+
+        if (!havePermissions()) {
+            requestPermissions();
+        }
 
         setupBluetooth();
 
@@ -106,7 +115,7 @@ public class ListingBOF extends AppCompatActivity {
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         if (bluetoothAdapter == null) {
             Utilities.showAlert(this, "Your phone is not Bluetooth capable. You will not be able to use this app.");
-            finish();
+            onBluetoothFailed();
             Log.w("Bluetooth", "Phone is not bluetooth capable");
             return;
         } else if (!bluetoothAdapter.isEnabled()) {
@@ -139,7 +148,7 @@ public class ListingBOF extends AppCompatActivity {
             bluetooth.setMessage(selfMessage);
         } catch (IOException e) {
             Toast.makeText(this, "Failed to setup bluetooth! Try restarting app.", Toast.LENGTH_SHORT).show();
-            finish();
+            onBluetoothFailed();
             Log.w("Bluetooth","Bluetooth setup failed");
             e.printStackTrace();
         }
@@ -224,4 +233,38 @@ public class ListingBOF extends AppCompatActivity {
             bluetooth.unsubscribe();
         }
     }
+
+    private boolean havePermissions() {
+        return ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                == PackageManager.PERMISSION_GRANTED;
+    }
+
+    private void requestPermissions() {
+        ActivityCompat.requestPermissions(this,
+                new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, PERMISSIONS_REQUEST_CODE);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode != PERMISSIONS_REQUEST_CODE) {
+            return;
+        }
+        for (int i = 0; i < permissions.length; i++) {
+            String permission = permissions[i];
+            if (grantResults[i] == PackageManager.PERMISSION_DENIED) {
+                Toast.makeText(this, "This app needs permission", Toast.LENGTH_SHORT).show();
+                onBluetoothFailed();
+            } else {
+                setupBluetooth();
+            }
+        }
+    }
+
+
+    private void onBluetoothFailed() {
+        finish();
+    }
+
 }
