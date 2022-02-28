@@ -235,11 +235,13 @@ public class ListingBOF extends AppCompatActivity {
     }
 
     private boolean havePermissions() {
+        Log.i("Bluetooth", "Checking if location permissions are granted");
         return ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED;
     }
 
     private void requestPermissions() {
+        Log.i("Bluetooth","Requesting location permissions");
         ActivityCompat.requestPermissions(this,
                 new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, PERMISSIONS_REQUEST_CODE);
     }
@@ -254,9 +256,11 @@ public class ListingBOF extends AppCompatActivity {
         for (int i = 0; i < permissions.length; i++) {
             String permission = permissions[i];
             if (grantResults[i] == PackageManager.PERMISSION_DENIED) {
+                Log.i("Bluetooth", "Nearby Permissions denied");
                 Toast.makeText(this, "This app needs permission", Toast.LENGTH_SHORT).show();
                 onBluetoothFailed();
             } else {
+                Log.i("Bluetooth", "Permission granted");
                 setupBluetooth();
             }
         }
