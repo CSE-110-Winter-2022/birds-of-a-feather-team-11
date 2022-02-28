@@ -24,9 +24,9 @@ public class MainActivity extends AppCompatActivity {
 
         super.onCreate(savedInstanceState);
 
-        clearBOFs();
-
         SharedPreferences preferences = getSharedPreferences("BoF", MODE_PRIVATE);
+
+        clearBOFs(preferences);
 
         BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 
@@ -63,11 +63,12 @@ public class MainActivity extends AppCompatActivity {
     /**
      * Removes all of the previously generated BOFs from the database
      */
-    public void clearBOFs() {
+    public void clearBOFs(SharedPreferences preferences) {
         this.future = backgroundThreadExecutor.submit(() -> {
             db = AppDatabase.singleton(getApplicationContext());
-            db.coursesDao().deleteBOFs();
-            db.personsWithCoursesDao().deleteBOFs();
+            String userID = preferences.getString("userID", "default");
+            db.coursesDao().deleteBOFs(userID);
+            db.personsWithCoursesDao().deleteBOFs(userID);
             return null;
         });
     }

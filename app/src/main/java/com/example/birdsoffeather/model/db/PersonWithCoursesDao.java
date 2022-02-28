@@ -15,7 +15,7 @@ public interface PersonWithCoursesDao {
 
     @Transaction
     @Query("SELECT * FROM persons WHERE id=:id")
-    PersonWithCourses get(int id);
+    PersonWithCourses get(String id);
 
     @Query("SELECT COUNT(*) FROM persons")
     int count();
@@ -26,6 +26,6 @@ public interface PersonWithCoursesDao {
     @Query("DELETE FROM persons")
     void deleteAll();
 
-    @Query("DELETE FROM persons WHERE id != 0")
-    void deleteBOFs();
+    @Query("DELETE FROM persons WHERE id!=:userID")
+    void deleteBOFs(String userID);
 }

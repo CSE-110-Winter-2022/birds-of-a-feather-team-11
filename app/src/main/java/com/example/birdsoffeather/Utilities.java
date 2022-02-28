@@ -8,7 +8,6 @@ import com.example.birdsoffeather.model.db.AppDatabase;
 import com.example.birdsoffeather.model.db.Course;
 import com.example.birdsoffeather.model.db.Person;
 import com.example.birdsoffeather.model.db.PersonWithCourses;
-import com.google.android.gms.nearby.messages.Message;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -86,15 +85,16 @@ public class Utilities {
      * @param potentialBOF Object representing the other user who may qualify as a BOF
      * @param db Singleton instance to access the Room database
      */
-    public static void inputBOF(PersonWithCourses potentialBOF, AppDatabase db) {
+    public static void inputBOF(PersonWithCourses potentialBOF, AppDatabase db, String userID) {
         Person userInfo = potentialBOF.person;
-        int personId = db.personsWithCoursesDao().count();
-        Person user = new Person(personId, userInfo.name, userInfo.profile_url);
+        if (db.personsWithCoursesDao().get(userInfo.personId) != null)
+            return;
+        Person user = new Person(userInfo.personId, userInfo.name, userInfo.profile_url);
         db.personsWithCoursesDao().insertPerson(user);
         List<Course> courses = potentialBOF.getCourses();
         for (Course course : courses) {
-            if (db.coursesDao().similarCourse(course.year, course.quarter, course.subject, course.number) != 0)
-                db.coursesDao().insert(new Course(personId, course.year, course.quarter, course.subject, course.number));
+            if (db.coursesDao().similarCourse(userID, course.year, course.quarter, course.subject, course.number) != 0)
+                db.coursesDao().insert(new Course(userInfo.personId, course.year, course.quarter, course.subject, course.number));
         }
     }
 
@@ -105,8 +105,8 @@ public class Utilities {
      * @param db Singleton instance to access the Room database
      * @return list of BOFs in order of how many courses they have in common with the user.
      */
-    public static List<PersonWithCourses> generateSimilarityOrder(AppDatabase db) {
-        List<Integer> orderedIds = db.coursesDao().getSimilarityOrdering();
+    public static List<PersonWithCourses> generateSimilarityOrder(AppDatabase db, String userID) {
+        List<String> orderedIds = db.coursesDao().getSimilarityOrdering(userID);
         List<PersonWithCourses> orderedBOFs = orderedIds.stream().map((id) -> db.personsWithCoursesDao().get(id)).collect(Collectors.toList());
         return orderedBOFs;
     }
