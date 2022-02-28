@@ -55,19 +55,26 @@ public class EnterClasses extends AppCompatActivity{
             return null;
         });
 
-
+        // year spinner
         Spinner yearSpinner = (Spinner) findViewById(R.id.year_input);
         ArrayAdapter<CharSequence> yearAdapter = ArrayAdapter.createFromResource(this,
                 R.array.years_array, android.R.layout.simple_spinner_item);
         yearAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         yearSpinner.setAdapter(yearAdapter);
 
+        // quarter spinner
         Spinner quarterSpinner = (Spinner) findViewById(R.id.quarter_input);
         ArrayAdapter<CharSequence> quarterAdapter = ArrayAdapter.createFromResource(this,
                 R.array.quarters_array, android.R.layout.simple_spinner_item);
         quarterAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         quarterSpinner.setAdapter(quarterAdapter);
 
+        // class size spinner
+        Spinner classSize_spinner = (Spinner) findViewById(R.id.class_size_input);
+        ArrayAdapter<CharSequence> classSize_adapter = ArrayAdapter.createFromResource(this,
+                R.array.class_sizes, android.R.layout.simple_spinner_item);
+        classSize_adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        classSize_spinner.setAdapter(classSize_adapter);
     }
 
     /**
