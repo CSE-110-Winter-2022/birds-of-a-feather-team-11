@@ -30,6 +30,7 @@ import com.example.birdsoffeather.model.db.Course;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -40,6 +41,8 @@ public class EnterClassesUnitTest {
 
     @Rule
     public ActivityScenarioRule<EnterClasses> scenarioRule = new ActivityScenarioRule<>(EnterClasses.class);
+
+    String userID = UUID.randomUUID().toString();
 
 
     @Test
@@ -52,13 +55,13 @@ public class EnterClassesUnitTest {
         scenario.onActivity(activity -> {
             backgroundThreadExecutor.submit(() -> {
                 AppDatabase db = AppDatabase.singleton(getApplicationContext());
-                List<Course> before = db.coursesDao().getForPerson(0);
+                List<Course> before = db.coursesDao().getForPerson(userID);
 
                 assertEquals(0, before.size());
 
                 Button enterButton = activity.findViewById(R.id.enter_btn);
                 enterButton.performClick();
-                List<Course> after = db.coursesDao().getForPerson(0);
+                List<Course> after = db.coursesDao().getForPerson(userID);
 
                 assertEquals(0, after.size());
                 return null;
@@ -82,12 +85,12 @@ public class EnterClassesUnitTest {
                 numView.setText("110");
                 Button enterButton = activity.findViewById(R.id.enter_btn);
                 enterButton.performClick();
-                List<Course> before = db.coursesDao().getForPerson(0);
+                List<Course> before = db.coursesDao().getForPerson(userID);
 
                 assertEquals(1, before.size());//1 class should be added
 
                 enterButton.performClick();
-                List<Course> after = db.coursesDao().getForPerson(0);
+                List<Course> after = db.coursesDao().getForPerson(userID);
 
                 assertEquals(before, after);
                 return null;
@@ -127,15 +130,15 @@ public class EnterClassesUnitTest {
                 numView.setText("101A");
                 enterButton.performClick();
 
-                List<Course> addedCourses = db.coursesDao().getForPerson(0);
+                List<Course> addedCourses = db.coursesDao().getForPerson(userID);
                 assertEquals(5, addedCourses.size());
 
                 List<Course> expectedCourses = new ArrayList<>();
-                expectedCourses.add(new Course(0, "2022", "Fall", "CSE", "110"));
-                expectedCourses.add(new Course(0, "2021", "Fall", "CSE", "110"));
-                expectedCourses.add(new Course(0, "2021", "Spring", "CSE", "110"));
-                expectedCourses.add(new Course(0, "2021", "Spring", "ECE", "110"));
-                expectedCourses.add(new Course(0, "2021", "Spring", "ECE", "101A"));
+                expectedCourses.add(new Course(userID, "2022", "Fall", "CSE", "110"));
+                expectedCourses.add(new Course(userID, "2021", "Fall", "CSE", "110"));
+                expectedCourses.add(new Course(userID, "2021", "Spring", "CSE", "110"));
+                expectedCourses.add(new Course(userID, "2021", "Spring", "ECE", "110"));
+                expectedCourses.add(new Course(userID, "2021", "Spring", "ECE", "101A"));
 
                 assertEquals(expectedCourses.toString(), addedCourses.toString());
                 return null;
@@ -147,11 +150,11 @@ public class EnterClassesUnitTest {
     @Test
     public void testIsDuplicateTrue() {
         List<Course> courses = Arrays.asList(
-                new Course(0, "2019", "Winter", "CSE", "1"),
-                new Course(0, "2020", "Fall", "CSE", "2"),
-                new Course(0, "2022", "Winter", "CSE", "110"));
+                new Course(userID, "2019", "Winter", "CSE", "1"),
+                new Course(userID, "2020", "Fall", "CSE", "2"),
+                new Course(userID, "2022", "Winter", "CSE", "110"));
 
-        Course cse110Duplicate = new Course(1, "2022", "Winter", "CSE", "110");
+        Course cse110Duplicate = new Course(userID, "2022", "Winter", "CSE", "110");
 
         assertTrue(Utilities.isDuplicate(cse110Duplicate, courses));
     }
@@ -159,14 +162,14 @@ public class EnterClassesUnitTest {
     @Test
     public void testIsDuplicateFalse() {
         List<Course> courses = Arrays.asList(
-                new Course(0, "2019", "Winter", "CSE", "1"),
-                new Course(0, "2020", "Fall", "CSE", "2"),
-                new Course(0, "2022", "Winter", "CSE", "110"));
+                new Course(userID, "2019", "Winter", "CSE", "1"),
+                new Course(userID, "2020", "Fall", "CSE", "2"),
+                new Course(userID, "2022", "Winter", "CSE", "110"));
 
-        Course cse110DiffYear = new Course(1, "2021", "Winter", "CSE", "110");
-        Course cse110DiffQuarter = new Course(1, "2022", "Fall", "CSE", "110");
-        Course cse110DiffSubject = new Course(1, "2022", "Winter", "ECE", "110");
-        Course cse110DiffNumber = new Course(1, "2022", "Winter", "CSE", "100");
+        Course cse110DiffYear = new Course(userID, "2021", "Winter", "CSE", "110");
+        Course cse110DiffQuarter = new Course(userID, "2022", "Fall", "CSE", "110");
+        Course cse110DiffSubject = new Course(userID, "2022", "Winter", "ECE", "110");
+        Course cse110DiffNumber = new Course(userID, "2022", "Winter", "CSE", "100");
 
         assertFalse(Utilities.isDuplicate(cse110DiffYear, courses));
         assertFalse(Utilities.isDuplicate(cse110DiffQuarter, courses));
@@ -184,7 +187,7 @@ public class EnterClassesUnitTest {
         scenario.onActivity(activity -> {
             backgroundThreadExecutor.submit(() -> {
                 AppDatabase db = AppDatabase.singleton(getApplicationContext());
-                List<Course> before = db.coursesDao().getForPerson(0);
+                List<Course> before = db.coursesDao().getForPerson(userID);
 
                 assertEquals(0, before.size());
 

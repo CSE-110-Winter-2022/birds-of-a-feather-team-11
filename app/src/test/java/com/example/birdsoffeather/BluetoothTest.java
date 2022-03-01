@@ -22,6 +22,7 @@ import org.junit.runner.RunWith;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -29,16 +30,23 @@ import java.util.concurrent.Executors;
 public class BluetoothTest {
     private ExecutorService backgroundThreadExecutor = Executors.newSingleThreadExecutor();
 
+    String userID = UUID.randomUUID().toString();
+
     @Rule
     public ActivityScenarioRule<ListingBOF> scenarioRule = new ActivityScenarioRule<>(ListingBOF.class);
 
-    public static PersonWithCourses createTestPersonJohn() {
+    public PersonWithCourses createTestPersonJohn() {
         PersonWithCourses person = new PersonWithCourses();
         person.courses = Arrays.asList(
-                new Course(0, "1999", "WI", "C", "1"),
-                new Course(0, "1999", "FA", "C", "2"));
-        person.person = new Person(0,"John","");
+                new Course(userID, "1999", "WI", "C", "1"),
+                new Course(userID, "1999", "FA", "C", "2"));
+        person.person = new Person(userID,"John","");
+        return person;
+    }
 
+    @Test
+    public void serializeSameObjectTest() {
+        PersonWithCourses person = createTestPersonJohn();
         PersonWithCourses personCopy = null;
         try {
             Message message = new Message(Utilities.serializePerson(person));
@@ -48,7 +56,6 @@ public class BluetoothTest {
         }
 
         assertEquals(person, personCopy);
-        return person;
 
     }
 
@@ -78,10 +85,13 @@ public class BluetoothTest {
         PersonWithCourses person1 = createTestPersonJohn();
 
         PersonWithCourses person2 = new PersonWithCourses();
+
+        String userID = person1.getId();
+
         person2.courses = Arrays.asList(
-                new Course(0, "1999", "WI", "C", "1")
+                new Course(userID, "1999", "WI", "C", "1")
         );
-        person2.person = new Person(0,"John","url");
+        person2.person = new Person(userID,"John","url");
 
         PersonWithCourses serializedPerson = null;
         try {
@@ -101,13 +111,16 @@ public class BluetoothTest {
 
         scenario.moveToState(Lifecycle.State.CREATED);
 
+
         scenario.onActivity(activity -> {
             AppDatabase db = AppDatabase.singleton(getApplicationContext());
 
+            String userID = UUID.randomUUID().toString();
+
             PersonWithCourses fakePerson = new PersonWithCourses();
-            fakePerson.person = new Person(0, "John", "www.google.com");
+            fakePerson.person = new Person(userID, "John", "www.google.com");
             fakePerson.courses = Arrays.asList(
-                    new Course(0, "2022", "Winter", "CSE", "110"));
+                    new Course(userID, "2022", "Winter", "CSE", "110"));
             MessageListener fake = new FakeMessageListener(activity.getMessageListener(), fakePerson);
             activity.setMessageListener(fake);
 
@@ -118,7 +131,7 @@ public class BluetoothTest {
                 assertEquals(1, numPeople);
                 assertEquals(1, numCourses);
 
-                String personName = db.personsWithCoursesDao().get(0).person.name;
+                String personName = db.personsWithCoursesDao().get(userID).person.name;
 
                 assertEquals("John", personName);
 

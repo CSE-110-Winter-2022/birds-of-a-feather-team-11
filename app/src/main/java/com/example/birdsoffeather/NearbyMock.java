@@ -3,6 +3,7 @@ package com.example.birdsoffeather;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.EditText;
@@ -32,9 +33,12 @@ public class NearbyMock extends AppCompatActivity {
         String entryData = personEntryEditText.getText().toString();
         PersonWithCourses person = generatePerson(entryData);
 
+        SharedPreferences preferences = getSharedPreferences("BoF", MODE_PRIVATE);
+        String userID = preferences.getString("userID", null);
+
         // If successful, clear text and add to database
         if (person != null) {
-            Utilities.inputBOF(person, AppDatabase.singleton(getApplicationContext()));
+            Utilities.inputBOF(person, AppDatabase.singleton(getApplicationContext()), userID);
             personEntryEditText.setText("");
             Toast.makeText(this, "Added person successfully", Toast.LENGTH_SHORT).show();
         } else {
@@ -46,13 +50,15 @@ public class NearbyMock extends AppCompatActivity {
     /*
     Helper method to create a PersonWithCourses object using a CSV-like input
     Returns null if
+    TODO: account for UUIDS and class sizes
      */
     public static PersonWithCourses generatePerson(String data) {
         String [] lines = data.split("\n");
         if (lines.length < 3) return null;
         String name = lines[0].split(",")[0];
         String uri = lines[1].split(",")[0];
-        Person person = new Person(0, name, uri);
+        // replace with UUID
+        Person person = new Person("replace with UUID", name, uri);
         List<Course> courseList = new ArrayList<>();
         for (int i = 2; i < lines.length; i++) {
             if (lines[i].length() == 0) continue;
@@ -60,7 +66,7 @@ public class NearbyMock extends AppCompatActivity {
             if (course.length != 4) {
                 return null;
             }
-            courseList.add(new Course(0, course[0], course[1], course[2], course[3]));
+            courseList.add(new Course("replace with UUID", course[0], course[1], course[2], course[3]));
 
         }
         PersonWithCourses personWithCourses = new PersonWithCourses();
