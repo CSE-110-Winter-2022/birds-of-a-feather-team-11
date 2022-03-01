@@ -2,6 +2,7 @@ package com.example.birdsoffeather.model.db;
 
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
+import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
 
 import java.io.Serializable;
@@ -44,6 +45,7 @@ public class Course implements Serializable {
      *
      * TODO: Remove constructor when unit tests are updated with class sizes
      */
+    @Ignore
     public Course(String personId, String year, String quarter, String subject, String number) {
         this.personId = personId;
         this.year = year;
