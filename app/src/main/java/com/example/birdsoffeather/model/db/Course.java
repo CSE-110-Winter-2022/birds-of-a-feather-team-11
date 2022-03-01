@@ -28,16 +28,33 @@ public class Course implements Serializable {
     @ColumnInfo(name = "number")
     public String number;
 
+    @ColumnInfo(name = "class_size")
+    public String classSize;
+
+    public Course(String personId, String year, String quarter, String subject, String number, String classSize) {
+        this.personId = personId;
+        this.year = year;
+        this.quarter = getFormattedQuarter(quarter);
+        this.subject = subject.trim().toUpperCase();
+        this.number = number.trim().toUpperCase();
+        this.classSize = classSize;
+    }
+
+    /**
+     *
+     * TODO: Remove constructor when unit tests are updated with class sizes
+     */
     public Course(String personId, String year, String quarter, String subject, String number) {
         this.personId = personId;
         this.year = year;
         this.quarter = getFormattedQuarter(quarter);
         this.subject = subject.trim().toUpperCase();
         this.number = number.trim().toUpperCase();
+        this.classSize = "Medium (112)";
     }
 
     public String toString(){
-        return year + quarter + subject+ number;
+        return year + quarter + subject + number + classSize;
     }
 
     @Override
@@ -45,7 +62,7 @@ public class Course implements Serializable {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Course course = (Course) o;
-        return courseId == course.courseId && personId.equals(course.personId) && Objects.equals(year, course.year) && Objects.equals(quarter, course.quarter) && Objects.equals(subject, course.subject) && Objects.equals(number, course.number);
+        return courseId == course.courseId && personId.equals(course.personId) && Objects.equals(year, course.year) && Objects.equals(quarter, course.quarter) && Objects.equals(subject, course.subject) && Objects.equals(number, course.number) && classSize.equals(course.classSize);
     }
 
     private String getFormattedQuarter(String input) {

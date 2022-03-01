@@ -93,6 +93,9 @@ public class EnterClasses extends AppCompatActivity{
         Spinner quarterInput = findViewById(R.id.quarter_input);
         String courseQuarter = quarterInput.getSelectedItem().toString();
 
+        Spinner classSizeInput = findViewById(R.id.class_size_input);
+        String classSize = classSizeInput.getSelectedItem().toString();
+
         TextView subjectInput = findViewById(R.id.subject_input);
         String courseSubject = subjectInput.getText().toString();
         if(courseSubject.length() == 0){
@@ -111,7 +114,7 @@ public class EnterClasses extends AppCompatActivity{
         String userID = preferences.getString("userID", null);
 
         this.future = backgroundThreadExecutor.submit(() -> {
-            Course newCourse = new Course(userID, courseYear, courseQuarter, courseSubject, courseNumber);
+            Course newCourse = new Course(userID, courseYear, courseQuarter, courseSubject, courseNumber, classSize);
             if(Utilities.isDuplicate(newCourse, db.coursesDao().getForPerson(userID))){
                 runOnUiThread(() -> {
                     Utilities.showAlert(this, "Duplicate Entry");
