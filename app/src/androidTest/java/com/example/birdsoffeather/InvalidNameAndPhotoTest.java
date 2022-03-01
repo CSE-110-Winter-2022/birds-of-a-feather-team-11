@@ -241,6 +241,8 @@ public class InvalidNameAndPhotoTest {
                         isDisplayed()));
         materialButton11.perform(click());
 
+        try { Thread.sleep(1000); } catch(Exception e) {}
+
         ViewInteraction textView5 = onView(
                 allOf(withId(R.id.classes_view), withText("Enter Past Classes:"),
                         withParent(withParent(withId(android.R.id.content))),
