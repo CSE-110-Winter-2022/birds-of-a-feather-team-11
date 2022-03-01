@@ -21,6 +21,7 @@ import com.example.birdsoffeather.model.db.PersonWithCourses;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -47,8 +48,11 @@ public class EnterClasses extends AppCompatActivity{
             SharedPreferences preferences = getSharedPreferences("BoF", MODE_PRIVATE);
             String name = preferences.getString("Name", "No Name");
             String url = preferences.getString("Photo URL", "No URL");
-
-            Person user = new Person(0, name, url);
+            String userID = UUID.randomUUID().toString();
+            Person user = new Person(userID, name, url);
+            SharedPreferences.Editor editor = preferences.edit();
+            editor.putString("userID", userID);
+            editor.apply();
             db.personsWithCoursesDao().insertPerson(user);
             Log.i("Database", "Added person: " + user.toString());
 
@@ -76,7 +80,6 @@ public class EnterClasses extends AppCompatActivity{
      * @param view
      */
     public void onEnterClicked(View view) {
-        int personId = 0;
         Spinner yearInput = findViewById(R.id.year_input);
         String courseYear = yearInput.getSelectedItem().toString();
 
@@ -97,9 +100,12 @@ public class EnterClasses extends AppCompatActivity{
             return;
         }
 
+        SharedPreferences preferences = getSharedPreferences("BoF", MODE_PRIVATE);
+        String userID = preferences.getString("userID", null);
+
         this.future = backgroundThreadExecutor.submit(() -> {
-            Course newCourse = new Course(personId, courseYear, courseQuarter, courseSubject, courseNumber);
-            if(Utilities.isDuplicate(newCourse, db.coursesDao().getForPerson(personId))){
+            Course newCourse = new Course(userID, courseYear, courseQuarter, courseSubject, courseNumber);
+            if(Utilities.isDuplicate(newCourse, db.coursesDao().getForPerson(userID))){
                 runOnUiThread(() -> {
                     Utilities.showAlert(this, "Duplicate Entry");
                 });

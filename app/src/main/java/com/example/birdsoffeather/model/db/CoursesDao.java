@@ -12,16 +12,13 @@ import java.util.List;
 public interface CoursesDao {
     @Transaction
     @Query("SELECT * FROM courses where person_id=:personId order by id")
-    List<Course> getForPerson(int personId);
+    List<Course> getForPerson(String personId);
 
     //@Query("SELECT * FROM courses WHERE id=:id")
     //Course get(int id);
 
     @Query("SELECT COUNT(*) FROM courses")
     int count();
-
-    @Query("SELECT MAX(id) FROM courses")
-    int maxId();
 
     @Insert
     void insert(Course course);
@@ -32,13 +29,13 @@ public interface CoursesDao {
     @Query("DELETE FROM courses")
     void deleteAll();
 
-    @Query("SELECT person_id FROM courses WHERE person_id != 0 GROUP BY person_id ORDER BY COUNT(*) DESC")
-    List<Integer> getSimilarityOrdering();
+    @Query("SELECT person_id FROM courses WHERE person_id!=:userID GROUP BY person_id ORDER BY COUNT(*) DESC")
+    List<String> getSimilarityOrdering(String userID);
 
-    @Query("SELECT COUNT(*) FROM courses WHERE person_id = 0 AND year=:year AND quarter=:quarter AND subject=:subject AND number=:number")
-    int similarCourse(String year, String quarter, String subject, String number);
+    @Query("SELECT COUNT(*) FROM courses WHERE person_id=:userID AND year=:year AND quarter=:quarter AND subject=:subject AND number=:number")
+    int similarCourse(String userID, String year, String quarter, String subject, String number);
 
-    @Query("DELETE FROM courses WHERE person_id != 0")
-    void deleteBOFs();
+    @Query("DELETE FROM courses WHERE person_id!=:userID")
+    void deleteBOFs(String userID);
 
 }
