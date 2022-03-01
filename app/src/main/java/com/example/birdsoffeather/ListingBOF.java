@@ -12,6 +12,7 @@ import android.Manifest;
 import android.bluetooth.BluetoothAdapter;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -37,6 +38,7 @@ public class ListingBOF extends AppCompatActivity {
     private ExecutorService backgroundThreadExecutor = Executors.newSingleThreadExecutor();
     private Future<Void> future;
 
+
     private boolean bluetoothStarted;
     private BluetoothAdapter bluetoothAdapter;
 
@@ -56,11 +58,14 @@ public class ListingBOF extends AppCompatActivity {
 
         bluetoothStarted = false;
 
+        SharedPreferences preferences = getSharedPreferences("BoF", MODE_PRIVATE);
+        String userID = preferences.getString("userID", null);
+
         // Obtain details of use
         this.future = backgroundThreadExecutor.submit(() -> {
             db = AppDatabase.singleton(getApplicationContext());
 
-            selfPerson = db.personsWithCoursesDao().get(0);
+            selfPerson = db.personsWithCoursesDao().get(userID);
 
             return null;
         });
@@ -86,9 +91,12 @@ public class ListingBOF extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
 
+        SharedPreferences preferences = getSharedPreferences("BoF", MODE_PRIVATE);
+        String userID = preferences.getString("userID", null);
+
         // Get updated list of similar classes in background thread and then use ui thread to update UI
         this.future = backgroundThreadExecutor.submit(() -> {
-            List<PersonWithCourses> persons = Utilities.generateSimilarityOrder(db);
+            List<PersonWithCourses> persons = Utilities.generateSimilarityOrder(db, userID);
             runOnUiThread(() -> {
                 updateUI(persons);
             });
@@ -133,9 +141,11 @@ public class ListingBOF extends AppCompatActivity {
                 public void onFound(@NonNull Message message) {
                     try {
                         PersonWithCourses person = Utilities.deserializePerson(message.getContent());
+                        SharedPreferences preferences = getSharedPreferences("BoF", MODE_PRIVATE);
+                        String userID = preferences.getString("userID", null);
                         future = backgroundThreadExecutor.submit(() -> {
-                            Utilities.inputBOF(person, db);
-                            updateUI(Utilities.generateSimilarityOrder(db));
+                            Utilities.inputBOF(person, db, userID);
+                            updateUI(Utilities.generateSimilarityOrder(db, userID));
                             Log.i("Bluetooth",person.toString() + " found");
                             return null;
                         });

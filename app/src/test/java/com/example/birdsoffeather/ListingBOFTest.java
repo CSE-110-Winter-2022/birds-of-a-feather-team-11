@@ -22,6 +22,7 @@ import org.junit.runner.RunWith;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -33,16 +34,17 @@ public class ListingBOFTest {
 
     @Test
     public void testUIRefresh() {
-        Person person1 = new Person(0, "John", "url");
+        String userID = UUID.randomUUID().toString();
+        Person person1 = new Person(userID, "John", "url");
         ArrayList<Course> courses= new ArrayList<>();
-        courses.add(new Course(0,"2021", "Spring", "CSE", "110"));
-        courses.add(new Course(1,"2021", "Winter", "CSE", "100"));
-        courses.add(new Course(2,"2020", "Spring", "CSE", "12"));
+        courses.add(new Course(userID,"2021", "Spring", "CSE", "110"));
+        courses.add(new Course(userID,"2021", "Winter", "CSE", "100"));
+        courses.add(new Course(userID,"2020", "Spring", "CSE", "12"));
         PersonWithCourses personWithCourses1 = new PersonWithCourses();
         personWithCourses1.courses = courses;
         personWithCourses1.person = person1;
 
-        Person person2 = new Person(0, "John", "url");
+        Person person2 = new Person(UUID.randomUUID().toString(), "John", "url");
         PersonWithCourses personWithCourses2 = new PersonWithCourses();
         personWithCourses2.courses = courses;
         personWithCourses2.person = person2;

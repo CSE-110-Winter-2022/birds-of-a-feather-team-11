@@ -16,7 +16,7 @@ public class PersonWithCourses implements Serializable, IPerson {
             entity = Course.class)
     public List<Course> courses;
 
-    public int getId() {
+    public String getId() {
         return this.person.personId;
     }
 

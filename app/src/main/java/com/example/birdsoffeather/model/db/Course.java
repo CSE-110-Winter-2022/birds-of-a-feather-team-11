@@ -14,7 +14,7 @@ public class Course implements Serializable {
     public int courseId;
 
     @ColumnInfo(name = "person_id")
-    public int personId;
+    public String personId;
 
     @ColumnInfo(name = "year")
     public String year;
@@ -28,7 +28,7 @@ public class Course implements Serializable {
     @ColumnInfo(name = "number")
     public String number;
 
-    public Course(int personId, String year, String quarter, String subject, String number) {
+    public Course(String personId, String year, String quarter, String subject, String number) {
         this.personId = personId;
         this.year = year;
         this.quarter = getFormattedQuarter(quarter);
@@ -45,7 +45,7 @@ public class Course implements Serializable {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Course course = (Course) o;
-        return courseId == course.courseId && personId == course.personId && Objects.equals(year, course.year) && Objects.equals(quarter, course.quarter) && Objects.equals(subject, course.subject) && Objects.equals(number, course.number);
+        return courseId == course.courseId && personId.equals(course.personId) && Objects.equals(year, course.year) && Objects.equals(quarter, course.quarter) && Objects.equals(subject, course.subject) && Objects.equals(number, course.number);
     }
 
     private String getFormattedQuarter(String input) {
