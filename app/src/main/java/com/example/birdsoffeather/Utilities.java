@@ -20,6 +20,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class Utilities {
+    public static final String DEFAULT = "Default";
+    public static final String CLASS_SIZE = "Class Size";
+    public static final String CLASS_AGE = "Class Age";
+
     public static void showAlert(Activity activity, String message) {
         showAlert(activity, message, (dialog, id) -> {
             dialog.cancel();

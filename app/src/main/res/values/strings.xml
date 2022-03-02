@@ -56,4 +56,10 @@
         <item>Special Summer Session</item>
     </string-array>
 
+    <string-array name="filters_array">
+        <item>Default</item>
+        <item>Class Size</item>
+        <item>Class Age</item>
+    </string-array>
+
 </resources>

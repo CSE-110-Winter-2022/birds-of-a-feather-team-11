@@ -16,7 +16,10 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.example.birdsoffeather.model.db.AppDatabase;
@@ -86,6 +89,25 @@ public class ListingBOF extends AppCompatActivity {
         // set adapter
         personsViewAdapter = new PersonsViewAdapter(new ArrayList<>());
         personsRecyclerView.setAdapter(personsViewAdapter);
+
+        //set filter spinner
+        Spinner filterSpinner = (Spinner) findViewById(R.id.filter_spinner);
+        ArrayAdapter<CharSequence> filterAdapter = ArrayAdapter.createFromResource(this,
+                R.array.filters_array, android.R.layout.simple_spinner_item);
+        filterAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        filterSpinner.setAdapter(filterAdapter);
+        filterSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                String filter = adapterView.getItemAtPosition(i).toString();
+                Log.d("FilterSelect", filter);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+
+            }
+        });
     }
 
     @Override
