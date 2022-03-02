@@ -45,15 +45,15 @@ public class Course implements Serializable {
      *
      * TODO: Remove constructor when unit tests are updated with class sizes
      */
-    @Ignore
-    public Course(String personId, String year, String quarter, String subject, String number) {
-        this.personId = personId;
-        this.year = year;
-        this.quarter = getFormattedQuarter(quarter);
-        this.subject = subject.trim().toUpperCase();
-        this.number = number.trim().toUpperCase();
-        this.classSize = "Medium (112)";
-    }
+//    @Ignore
+//    public Course(String personId, String year, String quarter, String subject, String number) {
+//        this.personId = personId;
+//        this.year = year;
+//        this.quarter = getFormattedQuarter(quarter);
+//        this.subject = subject.trim().toUpperCase();
+//        this.number = number.trim().toUpperCase();
+//        this.classSize = "Medium (112)";
+//    }
 
     public String toString(){
         return year + quarter + subject + number + classSize;

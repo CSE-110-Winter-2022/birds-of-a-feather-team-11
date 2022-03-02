@@ -93,8 +93,8 @@ public class Utilities {
         db.personsWithCoursesDao().insertPerson(user);
         List<Course> courses = potentialBOF.getCourses();
         for (Course course : courses) {
-            if (db.coursesDao().similarCourse(userID, course.year, course.quarter, course.subject, course.number) != 0)
-                db.coursesDao().insert(new Course(userInfo.personId, course.year, course.quarter, course.subject, course.number));
+            if (db.coursesDao().similarCourse(userID, course.year, course.quarter, course.subject, course.number, course.classSize) != 0)
+                db.coursesDao().insert(new Course(userInfo.personId, course.year, course.quarter, course.subject, course.number, course.classSize));
         }
     }
 
@@ -120,7 +120,7 @@ public class Utilities {
      */
     public static boolean isDuplicate(Course newCourse, List<Course> courses){
         for(Course c: courses)
-            if (c.year.equals(newCourse.year) && c.quarter.equals(newCourse.quarter) && c.subject.equals(newCourse.subject) && c.number.equals(newCourse.number))
+            if (c.year.equals(newCourse.year) && c.quarter.equals(newCourse.quarter) && c.subject.equals(newCourse.subject) && c.number.equals(newCourse.number) && c.classSize.equals(newCourse.classSize))
                 return true;
         return false;
     }

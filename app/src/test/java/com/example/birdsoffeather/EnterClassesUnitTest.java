@@ -112,6 +112,7 @@ public class EnterClassesUnitTest {
                 EditText numView = activity.findViewById(R.id.course_nbr_input);
                 Spinner yearSpinner = activity.findViewById(R.id.year_input);
                 Spinner quarterSpinner = activity.findViewById(R.id.quarter_input);
+                Spinner classSize_spinner = activity.findViewById(R.id.class_size_input);
 
                 subjectView.setText("CSE");
                 numView.setText("110");
@@ -125,20 +126,22 @@ public class EnterClassesUnitTest {
                 enterButton.performClick();
 
                 subjectView.setText("ECE");
+                classSize_spinner.setSelection(1);
                 enterButton.performClick();
 
                 numView.setText("101A");
+                classSize_spinner.setSelection(4);
                 enterButton.performClick();
 
                 List<Course> addedCourses = db.coursesDao().getForPerson(userID);
                 assertEquals(5, addedCourses.size());
 
                 List<Course> expectedCourses = new ArrayList<>();
-                expectedCourses.add(new Course(userID, "2022", "Fall", "CSE", "110"));
-                expectedCourses.add(new Course(userID, "2021", "Fall", "CSE", "110"));
-                expectedCourses.add(new Course(userID, "2021", "Spring", "CSE", "110"));
-                expectedCourses.add(new Course(userID, "2021", "Spring", "ECE", "110"));
-                expectedCourses.add(new Course(userID, "2021", "Spring", "ECE", "101A"));
+                expectedCourses.add(new Course(userID, "2022", "Fall", "CSE", "110", "Tiny (20)"));
+                expectedCourses.add(new Course(userID, "2021", "Fall", "CSE", "110", "Tiny (20)"));
+                expectedCourses.add(new Course(userID, "2021", "Spring", "CSE", "110", "Tiny (20)"));
+                expectedCourses.add(new Course(userID, "2021", "Spring", "ECE", "110", "Small (60)"));
+                expectedCourses.add(new Course(userID, "2021", "Spring", "ECE", "101A", "Huge (325)"));
 
                 assertEquals(expectedCourses.toString(), addedCourses.toString());
                 return null;
@@ -150,11 +153,11 @@ public class EnterClassesUnitTest {
     @Test
     public void testIsDuplicateTrue() {
         List<Course> courses = Arrays.asList(
-                new Course(userID, "2019", "Winter", "CSE", "1"),
-                new Course(userID, "2020", "Fall", "CSE", "2"),
-                new Course(userID, "2022", "Winter", "CSE", "110"));
+                new Course(userID, "2019", "Winter", "CSE", "1", "Tiny (20)"),
+                new Course(userID, "2020", "Fall", "CSE", "2", "Tiny (20)"),
+                new Course(userID, "2022", "Winter", "CSE", "110", "Large (200)"));
 
-        Course cse110Duplicate = new Course(userID, "2022", "Winter", "CSE", "110");
+        Course cse110Duplicate = new Course(userID, "2022", "Winter", "CSE", "110", "Large (200)");
 
         assertTrue(Utilities.isDuplicate(cse110Duplicate, courses));
     }
@@ -162,19 +165,21 @@ public class EnterClassesUnitTest {
     @Test
     public void testIsDuplicateFalse() {
         List<Course> courses = Arrays.asList(
-                new Course(userID, "2019", "Winter", "CSE", "1"),
-                new Course(userID, "2020", "Fall", "CSE", "2"),
-                new Course(userID, "2022", "Winter", "CSE", "110"));
+                new Course(userID, "2019", "Winter", "CSE", "1", "Tiny (20)"),
+                new Course(userID, "2020", "Fall", "CSE", "2", "Tiny (20)"),
+                new Course(userID, "2022", "Winter", "CSE", "110", "Large (200)"));
 
-        Course cse110DiffYear = new Course(userID, "2021", "Winter", "CSE", "110");
-        Course cse110DiffQuarter = new Course(userID, "2022", "Fall", "CSE", "110");
-        Course cse110DiffSubject = new Course(userID, "2022", "Winter", "ECE", "110");
-        Course cse110DiffNumber = new Course(userID, "2022", "Winter", "CSE", "100");
+        Course cse110DiffYear = new Course(userID, "2021", "Winter", "CSE", "110", "Large (200)");
+        Course cse110DiffQuarter = new Course(userID, "2022", "Fall", "CSE", "110", "Large (200)");
+        Course cse110DiffSubject = new Course(userID, "2022", "Winter", "ECE", "110", "Large (200)");
+        Course cse110DiffNumber = new Course(userID, "2022", "Winter", "CSE", "100", "Large (200)");
+        Course cse110DiffClassSize = new Course(userID, "2022", "Winter", "CSE", "110", "Huge (325)");
 
         assertFalse(Utilities.isDuplicate(cse110DiffYear, courses));
         assertFalse(Utilities.isDuplicate(cse110DiffQuarter, courses));
         assertFalse(Utilities.isDuplicate(cse110DiffSubject, courses));
         assertFalse(Utilities.isDuplicate(cse110DiffNumber, courses));
+        assertFalse(Utilities.isDuplicate(cse110DiffClassSize, courses));
 
     }
 
