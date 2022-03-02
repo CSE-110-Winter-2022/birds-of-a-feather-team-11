@@ -37,9 +37,9 @@ public class ListingBOFTest {
         String userID = UUID.randomUUID().toString();
         Person person1 = new Person(userID, "John", "");
         ArrayList<Course> courses= new ArrayList<>();
-        courses.add(new Course(userID,"2021", "Spring", "CSE", "110", "Large (200)"));
-        courses.add(new Course(userID,"2021", "Winter", "CSE", "100", "Huge (325)"));
-        courses.add(new Course(userID,"2020", "Spring", "CSE", "12", "Huge (325)"));
+        courses.add(new Course(userID,"2021", "Spring", "CSE", "110", "Large (150-250)"));
+        courses.add(new Course(userID,"2021", "Winter", "CSE", "100", "Huge (250-400)"));
+        courses.add(new Course(userID,"2020", "Spring", "CSE", "12", "Huge (250-450)"));
         PersonWithCourses personWithCourses1 = new PersonWithCourses();
         personWithCourses1.courses = courses;
         personWithCourses1.person = person1;

@@ -89,7 +89,7 @@ public class BluetoothTest {
         String userID = person1.getId();
 
         person2.courses = Arrays.asList(
-                new Course(userID, "1999", "WI", "C", "1","Tiny (20)")
+                new Course(userID, "1999", "WI", "C", "1","Tiny (<40)")
         );
         person2.person = new Person(userID,"John","url");
 
@@ -120,7 +120,7 @@ public class BluetoothTest {
             PersonWithCourses fakePerson = new PersonWithCourses();
             fakePerson.person = new Person(userID, "John", "www.google.com");
             fakePerson.courses = Arrays.asList(
-                    new Course(userID, "2022", "Winter", "CSE", "110","Large (200)"));
+                    new Course(userID, "2022", "Winter", "CSE", "110","Large (150-250)"));
             MessageListener fake = new FakeMessageListener(activity.getMessageListener(), fakePerson);
             activity.setMessageListener(fake);
 
