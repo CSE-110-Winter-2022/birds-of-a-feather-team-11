@@ -173,13 +173,11 @@ public class EnterClassesUnitTest {
         Course cse110DiffQuarter = new Course(userID, "2022", "Fall", "CSE", "110", "Large (200)");
         Course cse110DiffSubject = new Course(userID, "2022", "Winter", "ECE", "110", "Large (200)");
         Course cse110DiffNumber = new Course(userID, "2022", "Winter", "CSE", "100", "Large (200)");
-        Course cse110DiffClassSize = new Course(userID, "2022", "Winter", "CSE", "110", "Huge (325)");
 
         assertFalse(Utilities.isDuplicate(cse110DiffYear, courses));
         assertFalse(Utilities.isDuplicate(cse110DiffQuarter, courses));
         assertFalse(Utilities.isDuplicate(cse110DiffSubject, courses));
         assertFalse(Utilities.isDuplicate(cse110DiffNumber, courses));
-        assertFalse(Utilities.isDuplicate(cse110DiffClassSize, courses));
 
     }
 

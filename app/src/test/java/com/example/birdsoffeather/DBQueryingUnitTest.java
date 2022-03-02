@@ -94,8 +94,8 @@ public class DBQueryingUnitTest {
 
             backgroundThreadExecutor.submit(() -> {
                 addPersons();
-                int similarClass = db.coursesDao().similarCourse(userID, "2021", "Fall", "CSE", "110", "Large (200)");
-                int notSimilarClass = db.coursesDao().similarCourse(userID, "2019", "Fall", "CSE", "110", "Huge (325)");
+                int similarClass = db.coursesDao().similarCourse(userID, "2021", "Fall", "CSE", "110");
+                int notSimilarClass = db.coursesDao().similarCourse(userID, "2019", "Fall", "CSE", "110");
 
                 assertNotEquals(0, similarClass); //There should be a match in the database
                 assertEquals(0, notSimilarClass); //There should not be a match in the database
