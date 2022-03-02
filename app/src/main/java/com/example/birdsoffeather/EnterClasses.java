@@ -49,7 +49,7 @@ public class EnterClasses extends AppCompatActivity{
             String name = preferences.getString("Name", "No Name");
             String url = preferences.getString("Photo URL", "No URL");
             String userID = UUID.randomUUID().toString();
-            Person user = new Person(userID, name, url);
+            Person user = new Person(userID, name, url, 0, 0);
             SharedPreferences.Editor editor = preferences.edit();
             editor.putString("userID", userID);
             editor.apply();

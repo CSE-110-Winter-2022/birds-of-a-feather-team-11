@@ -33,7 +33,10 @@ public interface CoursesDao {
     List<String> getSimilarityOrdering(String userID);
 
     @Query("SELECT COUNT(*) FROM courses WHERE person_id=:userID AND year=:year AND quarter=:quarter AND subject=:subject AND number=:number")
-    int similarCourse(String userID, String year, String quarter, String subject, String number);
+    int similarCourseNum(String userID, String year, String quarter, String subject, String number);
+
+    @Query("SELECT * FROM courses WHERE person_id=:userID AND year=:year AND quarter=:quarter AND subject=:subject AND number=:number")
+    List<Course> getSimilarCourse(String userID, String year, String quarter, String subject, String number);
 
     @Query("DELETE FROM courses WHERE person_id!=:userID")
     void deleteBOFs(String userID);

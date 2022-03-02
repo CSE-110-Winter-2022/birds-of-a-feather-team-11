@@ -48,6 +48,7 @@ public class ListingBOF extends AppCompatActivity {
 
     private RecyclerView personsRecyclerView;
     private PersonsViewAdapter personsViewAdapter;
+    private String userID = null;
 
     private static final int PERMISSIONS_REQUEST_CODE = 1111;
 
@@ -59,7 +60,7 @@ public class ListingBOF extends AppCompatActivity {
         bluetoothStarted = false;
 
         SharedPreferences preferences = getSharedPreferences("BoF", MODE_PRIVATE);
-        String userID = preferences.getString("userID", null);
+        userID = preferences.getString("userID", null);
 
         // Obtain details of use
         this.future = backgroundThreadExecutor.submit(() -> {
@@ -92,7 +93,7 @@ public class ListingBOF extends AppCompatActivity {
         super.onStart();
 
         SharedPreferences preferences = getSharedPreferences("BoF", MODE_PRIVATE);
-        String userID = preferences.getString("userID", null);
+        userID = preferences.getString("userID", null);
 
         // Get updated list of similar classes in background thread and then use ui thread to update UI
         this.future = backgroundThreadExecutor.submit(() -> {
@@ -141,8 +142,6 @@ public class ListingBOF extends AppCompatActivity {
                 public void onFound(@NonNull Message message) {
                     try {
                         PersonWithCourses person = Utilities.deserializePerson(message.getContent());
-                        SharedPreferences preferences = getSharedPreferences("BoF", MODE_PRIVATE);
-                        String userID = preferences.getString("userID", null);
                         future = backgroundThreadExecutor.submit(() -> {
                             Utilities.inputBOF(person, db, userID);
                             updateUI(Utilities.generateSimilarityOrder(db, userID));

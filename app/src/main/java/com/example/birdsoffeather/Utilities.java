@@ -14,6 +14,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -89,13 +91,117 @@ public class Utilities {
         Person userInfo = potentialBOF.person;
         if (db.personsWithCoursesDao().get(userInfo.personId) != null)
             return;
-        Person user = new Person(userInfo.personId, userInfo.name, userInfo.profile_url);
+        List<Course> similarCourses = generateSimilarCourses(potentialBOF, db, userID);
+        double sizeScore = calculateSizeScore(similarCourses);
+        int ageScore = calculateAgeScore(similarCourses);
+        Person user = new Person(userInfo.personId, userInfo.name, userInfo.profile_url, sizeScore, ageScore);
         db.personsWithCoursesDao().insertPerson(user);
-        List<Course> courses = potentialBOF.getCourses();
+        for (Course course : similarCourses)
+            db.coursesDao().insert(course);
+    }
+
+    public static List<Course> generateSimilarCourses(PersonWithCourses potentialBOF, AppDatabase db, String userID) {
+        List<Course> courses = potentialBOF.getCourses(), similarCourses = new ArrayList<>();
         for (Course course : courses) {
-            if (db.coursesDao().similarCourse(userID, course.year, course.quarter, course.subject, course.number) != 0)
-                db.coursesDao().insert(new Course(userInfo.personId, course.year, course.quarter, course.subject, course.number));
+            Course similarCourse = getSimilarCourse(db, userID, course);
+            if (similarCourse != null)
+                similarCourses.add(new Course(course.personId, course.year, course.quarter, course.subject, course.number, similarCourse.classSize));
         }
+        return similarCourses;
+    }
+
+    public static Course getSimilarCourse(AppDatabase db, String userID, Course course) {
+        List<Course> similarCourse = db.coursesDao().getSimilarCourse(userID, course.year, course.quarter, course.subject, course.number);
+        if (similarCourse.size() != 0)
+            return similarCourse.get(0);
+        return null;
+    }
+
+
+    public static double calculateSizeScore(List<Course> similarCourses) {
+        double sum = 0;
+        for (Course course : similarCourses)
+            sum += sizeScore(course);
+        return sum;
+    }
+
+    public static double sizeScore(Course course) {
+        switch (course.classSize) {
+            case "Tiny (20)":
+                return 1;
+            case "Small (60)":
+                return .33;
+            case "Medium (112)":
+                return .18;
+            case "Large (200)":
+                return .1;
+            case "Huge (325)":
+                return .06;
+            case "Gigantic (600)":
+                return .03;
+        }
+        return .03;
+    }
+
+    public static int calculateAgeScore(List<Course> similarCourses) {
+        int sum = 0;
+        for (Course course : similarCourses)
+            sum += ageScore(course);
+        return sum;
+    }
+
+    public static int ageScore(Course course) {
+        switch (course.getAge(getCurrentQuarterAndYear())) {
+            case 0:
+                return 5;
+            case 1:
+                return 4;
+            case 2:
+                return 3;
+            case 3:
+                return 2;
+        }
+        return 1;
+    }
+
+    public static int[] getCurrentQuarterAndYear() {
+        int[] quarterAndYear = new int[2];
+        Calendar currentTime = Calendar.getInstance();
+
+        int year = currentTime.get(Calendar.YEAR);
+        int month = currentTime.get(Calendar.MONTH);
+        int day = currentTime.get(Calendar.DAY_OF_MONTH);
+        String quarter;
+
+        if (month < 3 || month == 3 && day <= 12)
+            quarter = "Winter";
+        else if (month < 6 || month == 6 && day <= 13)
+            quarter = "Spring";
+        else if (month < 10)
+            quarter = "Summer";
+        else
+            quarter = "Fall";
+
+        quarterAndYear[0] = quarterToInt(quarter);
+        quarterAndYear[1] = year;
+        return quarterAndYear;
+    }
+
+    public static int quarterToInt(String quarter) {
+        switch (quarter) {
+            case "Winter":
+                return 0;
+            case "Spring":
+                return 1;
+            case "Fall":
+                return 3;
+            case "Summer Session I":
+            case "Summer Session II":
+            case "Special Summer Session":
+            case "Summer":
+                return 2;
+        }
+        return -1;
     }
 
 
@@ -109,6 +215,14 @@ public class Utilities {
         List<String> orderedIds = db.coursesDao().getSimilarityOrdering(userID);
         List<PersonWithCourses> orderedBOFs = orderedIds.stream().map((id) -> db.personsWithCoursesDao().get(id)).collect(Collectors.toList());
         return orderedBOFs;
+    }
+
+    public static List<PersonWithCourses> generateSizeScoreOrder(AppDatabase db) {
+        return db.personsWithCoursesDao().getSizeScoreOrdering();
+    }
+
+    public static List<PersonWithCourses> generateAgeScoreOrder(AppDatabase db) {
+        return db.personsWithCoursesDao().getAgeScoreOrdering();
     }
 
     /**
