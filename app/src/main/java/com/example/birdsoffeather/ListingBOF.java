@@ -101,6 +101,12 @@ public class ListingBOF extends AppCompatActivity {
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                 String filter = adapterView.getItemAtPosition(i).toString();
                 Log.d("FilterSelect", filter);
+                String sortType = Utilities.DEFAULT;
+                if (filter.equals("Class Size"))
+                    sortType = Utilities.CLASS_SIZE;
+                else if (filter.equals("Class Age"))
+                    sortType = Utilities.CLASS_AGE;
+                updateUI(generateSortedList(sortType));
             }
 
             @Override
@@ -119,13 +125,23 @@ public class ListingBOF extends AppCompatActivity {
 
         // Get updated list of similar classes in background thread and then use ui thread to update UI
         this.future = backgroundThreadExecutor.submit(() -> {
-            List<PersonWithCourses> persons = Utilities.generateSimilarityOrder(db, userID);
+            List<PersonWithCourses> persons = generateSortedList(Utilities.DEFAULT);
             runOnUiThread(() -> {
                 updateUI(persons);
             });
             return null;
         });
 
+    }
+
+    public List<PersonWithCourses> generateSortedList(String sortType) {
+        if (sortType == null)
+            return Utilities.generateSimilarityOrder(db, userID);
+        else if (sortType.equals(Utilities.CLASS_SIZE))
+            return Utilities.generateSizeScoreOrder(db);
+        else if (sortType.equals(Utilities.CLASS_AGE))
+            return Utilities.generateAgeScoreOrder(db);
+        return Utilities.generateSimilarityOrder(db, userID);
     }
 
 
@@ -166,7 +182,7 @@ public class ListingBOF extends AppCompatActivity {
                         PersonWithCourses person = Utilities.deserializePerson(message.getContent());
                         future = backgroundThreadExecutor.submit(() -> {
                             Utilities.inputBOF(person, db, userID);
-                            updateUI(Utilities.generateSimilarityOrder(db, userID));
+                            updateUI(generateSortedList(Utilities.DEFAULT));
                             Log.i("Bluetooth",person.toString() + " found");
                             return null;
                         });
