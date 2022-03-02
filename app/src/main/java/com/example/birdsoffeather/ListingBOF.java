@@ -24,6 +24,7 @@ import com.google.android.gms.nearby.messages.MessageListener;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -134,8 +135,9 @@ public class ListingBOF extends AppCompatActivity {
                         PersonWithCourses person = Utilities.deserializePerson(message.getContent());
                         SharedPreferences preferences = getSharedPreferences("BoF", MODE_PRIVATE);
                         String userID = preferences.getString("userID", null);
+                        String sessionName = preferences.getString("currentSession", null);
                         future = backgroundThreadExecutor.submit(() -> {
-                            Utilities.inputBOF(person, db, userID);
+                            Utilities.inputBOF(person, db, userID, sessionName);
                             updateUI(Utilities.generateSimilarityOrder(db, userID));
                             Log.i("Bluetooth",person.toString() + " found");
                             return null;
@@ -194,6 +196,8 @@ public class ListingBOF extends AppCompatActivity {
 
 
         if (bluetoothStarted) {
+            //when stop is pressed
+
             // Unpublish and stop Listening
             bluetooth.unpublish();
             bluetooth.unsubscribe();
@@ -203,6 +207,7 @@ public class ListingBOF extends AppCompatActivity {
             bluetoothStarted = false;
 
         } else {
+            //When start is pressed
 
             // Publish and Listen
             bluetooth.publish();
@@ -233,5 +238,23 @@ public class ListingBOF extends AppCompatActivity {
             bluetooth.unpublish();
             bluetooth.unsubscribe();
         }
+    }
+
+    /**
+     * Creates a new session with the current date and time and adds the name to shared preferences
+     */
+    private void createSession() {
+        //Get current time for initial session name
+        Calendar c = Calendar.getInstance();
+        String formattedDate = c.get(Calendar.MONTH) + "/" + c.get(Calendar.DAY_OF_MONTH) + "/" + c.get(Calendar.YEAR);
+        String AM_PM = c.get(Calendar.AM_PM) == 0 ? "AM" : "PM";
+        String formattedTime = c.get(Calendar.HOUR) + ":" + c.get(Calendar.MINUTE) + AM_PM;
+        String currTime = formattedDate + " " + formattedTime;
+
+        //Store current session name
+        SharedPreferences preferences = getSharedPreferences("BoF", MODE_PRIVATE);
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.putString("currentSession", currTime);
+        editor.apply();
     }
 }

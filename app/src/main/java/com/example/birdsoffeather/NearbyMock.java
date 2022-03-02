@@ -35,10 +35,11 @@ public class NearbyMock extends AppCompatActivity {
 
         SharedPreferences preferences = getSharedPreferences("BoF", MODE_PRIVATE);
         String userID = preferences.getString("userID", null);
+        String sessionName = preferences.getString("currentSession", null);
 
         // If successful, clear text and add to database
         if (person != null) {
-            Utilities.inputBOF(person, AppDatabase.singleton(getApplicationContext()), userID);
+            Utilities.inputBOF(person, AppDatabase.singleton(getApplicationContext()), userID, sessionName);
             personEntryEditText.setText("");
             Toast.makeText(this, "Added person successfully", Toast.LENGTH_SHORT).show();
         } else {

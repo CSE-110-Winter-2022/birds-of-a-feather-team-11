@@ -125,7 +125,7 @@ public class DBQueryingUnitTest {
                 assertEquals(3, db.coursesDao().count());
 
 
-                Utilities.inputBOF(testPersons.get(0), db, userID);
+                Utilities.inputBOF(testPersons.get(0), db, userID, "test");
 
                 assertEquals(2, db.personsWithCoursesDao()); //1 person added
                 assertEquals(6, db.coursesDao().count()); // all 3 classes match, soo total of 6 classes
@@ -156,7 +156,7 @@ public class DBQueryingUnitTest {
                 assertEquals(3, db.coursesDao().count());
 
 
-                Utilities.inputBOF(testPersons.get(0), db, userID);
+                Utilities.inputBOF(testPersons.get(0), db, userID, "test");
 
                 assertEquals(2, db.personsWithCoursesDao().count()); //1 person added
                 assertEquals(3, db.coursesDao().count()); //no classes added
@@ -187,7 +187,7 @@ public class DBQueryingUnitTest {
                 List<Course> before = db.coursesDao().getForPerson(testIds.get(0));
                 assertEquals(0, before.size());
                 for(int i = 0; i<testPersons.size(); i++) {
-                    Utilities.inputBOF(testPersons.get(i), db, userID);
+                    Utilities.inputBOF(testPersons.get(i), db, userID, "test");
                 }
 
                 List<Course> person1 = db.coursesDao().getForPerson(testIds.get(0));
@@ -227,7 +227,7 @@ public class DBQueryingUnitTest {
             backgroundThreadExecutor.submit(() -> {
                 addPersons();
                 for (int i = 0; i < testPersons.size(); i++) {
-                    Utilities.inputBOF(testPersons.get(i), db, userID);
+                    Utilities.inputBOF(testPersons.get(i), db, userID, "test");
                 }
                 List<String> orderingByID = db.coursesDao().getSimilarityOrdering(userID);
                 assertEquals(testIds.get(0), orderingByID.get(0));
@@ -250,7 +250,7 @@ public class DBQueryingUnitTest {
             backgroundThreadExecutor.submit(() -> {
                 addPersons();
                 for(int i = 0; i<testPersons.size(); i++) {
-                    Utilities.inputBOF(testPersons.get(i), db, userID);
+                    Utilities.inputBOF(testPersons.get(i), db, userID, "test");
                 }
 
                 List<PersonWithCourses> ordering = Utilities.generateSimilarityOrder(db, userID);
@@ -308,7 +308,7 @@ public class DBQueryingUnitTest {
                 assertEquals(numUserClasses, db.coursesDao().count());
 
                 for(int i = 0; i<testPersons.size(); i++) {
-                    Utilities.inputBOF(testPersons.get(i), db, userID);
+                    Utilities.inputBOF(testPersons.get(i), db, userID, "test");
                 }
 
                 //courses of BOFs were added

@@ -22,4 +22,7 @@ public interface SessionsDao {
 
     @Query("UPDATE sessions SET name =:newName WHERE name=:oldName")
     void renameSession(String oldName, String newName);
+
+    @Query("SELECT COUNT(*) FROM sessions WHERE name=:name AND personId=:personId")
+    int similarSession(String name, String personId);
 }

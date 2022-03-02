@@ -8,6 +8,7 @@ import com.example.birdsoffeather.model.db.AppDatabase;
 import com.example.birdsoffeather.model.db.Course;
 import com.example.birdsoffeather.model.db.Person;
 import com.example.birdsoffeather.model.db.PersonWithCourses;
+import com.example.birdsoffeather.model.db.Session;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -85,8 +86,9 @@ public class Utilities {
      * @param potentialBOF Object representing the other user who may qualify as a BOF
      * @param db Singleton instance to access the Room database
      */
-    public static void inputBOF(PersonWithCourses potentialBOF, AppDatabase db, String userID) {
+    public static void inputBOF(PersonWithCourses potentialBOF, AppDatabase db, String userID, String sessionName) {
         Person userInfo = potentialBOF.person;
+        addToSession(db, sessionName, userInfo.personId);
         if (db.personsWithCoursesDao().get(userInfo.personId) != null)
             return;
         Person user = new Person(userInfo.personId, userInfo.name, userInfo.profile_url);
@@ -95,6 +97,19 @@ public class Utilities {
         for (Course course : courses) {
             if (db.coursesDao().similarCourse(userID, course.year, course.quarter, course.subject, course.number) != 0)
                 db.coursesDao().insert(new Course(userInfo.personId, course.year, course.quarter, course.subject, course.number));
+        }
+    }
+
+    /**
+     * Associates an inputted BoF with the session they were inserted in
+     *
+     * @param db Singleton instance to access the Room database
+     * @param sessionName Name of the session they were inputted under
+     * @param personId ID of the BoF being inputted
+     */
+    private static void addToSession(AppDatabase db, String sessionName, String personId){
+        if(db.sessionsDao().similarSession(sessionName, personId) == 0){
+            db.sessionsDao().insert(new Session(sessionName, personId));
         }
     }
 
