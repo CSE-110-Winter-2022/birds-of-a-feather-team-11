@@ -208,6 +208,7 @@ public class ListingBOF extends AppCompatActivity {
 
         } else {
             //When start is pressed
+            createSession();
 
             // Publish and Listen
             bluetooth.publish();
