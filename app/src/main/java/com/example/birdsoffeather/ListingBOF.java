@@ -3,16 +3,23 @@ package com.example.birdsoffeather;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.Manifest;
 import android.bluetooth.BluetoothAdapter;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.example.birdsoffeather.model.db.AppDatabase;
@@ -46,6 +53,9 @@ public class ListingBOF extends AppCompatActivity {
 
     private RecyclerView personsRecyclerView;
     private PersonsViewAdapter personsViewAdapter;
+    private String userID = null;
+
+    private static final int PERMISSIONS_REQUEST_CODE = 1111;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -55,7 +65,7 @@ public class ListingBOF extends AppCompatActivity {
         bluetoothStarted = false;
 
         SharedPreferences preferences = getSharedPreferences("BoF", MODE_PRIVATE);
-        String userID = preferences.getString("userID", null);
+        userID = preferences.getString("userID", null);
 
         // Obtain details of use
         this.future = backgroundThreadExecutor.submit(() -> {
@@ -65,6 +75,10 @@ public class ListingBOF extends AppCompatActivity {
 
             return null;
         });
+
+        if (!havePermissions()) {
+            requestPermissions();
+        }
 
         setupBluetooth();
 
@@ -77,6 +91,31 @@ public class ListingBOF extends AppCompatActivity {
         // set adapter
         personsViewAdapter = new PersonsViewAdapter(new ArrayList<>());
         personsRecyclerView.setAdapter(personsViewAdapter);
+
+        //set filter spinner
+        Spinner filterSpinner = (Spinner) findViewById(R.id.filter_spinner);
+        ArrayAdapter<CharSequence> filterAdapter = ArrayAdapter.createFromResource(this,
+                R.array.filters_array, android.R.layout.simple_spinner_item);
+        filterAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        filterSpinner.setAdapter(filterAdapter);
+        filterSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                String filter = adapterView.getItemAtPosition(i).toString();
+                Log.d("FilterSelect", filter);
+                String sortType = Utilities.DEFAULT;
+                if (filter.equals("Class Size"))
+                    sortType = Utilities.CLASS_SIZE;
+                else if (filter.equals("Class Age"))
+                    sortType = Utilities.CLASS_AGE;
+                updateUI(generateSortedList(sortType));
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+
+            }
+        });
     }
 
     @Override
@@ -84,17 +123,27 @@ public class ListingBOF extends AppCompatActivity {
         super.onStart();
 
         SharedPreferences preferences = getSharedPreferences("BoF", MODE_PRIVATE);
-        String userID = preferences.getString("userID", null);
+        userID = preferences.getString("userID", null);
 
         // Get updated list of similar classes in background thread and then use ui thread to update UI
         this.future = backgroundThreadExecutor.submit(() -> {
-            List<PersonWithCourses> persons = Utilities.generateSimilarityOrder(db, userID);
+            List<PersonWithCourses> persons = generateSortedList(Utilities.DEFAULT);
             runOnUiThread(() -> {
                 updateUI(persons);
             });
             return null;
         });
 
+    }
+
+    public List<PersonWithCourses> generateSortedList(String sortType) {
+        if (sortType == null)
+            return Utilities.generateSimilarityOrder(db, userID);
+        else if (sortType.equals(Utilities.CLASS_SIZE))
+            return Utilities.generateSizeScoreOrder(db);
+        else if (sortType.equals(Utilities.CLASS_AGE))
+            return Utilities.generateAgeScoreOrder(db);
+        return Utilities.generateSimilarityOrder(db, userID);
     }
 
 
@@ -115,7 +164,7 @@ public class ListingBOF extends AppCompatActivity {
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         if (bluetoothAdapter == null) {
             Utilities.showAlert(this, "Your phone is not Bluetooth capable. You will not be able to use this app.");
-            finish();
+            onBluetoothFailed();
             Log.w("Bluetooth", "Phone is not bluetooth capable");
             return;
         } else if (!bluetoothAdapter.isEnabled()) {
@@ -138,7 +187,7 @@ public class ListingBOF extends AppCompatActivity {
                         String sessionName = preferences.getString("currentSession", null);
                         future = backgroundThreadExecutor.submit(() -> {
                             Utilities.inputBOF(person, db, userID, sessionName);
-                            updateUI(Utilities.generateSimilarityOrder(db, userID));
+                            updateUI(generateSortedList(Utilities.DEFAULT));
                             Log.i("Bluetooth",person.toString() + " found");
                             return null;
                         });
@@ -151,7 +200,7 @@ public class ListingBOF extends AppCompatActivity {
             bluetooth.setMessage(selfMessage);
         } catch (IOException e) {
             Toast.makeText(this, "Failed to setup bluetooth! Try restarting app.", Toast.LENGTH_SHORT).show();
-            finish();
+            onBluetoothFailed();
             Log.w("Bluetooth","Bluetooth setup failed");
             e.printStackTrace();
         }
@@ -257,5 +306,42 @@ public class ListingBOF extends AppCompatActivity {
         SharedPreferences.Editor editor = preferences.edit();
         editor.putString("currentSession", currTime);
         editor.apply();
+    }
+
+    private boolean havePermissions() {
+        Log.i("Bluetooth", "Checking if location permissions are granted");
+        return ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                == PackageManager.PERMISSION_GRANTED;
+    }
+
+    private void requestPermissions() {
+        Log.i("Bluetooth","Requesting location permissions");
+        ActivityCompat.requestPermissions(this,
+                new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, PERMISSIONS_REQUEST_CODE);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode != PERMISSIONS_REQUEST_CODE) {
+            return;
+        }
+        for (int i = 0; i < permissions.length; i++) {
+            String permission = permissions[i];
+            if (grantResults[i] == PackageManager.PERMISSION_DENIED) {
+                Log.i("Bluetooth", "Nearby Permissions denied");
+                Toast.makeText(this, "This app needs permission", Toast.LENGTH_SHORT).show();
+                onBluetoothFailed();
+            } else {
+                Log.i("Bluetooth", "Permission granted");
+                setupBluetooth();
+            }
+        }
+    }
+
+
+    private void onBluetoothFailed() {
+        finish();
     }
 }

@@ -35,7 +35,7 @@ public class ListingBOFTest {
     @Test
     public void testUIRefresh() {
         String userID = UUID.randomUUID().toString();
-        Person person1 = new Person(userID, "John", "url");
+        Person person1 = new Person(userID, "John", "url", 0, 0);
         ArrayList<Course> courses= new ArrayList<>();
         courses.add(new Course(userID,"2021", "Spring", "CSE", "110"));
         courses.add(new Course(userID,"2021", "Winter", "CSE", "100"));
@@ -44,7 +44,7 @@ public class ListingBOFTest {
         personWithCourses1.courses = courses;
         personWithCourses1.person = person1;
 
-        Person person2 = new Person(UUID.randomUUID().toString(), "John", "url");
+        Person person2 = new Person(UUID.randomUUID().toString(), "John", "url", 0, 0);
         PersonWithCourses personWithCourses2 = new PersonWithCourses();
         personWithCourses2.courses = courses;
         personWithCourses2.person = person2;

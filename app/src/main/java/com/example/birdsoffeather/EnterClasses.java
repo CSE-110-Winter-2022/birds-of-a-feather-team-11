@@ -49,7 +49,7 @@ public class EnterClasses extends AppCompatActivity{
             String name = preferences.getString("Name", "No Name");
             String url = preferences.getString("Photo URL", "No URL");
             String userID = UUID.randomUUID().toString();
-            Person user = new Person(userID, name, url);
+            Person user = new Person(userID, name, url, 0, 0);
             SharedPreferences.Editor editor = preferences.edit();
             editor.putString("userID", userID);
             editor.apply();
@@ -59,19 +59,26 @@ public class EnterClasses extends AppCompatActivity{
             return null;
         });
 
-
+        // year spinner
         Spinner yearSpinner = (Spinner) findViewById(R.id.year_input);
         ArrayAdapter<CharSequence> yearAdapter = ArrayAdapter.createFromResource(this,
                 R.array.years_array, android.R.layout.simple_spinner_item);
         yearAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         yearSpinner.setAdapter(yearAdapter);
 
+        // quarter spinner
         Spinner quarterSpinner = (Spinner) findViewById(R.id.quarter_input);
         ArrayAdapter<CharSequence> quarterAdapter = ArrayAdapter.createFromResource(this,
                 R.array.quarters_array, android.R.layout.simple_spinner_item);
         quarterAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         quarterSpinner.setAdapter(quarterAdapter);
 
+        // class size spinner
+        Spinner classSize_spinner = (Spinner) findViewById(R.id.class_size_input);
+        ArrayAdapter<CharSequence> classSize_adapter = ArrayAdapter.createFromResource(this,
+                R.array.class_sizes, android.R.layout.simple_spinner_item);
+        classSize_adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        classSize_spinner.setAdapter(classSize_adapter);
     }
 
     /**
@@ -85,6 +92,9 @@ public class EnterClasses extends AppCompatActivity{
 
         Spinner quarterInput = findViewById(R.id.quarter_input);
         String courseQuarter = quarterInput.getSelectedItem().toString();
+
+        Spinner classSizeInput = findViewById(R.id.class_size_input);
+        String classSize = classSizeInput.getSelectedItem().toString();
 
         TextView subjectInput = findViewById(R.id.subject_input);
         String courseSubject = subjectInput.getText().toString();
@@ -104,7 +114,7 @@ public class EnterClasses extends AppCompatActivity{
         String userID = preferences.getString("userID", null);
 
         this.future = backgroundThreadExecutor.submit(() -> {
-            Course newCourse = new Course(userID, courseYear, courseQuarter, courseSubject, courseNumber);
+            Course newCourse = new Course(userID, courseYear, courseQuarter, courseSubject, courseNumber, classSize);
             if(Utilities.isDuplicate(newCourse, db.coursesDao().getForPerson(userID))){
                 runOnUiThread(() -> {
                     Utilities.showAlert(this, "Duplicate Entry");

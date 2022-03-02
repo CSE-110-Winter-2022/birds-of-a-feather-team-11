@@ -95,6 +95,8 @@ public class AvaOliviaScenarioTest {
                         isDisplayed()));
         materialButton3.perform(click());
 
+        try { Thread.sleep(1000); } catch(Exception e) {}
+
         ViewInteraction textView = onView(
                 allOf(withId(R.id.classes_view), withText("Enter Past Classes:"),
                         withParent(withParent(withId(android.R.id.content))),

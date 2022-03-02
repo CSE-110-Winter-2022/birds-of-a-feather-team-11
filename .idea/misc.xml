@@ -3,6 +3,9 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/Users/email/AndroidStudioProjects/birds-of-a-feather-team-11/app/src/main/res/layout/activity_enter_classes.xml" value="0.36666666666666664" />
+        <entry key="..\:/Users/email/AndroidStudioProjects/birds-of-a-feather-team-11/app/src/main/res/layout/activity_listing_bof.xml" value="0.33" />
+        <entry key="..\:/Users/email/AndroidStudioProjects/birds-of-a-feather-team-11/app/src/main/res/layout/activity_nearby_mock.xml" value="0.15260416666666668" />
         <entry key="app/src/main/res/layout/activity_create_profile.xml" value="0.4904891304347826" />
         <entry key="app/src/main/res/layout/activity_enter_classes.xml" value="0.25" />
         <entry key="app/src/main/res/layout/activity_listing_bof.xml" value="0.23072916666666668" />
