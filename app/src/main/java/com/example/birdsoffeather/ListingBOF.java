@@ -18,6 +18,7 @@ import android.widget.Toast;
 import com.example.birdsoffeather.model.db.AppDatabase;
 import com.example.birdsoffeather.model.db.IPerson;
 import com.example.birdsoffeather.model.db.PersonWithCourses;
+import com.example.birdsoffeather.model.db.Session;
 import com.google.android.gms.nearby.messages.Message;
 import com.google.android.gms.nearby.messages.MessageListener;
 
