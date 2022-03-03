@@ -20,16 +20,20 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.birdsoffeather.model.db.AppDatabase;
 import com.example.birdsoffeather.model.db.IPerson;
 import com.example.birdsoffeather.model.db.PersonWithCourses;
+import com.example.birdsoffeather.model.db.Session;
 import com.google.android.gms.nearby.messages.Message;
 import com.google.android.gms.nearby.messages.MessageListener;
 
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -52,6 +56,7 @@ public class ListingBOF extends AppCompatActivity {
     private RecyclerView personsRecyclerView;
     private PersonsViewAdapter personsViewAdapter;
     private String userID = null;
+    private String sessionName = null;
 
     private static final int PERMISSIONS_REQUEST_CODE = 1111;
 
@@ -128,6 +133,7 @@ public class ListingBOF extends AppCompatActivity {
 
         SharedPreferences preferences = getSharedPreferences("BoF", MODE_PRIVATE);
         userID = preferences.getString("userID", null);
+        sessionName = preferences.getString("currentSession", null);
 
         // Get updated list of similar classes in background thread and then use ui thread to update UI
         this.future = backgroundThreadExecutor.submit(() -> {
@@ -141,13 +147,27 @@ public class ListingBOF extends AppCompatActivity {
     }
 
     public List<PersonWithCourses> generateSortedList(String sortType) {
-        if (sortType == null)
-            return Utilities.generateSimilarityOrder(db, userID);
-        else if (sortType.equals(Utilities.CLASS_SIZE))
-            return Utilities.generateSizeScoreOrder(db);
+        List<PersonWithCourses> orderedList;
+        List<PersonWithCourses> toReturn = new ArrayList<>();
+
+        //Get the sorted list with the appropriate sort type
+        if (sortType.equals(Utilities.CLASS_SIZE))
+            orderedList = Utilities.generateSizeScoreOrder(db);
         else if (sortType.equals(Utilities.CLASS_AGE))
-            return Utilities.generateAgeScoreOrder(db);
-        return Utilities.generateSimilarityOrder(db, userID);
+            orderedList = Utilities.generateAgeScoreOrder(db);
+        else
+            orderedList = Utilities.generateSimilarityOrder(db, userID);
+
+        //Get the list of people in that session
+        List<String> sessionUUIDs = db.sessionsDao().getPeopleForSession(sessionName);
+
+        for(PersonWithCourses p : orderedList){
+            if(sessionUUIDs.contains(p.person.personId)){
+                toReturn.add(p);
+            }
+        }
+
+        return toReturn;
     }
 
 
@@ -187,7 +207,7 @@ public class ListingBOF extends AppCompatActivity {
                     try {
                         PersonWithCourses person = Utilities.deserializePerson(message.getContent());
                         future = backgroundThreadExecutor.submit(() -> {
-                            Utilities.inputBOF(person, db, userID);
+                            Utilities.inputBOF(person, db, userID, sessionName);
                             updateUI(generateSortedList(Utilities.DEFAULT));
                             Log.i("Bluetooth",person.toString() + " found");
                             return null;
@@ -246,6 +266,8 @@ public class ListingBOF extends AppCompatActivity {
 
 
         if (bluetoothStarted) {
+            //when stop is pressed
+
             // Unpublish and stop Listening
             bluetooth.unpublish();
             bluetooth.unsubscribe();
@@ -255,6 +277,8 @@ public class ListingBOF extends AppCompatActivity {
             bluetoothStarted = false;
 
         } else {
+            //When start is pressed
+            createSession();
 
             // Publish and Listen
             bluetooth.publish();
@@ -285,6 +309,33 @@ public class ListingBOF extends AppCompatActivity {
             bluetooth.unpublish();
             bluetooth.unsubscribe();
         }
+    }
+
+    /**
+     * Creates a new session with the current date and time and adds the name to shared preferences
+     */
+    private void createSession() {
+        //Get current time for initial session name
+        Calendar c = Calendar.getInstance();
+        String formattedDate = c.get(Calendar.MONTH) + "/" + c.get(Calendar.DAY_OF_MONTH) + "/" + c.get(Calendar.YEAR);
+        String AM_PM = c.get(Calendar.AM_PM) == 0 ? "AM" : "PM";
+        String formattedTime = c.get(Calendar.HOUR) + ":" + c.get(Calendar.MINUTE) + AM_PM;
+        String currTime = formattedDate + " " + formattedTime;
+
+        //Store current session name
+        SharedPreferences preferences = getSharedPreferences("BoF", MODE_PRIVATE);
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.putString("currentSession", currTime);
+        editor.apply();
+
+        sessionName = currTime;
+
+        //Add default user to session
+        Utilities.addToSession(db, sessionName, userID);
+
+        //Change Name on title
+        TextView title = (TextView) findViewById(R.id.bof_title);
+        title.setText(currTime);
     }
 
     private boolean havePermissions() {
@@ -323,5 +374,4 @@ public class ListingBOF extends AppCompatActivity {
     private void onBluetoothFailed() {
         finish();
     }
-
 }
