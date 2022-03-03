@@ -24,7 +24,6 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 
 @RunWith(AndroidJUnit4.class)
 public class StopSessionTest {
@@ -32,14 +31,17 @@ public class StopSessionTest {
 
     @Rule
     public ActivityScenarioRule<StopSave> scenarioRule = new ActivityScenarioRule<>(StopSave.class);
+    @Rule
+    public ActivityScenarioRule<ListingBOF> scenarioRule2 = new ActivityScenarioRule<>(ListingBOF.class);
 
     String userID = UUID.randomUUID().toString();
+    AppDatabase db;
 
-    public void addUser(AppDatabase db) {
+    public void addUser() {
         Person user = new Person(userID, "user", "", 0, 0);
         db.personsWithCoursesDao().insertPerson(user);
     }
-    public void addUserClasses(AppDatabase db) {
+    public void addUserClasses() {
         db.coursesDao().insert(new Course(userID,"2022", "Winter", "CSE", "110", "Tiny (<40)"));
         db.coursesDao().insert(new Course(userID,"2022", "Winter", "CSE", "10", "Tiny (<40)"));
         db.coursesDao().insert(new Course(userID,"2021", "Winter", "CSE", "20", "Tiny (<40)"));
@@ -47,51 +49,49 @@ public class StopSessionTest {
         db.coursesDao().insert(new Course(userID,"2022", "Fall", "CSE", "110", "Tiny (<40)"));
     }
 
-    public void createSession(String sessionName, AppDatabase db) {
+    public void createSession(String sessionName) {
         db.sessionsDao().insert(new Session(sessionName, userID));
     }
 
-    public void waitForThread(Future future) {
-        while(!future.isDone())
-            continue;
-    }
+
 
     @Test
     public void getCurrCoursesTest() {
-        ActivityScenario<StopSave> scenario = scenarioRule.getScenario();
-        scenario.moveToState(Lifecycle.State.CREATED);
+        ActivityScenario<StopSave> scenario1 = scenarioRule.getScenario();
+        scenario1.moveToState(Lifecycle.State.CREATED);
 
-        scenario.onActivity(activity -> {
-            Future future = backgroundThreadExecutor.submit(() -> {
-                AppDatabase db = AppDatabase.singleton(getApplicationContext());
-                addUser(db);
-                addUserClasses(db);
+        scenario1.onActivity(activity -> {
+            db = AppDatabase.singleton(getApplicationContext());
+
+            backgroundThreadExecutor.submit(() -> {
+                addUser();
+                addUserClasses();
                 List<Course> courses = new ArrayList<>();
                 courses.add(new Course(userID,"2022", "Winter", "CSE", "110", "Tiny (<40)"));
                 courses.add(new Course(userID,"2022", "Winter", "CSE", "10", "Tiny (<40)"));
                 List<Course> currCourses = activity.getCurrCourses(2022, 0, userID);
-
-                assertEquals(courses.toString(), currCourses.toString());
-
+                activity.runOnUiThread(() -> {
+                    assertEquals(courses.toString(), currCourses.toString());
+                });
+                db.clearAllTables();
+                db.close();
 
             });
-            waitForThread(future);
         });
     }
 
     @Test
     public void getAvailableSessionTest() {
 
-        ActivityScenario<StopSave> scenario = scenarioRule.getScenario();
-        scenario.moveToState(Lifecycle.State.CREATED);
+        ActivityScenario<StopSave> scenario1 = scenarioRule.getScenario();
+        scenario1.moveToState(Lifecycle.State.CREATED);
 
-        scenario.onActivity(activity -> {
+        scenario1.onActivity(activity -> {
+            db = AppDatabase.singleton(getApplicationContext());
 
-
-            Future future = backgroundThreadExecutor.submit(() -> {
-                AppDatabase db = AppDatabase.singleton(getApplicationContext());
-                addUser(db);
-                addUserClasses(db);
+            backgroundThreadExecutor.submit(() -> {
+                addUser();
+                addUserClasses();
 
                 SharedPreferences preferences = activity.getSharedPreferences("BoF", MODE_PRIVATE);
                 SharedPreferences.Editor editor = preferences.edit();
@@ -103,26 +103,28 @@ public class StopSessionTest {
                 courses.add("CSE 10");
                 courses.add("Other Name");
                 List<String> availableCourses = activity.getAvailableCourses();
-                activity.runOnUiThread(() -> {
-                    assertEquals(courses.toString(), availableCourses.toString());
-                });
 
-                createSession("CSE 110", db);
+                assertEquals(courses.toString(), availableCourses.toString());
+
+
+                createSession("CSE 110");
                 List<String> courses2 = new ArrayList<>();
                 courses2.add("CSE 10");
                 courses2.add("Other Name");
 
                 List<String> availableCourses2 = activity.getAvailableCourses();
-                activity.runOnUiThread(() -> {
-                    assertEquals(courses2.toString(), availableCourses2.toString());
-                });
+
+                assertEquals(courses2.toString(), availableCourses2.toString());
+
 
                 editor.remove("userID");
                 editor.apply();
 
 
+                db.clearAllTables();
+                db.close();
+
             });
-            waitForThread(future);
         });
 
     }
