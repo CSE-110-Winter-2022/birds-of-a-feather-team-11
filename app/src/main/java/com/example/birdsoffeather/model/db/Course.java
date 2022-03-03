@@ -5,6 +5,8 @@ import androidx.room.Entity;
 import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
 
+import com.example.birdsoffeather.Utilities;
+
 import java.io.Serializable;
 import java.util.Objects;
 
@@ -39,6 +41,15 @@ public class Course implements Serializable {
         this.subject = subject.trim().toUpperCase();
         this.number = number.trim().toUpperCase();
         this.classSize = classSize;
+    }
+
+    public int getAge(int[] currentQuarterAndYear) {
+        int currentQuarter = currentQuarterAndYear[0];
+        int currentYear = currentQuarterAndYear[1];
+
+        int courseQuarter = Utilities.quarterToInt(this.quarter);
+
+        return ((currentQuarter - courseQuarter) + (currentYear - Integer.parseInt(year)) * 4) - 1;
     }
 
     public String toString(){

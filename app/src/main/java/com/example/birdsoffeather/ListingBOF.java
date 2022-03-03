@@ -16,7 +16,10 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.example.birdsoffeather.model.db.AppDatabase;
@@ -48,6 +51,7 @@ public class ListingBOF extends AppCompatActivity {
 
     private RecyclerView personsRecyclerView;
     private PersonsViewAdapter personsViewAdapter;
+    private String userID = null;
 
     private static final int PERMISSIONS_REQUEST_CODE = 1111;
 
@@ -59,7 +63,7 @@ public class ListingBOF extends AppCompatActivity {
         bluetoothStarted = false;
 
         SharedPreferences preferences = getSharedPreferences("BoF", MODE_PRIVATE);
-        String userID = preferences.getString("userID", null);
+        userID = preferences.getString("userID", null);
 
         // Obtain details of use
         this.future = backgroundThreadExecutor.submit(() -> {
@@ -85,6 +89,37 @@ public class ListingBOF extends AppCompatActivity {
         // set adapter
         personsViewAdapter = new PersonsViewAdapter(new ArrayList<>());
         personsRecyclerView.setAdapter(personsViewAdapter);
+
+        //set filter spinner
+        Spinner filterSpinner = (Spinner) findViewById(R.id.filter_spinner);
+        ArrayAdapter<CharSequence> filterAdapter = ArrayAdapter.createFromResource(this,
+                R.array.filters_array, android.R.layout.simple_spinner_item);
+        filterAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        filterSpinner.setAdapter(filterAdapter);
+        filterSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                String filter = adapterView.getItemAtPosition(i).toString();
+                Log.d("FilterSelect", filter);
+                backgroundThreadExecutor.submit(() -> {
+                    String sortType = Utilities.DEFAULT;
+                    if (filter.equals("Class Size"))
+                        sortType = Utilities.CLASS_SIZE;
+                    else if (filter.equals("Class Age"))
+                        sortType = Utilities.CLASS_AGE;
+                    List<PersonWithCourses> persons = generateSortedList(sortType);
+                    runOnUiThread(() -> {
+                        updateUI(persons);
+                    });
+                    return null;
+                });
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+
+            }
+        });
     }
 
     @Override
@@ -92,17 +127,27 @@ public class ListingBOF extends AppCompatActivity {
         super.onStart();
 
         SharedPreferences preferences = getSharedPreferences("BoF", MODE_PRIVATE);
-        String userID = preferences.getString("userID", null);
+        userID = preferences.getString("userID", null);
 
         // Get updated list of similar classes in background thread and then use ui thread to update UI
         this.future = backgroundThreadExecutor.submit(() -> {
-            List<PersonWithCourses> persons = Utilities.generateSimilarityOrder(db, userID);
+            List<PersonWithCourses> persons = generateSortedList(Utilities.DEFAULT);
             runOnUiThread(() -> {
                 updateUI(persons);
             });
             return null;
         });
 
+    }
+
+    public List<PersonWithCourses> generateSortedList(String sortType) {
+        if (sortType == null)
+            return Utilities.generateSimilarityOrder(db, userID);
+        else if (sortType.equals(Utilities.CLASS_SIZE))
+            return Utilities.generateSizeScoreOrder(db);
+        else if (sortType.equals(Utilities.CLASS_AGE))
+            return Utilities.generateAgeScoreOrder(db);
+        return Utilities.generateSimilarityOrder(db, userID);
     }
 
 
@@ -141,11 +186,9 @@ public class ListingBOF extends AppCompatActivity {
                 public void onFound(@NonNull Message message) {
                     try {
                         PersonWithCourses person = Utilities.deserializePerson(message.getContent());
-                        SharedPreferences preferences = getSharedPreferences("BoF", MODE_PRIVATE);
-                        String userID = preferences.getString("userID", null);
                         future = backgroundThreadExecutor.submit(() -> {
                             Utilities.inputBOF(person, db, userID);
-                            updateUI(Utilities.generateSimilarityOrder(db, userID));
+                            updateUI(generateSortedList(Utilities.DEFAULT));
                             Log.i("Bluetooth",person.toString() + " found");
                             return null;
                         });
