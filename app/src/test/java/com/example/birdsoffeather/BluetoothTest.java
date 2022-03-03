@@ -38,8 +38,8 @@ public class BluetoothTest {
     public PersonWithCourses createTestPersonJohn() {
         PersonWithCourses person = new PersonWithCourses();
         person.courses = Arrays.asList(
-                new Course(userID, "1999", "WI", "C", "1","Tiny (20)"),
-                new Course(userID, "1999", "FA", "C", "2","Small (60)"));
+                new Course(userID, "1999", "WI", "C", "1","Tiny (<40)"),
+                new Course(userID, "1999", "FA", "C", "2","Small (40-75)"));
         person.person = new Person(userID,"John","");
         return person;
     }
