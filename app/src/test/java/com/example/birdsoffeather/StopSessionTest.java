@@ -74,9 +74,9 @@ public class StopSessionTest {
                 courses.add(new Course(userID,"2022", "Winter", "CSE", "110", "Tiny (<40)"));
                 courses.add(new Course(userID,"2022", "Winter", "CSE", "10", "Tiny (<40)"));
                 List<Course> currCourses = activity.getCurrCourses(2022, 0, userID);
-                activity.runOnUiThread(() -> {
-                    assertEquals(courses.toString(), currCourses.toString());
-                });
+
+                assertEquals(courses.toString(), currCourses.toString());
+
                 db.clearAllTables();
                 db.close();
 
@@ -109,9 +109,9 @@ public class StopSessionTest {
                 courses.add("CSE 10");
                 courses.add("Other Name");
                 List<String> availableCourses = activity.getAvailableCourses();
-                activity.runOnUiThread(() -> {
-                    assertEquals(courses.toString(), availableCourses.toString());
-                });
+
+                assertEquals(courses.toString(), availableCourses.toString());
+
 
                 createSession("CSE 110");
                 List<String> courses2 = new ArrayList<>();
@@ -119,9 +119,8 @@ public class StopSessionTest {
                 courses2.add("Other Name");
 
                 List<String> availableCourses2 = activity.getAvailableCourses();
-                activity.runOnUiThread(() -> {
-                    assertEquals(courses2.toString(), availableCourses2.toString());
-                });
+                assertEquals(courses2.toString(), availableCourses2.toString());
+
 
                 editor.remove("userID");
                 editor.apply();
