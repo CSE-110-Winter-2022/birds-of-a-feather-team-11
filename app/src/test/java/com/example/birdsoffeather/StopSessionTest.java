@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 @RunWith(AndroidJUnit4.class)
 public class StopSessionTest {
@@ -53,6 +54,11 @@ public class StopSessionTest {
         db.sessionsDao().insert(new Session(sessionName, userID));
     }
 
+    public void waitForThread(Future future) {
+        while(!future.isDone())
+            continue;
+    }
+
     @Test
     public void getCurrCoursesTest() {
         ActivityScenario<StopSave> scenario1 = scenarioRule.getScenario();
@@ -61,7 +67,7 @@ public class StopSessionTest {
         scenario1.onActivity(activity -> {
             db = AppDatabase.singleton(getApplicationContext());
 
-            backgroundThreadExecutor.submit(() -> {
+            Future future = backgroundThreadExecutor.submit(() -> {
                 addUser();
                 addUserClasses();
                 List<Course> courses = new ArrayList<>();
@@ -71,7 +77,11 @@ public class StopSessionTest {
                 activity.runOnUiThread(() -> {
                     assertEquals(courses.toString(), currCourses.toString());
                 });
+                db.clearAllTables();
+                db.close();
+
             });
+            waitForThread(future);
         });
     }
 
@@ -84,7 +94,7 @@ public class StopSessionTest {
         scenario1.onActivity(activity -> {
             db = AppDatabase.singleton(getApplicationContext());
 
-            backgroundThreadExecutor.submit(() -> {
+            Future future = backgroundThreadExecutor.submit(() -> {
                 addUser();
                 addUserClasses();
 
@@ -103,17 +113,24 @@ public class StopSessionTest {
                 });
 
                 createSession("CSE 110");
-                courses.remove("CSE 110");
+                List<String> courses2 = new ArrayList<>();
+                courses2.add("CSE 10");
+                courses2.add("Other Name");
+
                 List<String> availableCourses2 = activity.getAvailableCourses();
                 activity.runOnUiThread(() -> {
-                    assertEquals(courses.toString(), availableCourses2.toString());
+                    assertEquals(courses2.toString(), availableCourses2.toString());
                 });
+
+                editor.remove("userID");
+                editor.apply();
 
 
                 db.clearAllTables();
                 db.close();
 
             });
+            waitForThread(future);
         });
 
     }

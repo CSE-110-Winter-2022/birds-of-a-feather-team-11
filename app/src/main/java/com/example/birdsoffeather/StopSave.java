@@ -113,7 +113,7 @@ public class StopSave extends AppCompatActivity {
         int[] currQuarter = Utilities.getCurrentQuarterAndYear();
 
         List<Course> courses = getCurrCourses(currQuarter[1], currQuarter[0], userID);
-        System.out.println(courses);
+
         List<String> courseStrings = new ArrayList<>();
 
         for (Course c: courses) {
