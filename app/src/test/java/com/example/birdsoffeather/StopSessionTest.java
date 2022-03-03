@@ -82,6 +82,7 @@ public class StopSessionTest {
 
             });
             waitForThread(future);
+            db = null;
         });
     }
 
@@ -131,6 +132,7 @@ public class StopSessionTest {
 
             });
             waitForThread(future);
+            db = null;
         });
 
     }
