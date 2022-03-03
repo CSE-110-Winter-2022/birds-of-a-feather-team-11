@@ -276,7 +276,6 @@ public class ListingBOF extends AppCompatActivity {
             startStopBtn.setText("Start");
             bluetoothStarted = false;
 
-            // TODO add intent extra with session name for display purposes
             Intent intent = new Intent(this, StopSave.class);
             startActivity(intent);
 

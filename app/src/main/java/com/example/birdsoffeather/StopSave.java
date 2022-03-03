@@ -26,6 +26,7 @@ public class StopSave extends AppCompatActivity {
 
     private Spinner dropdown;
     private String currentSelectedName;
+    private String currentSessionName;
     private boolean usingCustomName = false;
     AdapterView.OnItemSelectedListener listener = new AdapterView.OnItemSelectedListener() {
         @Override
@@ -59,28 +60,54 @@ public class StopSave extends AppCompatActivity {
 
         db = AppDatabase.singleton(getApplicationContext());
 
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, getUserCourses());
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, getAvailableCourses());
         dropdown = findViewById(R.id.class_dropdown);
         dropdown.setAdapter(adapter);
         dropdown.setOnItemSelectedListener(listener);
 
         customNameEditText = findViewById(R.id.rename_other_edit_text);
 
+        SharedPreferences preferences = getSharedPreferences("BoF", MODE_PRIVATE);
+        currentSessionName = preferences.getString("currentSession", "");
+
         TextView renamedSessionTextView = findViewById(R.id.renamed_session_text_view);
-        renamedSessionTextView.setText(getIntent().getStringExtra("session_name"));
+        renamedSessionTextView.setText(currentSessionName);
 
     }
 
-    private List<String> getUserCourses() {
+    private List<Course> getCurrCourses(int year, int quarter, String userID) {
+        List<Course> courses = new ArrayList<>();
+        switch(quarter) {
+            case 0:
+                courses.addAll(db.coursesDao().getCoursesForQuarter("" + year, "Winter", userID));
+                break;
+            case 1:
+                courses.addAll(db.coursesDao().getCoursesForQuarter("" + year, "Spring", userID));
+                break;
+            case 2:
+                courses.addAll(db.coursesDao().getCoursesForQuarter("" + year, "Summer Session I", userID));
+                courses.addAll(db.coursesDao().getCoursesForQuarter("" + year, "Summer Session II", userID));
+                courses.addAll(db.coursesDao().getCoursesForQuarter("" + year, "Special Summer Session", userID));
+                break;
+            case 3:
+                courses.addAll(db.coursesDao().getCoursesForQuarter("" + year, "Fall", userID));
+                break;
+        }
+        return courses;
+    }
+
+    private List<String> getAvailableCourses() {
         SharedPreferences preferences = getSharedPreferences("BoF", MODE_PRIVATE);
         String userID = preferences.getString("userID", null);
+        int[] currQuarter = Utilities.getCurrentQuarterAndYear();
 
-        List<Course> courses = db.coursesDao().getForPerson(userID);
+        List<Course> courses = getCurrCourses(currQuarter[1], currQuarter[0], userID);
         System.out.println(courses);
         List<String> courseStrings = new ArrayList<>();
 
         for (Course c: courses) {
-            courseStrings.add(c.subject + " " + c.number);
+            String courseString = c.subject + " " + c.number;
+            if(isValidSessionName(courseString)) courseStrings.add(courseString);
         }
         courseStrings.add(CHOOSE_OTHER_STRING);
 
@@ -97,6 +124,13 @@ public class StopSave extends AppCompatActivity {
             Utilities.showAlert(this, "Please select a session name");
         } else if (isValidSessionName(newName)) {
             renameSession(newName);
+
+            //remove the session name from shared preferences
+            SharedPreferences preferences = getSharedPreferences("BoF", MODE_PRIVATE);
+            SharedPreferences.Editor editor = preferences.edit();
+            editor.putString("currentSession", null);
+            editor.apply();
+
             finish();
         } else {
             Utilities.showAlert(this, "This name is invalid or already in use");
@@ -104,15 +138,13 @@ public class StopSave extends AppCompatActivity {
 
     }
 
-    // If person uses back button to exit activity,we just dont bother changing its name
-    //TODO rename the session in the db
+    // If person uses back button to exit activity,we just don't bother changing its name
     private void renameSession(String newName) {
+        db.sessionsDao().renameSession(currentSessionName, newName);
     }
 
-    // TODO check if name is a valid type and whether it is in use
+    // check if name is a valid type and whether it is in use
     private boolean isValidSessionName(@NonNull String newName) {
-
-
-        return true;
+        return db.sessionsDao().getPeopleForSession(newName).size() == 0 && !newName.equals("");
     }
 }
