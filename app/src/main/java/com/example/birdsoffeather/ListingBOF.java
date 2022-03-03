@@ -20,6 +20,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.birdsoffeather.model.db.AppDatabase;
@@ -30,6 +31,7 @@ import com.google.android.gms.nearby.messages.Message;
 import com.google.android.gms.nearby.messages.MessageListener;
 
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -54,6 +56,7 @@ public class ListingBOF extends AppCompatActivity {
     private RecyclerView personsRecyclerView;
     private PersonsViewAdapter personsViewAdapter;
     private String userID = null;
+    private String sessionName = null;
 
     private static final int PERMISSIONS_REQUEST_CODE = 1111;
 
@@ -124,6 +127,7 @@ public class ListingBOF extends AppCompatActivity {
 
         SharedPreferences preferences = getSharedPreferences("BoF", MODE_PRIVATE);
         userID = preferences.getString("userID", null);
+        sessionName = preferences.getString("currentSession", null);
 
         // Get updated list of similar classes in background thread and then use ui thread to update UI
         this.future = backgroundThreadExecutor.submit(() -> {
@@ -137,13 +141,27 @@ public class ListingBOF extends AppCompatActivity {
     }
 
     public List<PersonWithCourses> generateSortedList(String sortType) {
-        if (sortType == null)
-            return Utilities.generateSimilarityOrder(db, userID);
-        else if (sortType.equals(Utilities.CLASS_SIZE))
-            return Utilities.generateSizeScoreOrder(db);
+        List<PersonWithCourses> orderedList;
+        List<PersonWithCourses> toReturn = new ArrayList<>();
+
+        //Get the sorted list with the appropriate sort type
+        if (sortType.equals(Utilities.CLASS_SIZE))
+            orderedList = Utilities.generateSizeScoreOrder(db);
         else if (sortType.equals(Utilities.CLASS_AGE))
-            return Utilities.generateAgeScoreOrder(db);
-        return Utilities.generateSimilarityOrder(db, userID);
+            orderedList = Utilities.generateAgeScoreOrder(db);
+        else
+            orderedList = Utilities.generateSimilarityOrder(db, userID);
+
+        //Get the list of people in that session
+        List<String> sessionUUIDs = db.sessionsDao().getPeopleForSession(sessionName);
+
+        for(PersonWithCourses p : orderedList){
+            if(sessionUUIDs.contains(p.person.personId)){
+                toReturn.add(p);
+            }
+        }
+
+        return toReturn;
     }
 
 
@@ -182,9 +200,6 @@ public class ListingBOF extends AppCompatActivity {
                 public void onFound(@NonNull Message message) {
                     try {
                         PersonWithCourses person = Utilities.deserializePerson(message.getContent());
-                        SharedPreferences preferences = getSharedPreferences("BoF", MODE_PRIVATE);
-                        String userID = preferences.getString("userID", null);
-                        String sessionName = preferences.getString("currentSession", null);
                         future = backgroundThreadExecutor.submit(() -> {
                             Utilities.inputBOF(person, db, userID, sessionName);
                             updateUI(generateSortedList(Utilities.DEFAULT));
@@ -306,6 +321,12 @@ public class ListingBOF extends AppCompatActivity {
         SharedPreferences.Editor editor = preferences.edit();
         editor.putString("currentSession", currTime);
         editor.apply();
+
+        sessionName = currTime;
+
+        //Change Name on title
+        TextView title = (TextView) findViewById(R.id.bof_title);
+        title.setText(currTime);
     }
 
     private boolean havePermissions() {

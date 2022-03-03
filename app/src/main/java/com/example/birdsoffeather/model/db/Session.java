@@ -12,6 +12,7 @@ public class Session {
     @NonNull
     public int sessionId;
 
+    @NonNull
     @ColumnInfo(name = "name")
     public String name;
 
