@@ -58,10 +58,11 @@ public class StopSessionTest {
     @Test
     public void getCurrCoursesTest() {
         ActivityScenario<StopSave> scenario1 = scenarioRule.getScenario();
-        scenario1.moveToState(Lifecycle.State.CREATED);
+
 
         scenario1.onActivity(activity -> {
             db = AppDatabase.singleton(getApplicationContext());
+            scenario1.moveToState(Lifecycle.State.CREATED);
 
             backgroundThreadExecutor.submit(() -> {
                 addUser();
@@ -84,10 +85,11 @@ public class StopSessionTest {
     public void getAvailableSessionTest() {
 
         ActivityScenario<StopSave> scenario1 = scenarioRule.getScenario();
-        scenario1.moveToState(Lifecycle.State.CREATED);
+
 
         scenario1.onActivity(activity -> {
             db = AppDatabase.singleton(getApplicationContext());
+            scenario1.moveToState(Lifecycle.State.CREATED);
 
             backgroundThreadExecutor.submit(() -> {
                 addUser();
