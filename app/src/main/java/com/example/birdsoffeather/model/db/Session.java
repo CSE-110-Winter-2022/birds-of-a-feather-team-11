@@ -16,6 +16,7 @@ public class Session {
     @ColumnInfo(name = "name")
     public String name;
 
+    @NonNull
     @ColumnInfo(name = "personId")
     public String personId;
 
