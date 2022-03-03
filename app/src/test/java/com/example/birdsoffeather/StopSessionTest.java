@@ -38,11 +38,11 @@ public class StopSessionTest {
     String userID = UUID.randomUUID().toString();
     AppDatabase db;
 
-    public void addUser() {
+    public void addUser(AppDatabase db) {
         Person user = new Person(userID, "user", "", 0, 0);
         db.personsWithCoursesDao().insertPerson(user);
     }
-    public void addUserClasses() {
+    public void addUserClasses(AppDatabase db) {
         db.coursesDao().insert(new Course(userID,"2022", "Winter", "CSE", "110", "Tiny (<40)"));
         db.coursesDao().insert(new Course(userID,"2022", "Winter", "CSE", "10", "Tiny (<40)"));
         db.coursesDao().insert(new Course(userID,"2021", "Winter", "CSE", "20", "Tiny (<40)"));
@@ -50,7 +50,7 @@ public class StopSessionTest {
         db.coursesDao().insert(new Course(userID,"2022", "Fall", "CSE", "110", "Tiny (<40)"));
     }
 
-    public void createSession(String sessionName) {
+    public void createSession(String sessionName, AppDatabase db) {
         db.sessionsDao().insert(new Session(sessionName, userID));
     }
 
@@ -68,8 +68,8 @@ public class StopSessionTest {
             db = AppDatabase.singleton(getApplicationContext());
 
             Future future = backgroundThreadExecutor.submit(() -> {
-                addUser();
-                addUserClasses();
+                addUser(db);
+                addUserClasses(db);
                 List<Course> courses = new ArrayList<>();
                 courses.add(new Course(userID,"2022", "Winter", "CSE", "110", "Tiny (<40)"));
                 courses.add(new Course(userID,"2022", "Winter", "CSE", "10", "Tiny (<40)"));
@@ -96,8 +96,8 @@ public class StopSessionTest {
             db = AppDatabase.singleton(getApplicationContext());
 
             Future future = backgroundThreadExecutor.submit(() -> {
-                addUser();
-                addUserClasses();
+                addUser(db);
+                addUserClasses(db);
 
                 SharedPreferences preferences = activity.getSharedPreferences("BoF", MODE_PRIVATE);
                 SharedPreferences.Editor editor = preferences.edit();
@@ -109,22 +109,22 @@ public class StopSessionTest {
                 courses.add("CSE 10");
                 courses.add("Other Name");
                 List<String> availableCourses = activity.getAvailableCourses();
+                activity.runOnUiThread(() -> {
+                    assertEquals(courses.toString(), availableCourses.toString());
+                });
 
-                assertEquals(courses.toString(), availableCourses.toString());
-
-
-                createSession("CSE 110");
+                createSession("CSE 110", db);
                 List<String> courses2 = new ArrayList<>();
                 courses2.add("CSE 10");
                 courses2.add("Other Name");
 
                 List<String> availableCourses2 = activity.getAvailableCourses();
-                assertEquals(courses2.toString(), availableCourses2.toString());
-
+                activity.runOnUiThread(() -> {
+                    assertEquals(courses2.toString(), availableCourses2.toString());
+                });
 
                 editor.remove("userID");
                 editor.apply();
-
 
                 db.clearAllTables();
                 db.close();
