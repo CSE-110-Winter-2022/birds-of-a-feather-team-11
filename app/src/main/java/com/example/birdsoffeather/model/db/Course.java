@@ -2,6 +2,7 @@ package com.example.birdsoffeather.model.db;
 
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
+import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
 
 import java.io.Serializable;
@@ -28,16 +29,20 @@ public class Course implements Serializable {
     @ColumnInfo(name = "number")
     public String number;
 
-    public Course(String personId, String year, String quarter, String subject, String number) {
+    @ColumnInfo(name = "class_size")
+    public String classSize;
+
+    public Course(String personId, String year, String quarter, String subject, String number, String classSize) {
         this.personId = personId;
         this.year = year;
         this.quarter = getFormattedQuarter(quarter);
         this.subject = subject.trim().toUpperCase();
         this.number = number.trim().toUpperCase();
+        this.classSize = classSize;
     }
 
     public String toString(){
-        return year + quarter + subject+ number;
+        return year + quarter + subject + number + classSize;
     }
 
     @Override
@@ -45,7 +50,7 @@ public class Course implements Serializable {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Course course = (Course) o;
-        return courseId == course.courseId && personId.equals(course.personId) && Objects.equals(year, course.year) && Objects.equals(quarter, course.quarter) && Objects.equals(subject, course.subject) && Objects.equals(number, course.number);
+        return courseId == course.courseId && personId.equals(course.personId) && Objects.equals(year, course.year) && Objects.equals(quarter, course.quarter) && Objects.equals(subject, course.subject) && Objects.equals(number, course.number) && classSize.equals(course.classSize);
     }
 
     private String getFormattedQuarter(String input) {

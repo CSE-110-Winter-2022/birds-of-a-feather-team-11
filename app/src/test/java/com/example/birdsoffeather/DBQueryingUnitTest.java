@@ -43,9 +43,9 @@ public class DBQueryingUnitTest {
         Person user = new Person(userID, "user", "");
         db.personsWithCoursesDao().insertPerson(user);
         ArrayList<Course> courses= new ArrayList<>();
-        courses.add(new Course(userID,"2021", "Fall", "CSE", "110"));
-        courses.add(new Course(userID,"2021", "Fall", "CSE", "10"));
-        courses.add(new Course(userID,"2021", "Fall", "CSE", "12"));
+        courses.add(new Course(userID,"2021", "Fall", "CSE", "110", "Large (150-250)"));
+        courses.add(new Course(userID,"2021", "Fall", "CSE", "10", "Tiny (<40)"));
+        courses.add(new Course(userID,"2021", "Fall", "CSE", "12", "Medium (75-150)"));
 
         db.coursesDao().insert(courses.get(0));
         db.coursesDao().insert(courses.get(1));
@@ -55,30 +55,30 @@ public class DBQueryingUnitTest {
             testIds.add(UUID.randomUUID().toString());
 
         courses = new ArrayList<>();
-        courses.add(new Course(testIds.get(0),"2021", "Fall", "CSE", "110"));
-        courses.add(new Course(testIds.get(0),"2021", "Fall", "CSE", "10"));
-        courses.add(new Course(testIds.get(0),"2021", "Fall", "CSE", "12"));
+        courses.add(new Course(testIds.get(0),"2021", "Fall", "CSE", "110", "Large (150-250)"));
+        courses.add(new Course(testIds.get(0),"2021", "Fall", "CSE", "10", "Tiny (<40)"));
+        courses.add(new Course(testIds.get(0),"2021", "Fall", "CSE", "12", "Medium (75-150)"));
 
         testPersons.add(new PersonWithCourses(new Person(testIds.get(0),"person 1",""), courses));
 
         courses = new ArrayList<>();
-        courses.add(new Course(testIds.get(1),"2021", "Fall", "ECE", "110"));
-        courses.add(new Course(testIds.get(1),"2021", "Spring", "CSE", "10"));
-        courses.add(new Course(testIds.get(1),"2021", "Fall", "CSE", "12"));
+        courses.add(new Course(testIds.get(1),"2021", "Fall", "ECE", "110", "Tiny (<40)"));
+        courses.add(new Course(testIds.get(1),"2021", "Spring", "CSE", "10", "Tiny (<40)"));
+        courses.add(new Course(testIds.get(1),"2021", "Fall", "CSE", "12", "Medium (75-150)"));
 
         testPersons.add(new PersonWithCourses(new Person(testIds.get(1),"person 2",""), courses));
 
         courses = new ArrayList<>();
-        courses.add(new Course(testIds.get(2),"2019", "Fall", "CSE", "110"));
-        courses.add(new Course(testIds.get(2),"2021", "Fall", "CSE", "10"));
-        courses.add(new Course(testIds.get(2),"2021", "Fall", "CSE", "12"));
+        courses.add(new Course(testIds.get(2),"2019", "Fall", "CSE", "110", "Huge (250-400)"));
+        courses.add(new Course(testIds.get(2),"2021", "Fall", "CSE", "10", "Tiny (<40)"));
+        courses.add(new Course(testIds.get(2),"2021", "Fall", "CSE", "12", "Medium (75-150)"));
 
         testPersons.add(new PersonWithCourses(new Person(testIds.get(2),"person 3",""), courses));
 
         courses = new ArrayList<>();
-        courses.add(new Course(testIds.get(3),"2019", "Spring", "MAE", "110"));
-        courses.add(new Course(testIds.get(3),"2020", "Fall", "ECE", "10"));
-        courses.add(new Course(testIds.get(3),"2015", "Spring", "MAE", "1"));
+        courses.add(new Course(testIds.get(3),"2019", "Spring", "MAE", "110", "Large (150-250)"));
+        courses.add(new Course(testIds.get(3),"2020", "Fall", "ECE", "10", "Small (40-75)"));
+        courses.add(new Course(testIds.get(3),"2015", "Spring", "MAE", "1", "Tiny (<40)"));
 
         testPersons.add(new PersonWithCourses(new Person(testIds.get(3),"person 4",""), courses));
     }
