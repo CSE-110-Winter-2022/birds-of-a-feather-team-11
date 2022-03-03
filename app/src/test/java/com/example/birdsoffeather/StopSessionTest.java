@@ -32,8 +32,6 @@ public class StopSessionTest {
 
     @Rule
     public ActivityScenarioRule<StopSave> scenarioRule = new ActivityScenarioRule<>(StopSave.class);
-    @Rule
-    public ActivityScenarioRule<ListingBOF> scenarioRule2 = new ActivityScenarioRule<>(ListingBOF.class);
 
     String userID = UUID.randomUUID().toString();
 
@@ -60,10 +58,10 @@ public class StopSessionTest {
 
     @Test
     public void getCurrCoursesTest() {
-        ActivityScenario<StopSave> scenario1 = scenarioRule.getScenario();
-        scenario1.moveToState(Lifecycle.State.CREATED);
+        ActivityScenario<StopSave> scenario = scenarioRule.getScenario();
+        scenario.moveToState(Lifecycle.State.CREATED);
 
-        scenario1.onActivity(activity -> {
+        scenario.onActivity(activity -> {
             Future future = backgroundThreadExecutor.submit(() -> {
                 AppDatabase db = AppDatabase.singleton(getApplicationContext());
                 addUser(db);
@@ -75,8 +73,6 @@ public class StopSessionTest {
 
                 assertEquals(courses.toString(), currCourses.toString());
 
-                db.clearAllTables();
-                db.close();
 
             });
             waitForThread(future);
@@ -86,10 +82,10 @@ public class StopSessionTest {
     @Test
     public void getAvailableSessionTest() {
 
-        ActivityScenario<StopSave> scenario1 = scenarioRule.getScenario();
-        scenario1.moveToState(Lifecycle.State.CREATED);
+        ActivityScenario<StopSave> scenario = scenarioRule.getScenario();
+        scenario.moveToState(Lifecycle.State.CREATED);
 
-        scenario1.onActivity(activity -> {
+        scenario.onActivity(activity -> {
 
 
             Future future = backgroundThreadExecutor.submit(() -> {
@@ -124,8 +120,6 @@ public class StopSessionTest {
                 editor.remove("userID");
                 editor.apply();
 
-                db.clearAllTables();
-                db.close();
 
             });
             waitForThread(future);
