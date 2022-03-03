@@ -40,7 +40,7 @@ public class DBQueryingUnitTest {
         testPersons = new ArrayList<>();
         testIds = new ArrayList<>();
 
-        Person user = new Person(userID, "user", "");
+        Person user = new Person(userID, "user", "", 0, 0);
         db.personsWithCoursesDao().insertPerson(user);
         ArrayList<Course> courses= new ArrayList<>();
         courses.add(new Course(userID,"2021", "Fall", "CSE", "110"));
@@ -59,28 +59,28 @@ public class DBQueryingUnitTest {
         courses.add(new Course(testIds.get(0),"2021", "Fall", "CSE", "10"));
         courses.add(new Course(testIds.get(0),"2021", "Fall", "CSE", "12"));
 
-        testPersons.add(new PersonWithCourses(new Person(testIds.get(0),"person 1",""), courses));
+        testPersons.add(new PersonWithCourses(new Person(testIds.get(0),"person 1","", 0, 0), courses));
 
         courses = new ArrayList<>();
         courses.add(new Course(testIds.get(1),"2021", "Fall", "ECE", "110"));
         courses.add(new Course(testIds.get(1),"2021", "Spring", "CSE", "10"));
         courses.add(new Course(testIds.get(1),"2021", "Fall", "CSE", "12"));
 
-        testPersons.add(new PersonWithCourses(new Person(testIds.get(1),"person 2",""), courses));
+        testPersons.add(new PersonWithCourses(new Person(testIds.get(1),"person 2","", 0, 0), courses));
 
         courses = new ArrayList<>();
         courses.add(new Course(testIds.get(2),"2019", "Fall", "CSE", "110"));
         courses.add(new Course(testIds.get(2),"2021", "Fall", "CSE", "10"));
         courses.add(new Course(testIds.get(2),"2021", "Fall", "CSE", "12"));
 
-        testPersons.add(new PersonWithCourses(new Person(testIds.get(2),"person 3",""), courses));
+        testPersons.add(new PersonWithCourses(new Person(testIds.get(2),"person 3","", 0, 0), courses));
 
         courses = new ArrayList<>();
         courses.add(new Course(testIds.get(3),"2019", "Spring", "MAE", "110"));
         courses.add(new Course(testIds.get(3),"2020", "Fall", "ECE", "10"));
         courses.add(new Course(testIds.get(3),"2015", "Spring", "MAE", "1"));
 
-        testPersons.add(new PersonWithCourses(new Person(testIds.get(3),"person 4",""), courses));
+        testPersons.add(new PersonWithCourses(new Person(testIds.get(3),"person 4","", 0, 0), courses));
     }
 
     @Test
@@ -94,8 +94,8 @@ public class DBQueryingUnitTest {
 
             backgroundThreadExecutor.submit(() -> {
                 addPersons();
-                int similarClass = db.coursesDao().similarCourse(userID, "2021", "Fall", "CSE", "110");
-                int notSimilarClass = db.coursesDao().similarCourse(userID, "2019", "Fall", "CSE", "110");
+                int similarClass = db.coursesDao().similarCourseNum(userID, "2021", "Fall", "CSE", "110");
+                int notSimilarClass = db.coursesDao().similarCourseNum(userID, "2019", "Fall", "CSE", "110");
 
                 assertNotEquals(0, similarClass); //There should be a match in the database
                 assertEquals(0, notSimilarClass); //There should not be a match in the database
@@ -125,7 +125,7 @@ public class DBQueryingUnitTest {
                 assertEquals(3, db.coursesDao().count());
 
 
-                Utilities.inputBOF(testPersons.get(0), db, userID);
+                Utilities.inputBOF(testPersons.get(0), db, userID, "test");
 
                 assertEquals(2, db.personsWithCoursesDao()); //1 person added
                 assertEquals(6, db.coursesDao().count()); // all 3 classes match, soo total of 6 classes
@@ -156,7 +156,7 @@ public class DBQueryingUnitTest {
                 assertEquals(3, db.coursesDao().count());
 
 
-                Utilities.inputBOF(testPersons.get(0), db, userID);
+                Utilities.inputBOF(testPersons.get(0), db, userID, "test");
 
                 assertEquals(2, db.personsWithCoursesDao().count()); //1 person added
                 assertEquals(3, db.coursesDao().count()); //no classes added
@@ -187,7 +187,7 @@ public class DBQueryingUnitTest {
                 List<Course> before = db.coursesDao().getForPerson(testIds.get(0));
                 assertEquals(0, before.size());
                 for(int i = 0; i<testPersons.size(); i++) {
-                    Utilities.inputBOF(testPersons.get(i), db, userID);
+                    Utilities.inputBOF(testPersons.get(i), db, userID, "test");
                 }
 
                 List<Course> person1 = db.coursesDao().getForPerson(testIds.get(0));
@@ -227,7 +227,7 @@ public class DBQueryingUnitTest {
             backgroundThreadExecutor.submit(() -> {
                 addPersons();
                 for (int i = 0; i < testPersons.size(); i++) {
-                    Utilities.inputBOF(testPersons.get(i), db, userID);
+                    Utilities.inputBOF(testPersons.get(i), db, userID, "test");
                 }
                 List<String> orderingByID = db.coursesDao().getSimilarityOrdering(userID);
                 assertEquals(testIds.get(0), orderingByID.get(0));
@@ -250,7 +250,7 @@ public class DBQueryingUnitTest {
             backgroundThreadExecutor.submit(() -> {
                 addPersons();
                 for(int i = 0; i<testPersons.size(); i++) {
-                    Utilities.inputBOF(testPersons.get(i), db, userID);
+                    Utilities.inputBOF(testPersons.get(i), db, userID, "test");
                 }
 
                 List<PersonWithCourses> ordering = Utilities.generateSimilarityOrder(db, userID);
@@ -308,7 +308,7 @@ public class DBQueryingUnitTest {
                 assertEquals(numUserClasses, db.coursesDao().count());
 
                 for(int i = 0; i<testPersons.size(); i++) {
-                    Utilities.inputBOF(testPersons.get(i), db, userID);
+                    Utilities.inputBOF(testPersons.get(i), db, userID, "test");
                 }
 
                 //courses of BOFs were added

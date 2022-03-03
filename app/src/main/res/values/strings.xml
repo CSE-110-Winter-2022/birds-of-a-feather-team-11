@@ -38,6 +38,15 @@
         <item>2015</item>
     </string-array>
 
+    <string-array name="class_sizes">
+        <item>Tiny (20)</item>
+        <item>Small (60)</item>
+        <item>Medium (112)</item>
+        <item>Large (200)</item>
+        <item>Huge (325)</item>
+        <item>Gigantic (600)</item>
+    </string-array>
+
     <string-array name="quarters_array">
         <item>Fall</item>
         <item>Winter</item>
@@ -45,6 +54,12 @@
         <item>Summer Session I</item>
         <item>Summer Session II</item>
         <item>Special Summer Session</item>
+    </string-array>
+
+    <string-array name="filters_array">
+        <item>Default</item>
+        <item>Class Size</item>
+        <item>Class Age</item>
     </string-array>
 
 </resources>
