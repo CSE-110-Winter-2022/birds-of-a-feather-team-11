@@ -217,7 +217,7 @@ public class Utilities {
      * @param sessionName Name of the session they were inputted under
      * @param personId ID of the BoF being inputted
      */
-    private static void addToSession(AppDatabase db, String sessionName, String personId){
+    public static void addToSession(AppDatabase db, String sessionName, String personId){
         if(db.sessionsDao().similarSession(sessionName, personId) == 0){
             db.sessionsDao().insert(new Session(sessionName, personId));
         }

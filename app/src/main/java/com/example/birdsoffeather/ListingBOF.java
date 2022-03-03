@@ -106,12 +106,18 @@ public class ListingBOF extends AppCompatActivity {
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
                 String filter = adapterView.getItemAtPosition(i).toString();
                 Log.d("FilterSelect", filter);
-                String sortType = Utilities.DEFAULT;
-                if (filter.equals("Class Size"))
-                    sortType = Utilities.CLASS_SIZE;
-                else if (filter.equals("Class Age"))
-                    sortType = Utilities.CLASS_AGE;
-                updateUI(generateSortedList(sortType));
+                backgroundThreadExecutor.submit(() -> {
+                    String sortType = Utilities.DEFAULT;
+                    if (filter.equals("Class Size"))
+                        sortType = Utilities.CLASS_SIZE;
+                    else if (filter.equals("Class Age"))
+                        sortType = Utilities.CLASS_AGE;
+                    List<PersonWithCourses> persons = generateSortedList(sortType);
+                    runOnUiThread(() -> {
+                        updateUI(persons);
+                    });
+                    return null;
+                });
             }
 
             @Override
@@ -328,6 +334,9 @@ public class ListingBOF extends AppCompatActivity {
         editor.apply();
 
         sessionName = currTime;
+
+        //Add default user to session
+        Utilities.addToSession(db, sessionName, userID);
 
         //Change Name on title
         TextView title = (TextView) findViewById(R.id.bof_title);
