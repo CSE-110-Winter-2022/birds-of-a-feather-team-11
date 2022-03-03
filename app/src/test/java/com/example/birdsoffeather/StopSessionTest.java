@@ -36,7 +36,6 @@ public class StopSessionTest {
     public ActivityScenarioRule<ListingBOF> scenarioRule2 = new ActivityScenarioRule<>(ListingBOF.class);
 
     String userID = UUID.randomUUID().toString();
-    AppDatabase db;
 
     public void addUser(AppDatabase db) {
         Person user = new Person(userID, "user", "", 0, 0);
@@ -65,9 +64,8 @@ public class StopSessionTest {
         scenario1.moveToState(Lifecycle.State.CREATED);
 
         scenario1.onActivity(activity -> {
-            db = AppDatabase.singleton(getApplicationContext());
-
             Future future = backgroundThreadExecutor.submit(() -> {
+                AppDatabase db = AppDatabase.singleton(getApplicationContext());
                 addUser(db);
                 addUserClasses(db);
                 List<Course> courses = new ArrayList<>();
@@ -82,7 +80,6 @@ public class StopSessionTest {
 
             });
             waitForThread(future);
-            db = null;
         });
     }
 
@@ -93,9 +90,10 @@ public class StopSessionTest {
         scenario1.moveToState(Lifecycle.State.CREATED);
 
         scenario1.onActivity(activity -> {
-            db = AppDatabase.singleton(getApplicationContext());
+
 
             Future future = backgroundThreadExecutor.submit(() -> {
+                AppDatabase db = AppDatabase.singleton(getApplicationContext());
                 addUser(db);
                 addUserClasses(db);
 
@@ -131,7 +129,6 @@ public class StopSessionTest {
 
             });
             waitForThread(future);
-            db = null;
         });
 
     }
