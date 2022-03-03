@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 @RunWith(AndroidJUnit4.class)
 public class StopSessionTest {
@@ -53,7 +54,10 @@ public class StopSessionTest {
         db.sessionsDao().insert(new Session(sessionName, userID));
     }
 
-
+    public void waitForThread(Future future) {
+        while(!future.isDone())
+            continue;
+    }
 
     @Test
     public void getCurrCoursesTest() {
@@ -62,9 +66,9 @@ public class StopSessionTest {
 
         scenario1.onActivity(activity -> {
             db = AppDatabase.singleton(getApplicationContext());
-            scenario1.moveToState(Lifecycle.State.CREATED);
 
-            backgroundThreadExecutor.submit(() -> {
+            Future future = backgroundThreadExecutor.submit(() -> {
+                scenario1.moveToState(Lifecycle.State.CREATED);
                 addUser();
                 addUserClasses();
                 List<Course> courses = new ArrayList<>();
@@ -74,10 +78,11 @@ public class StopSessionTest {
                 activity.runOnUiThread(() -> {
                     assertEquals(courses.toString(), currCourses.toString());
                 });
-                db.clearAllTables();
-                db.close();
 
             });
+            waitForThread(future);
+            db.clearAllTables();
+            db.close();
         });
     }
 
@@ -89,9 +94,9 @@ public class StopSessionTest {
 
         scenario1.onActivity(activity -> {
             db = AppDatabase.singleton(getApplicationContext());
-            scenario1.moveToState(Lifecycle.State.CREATED);
 
-            backgroundThreadExecutor.submit(() -> {
+            Future future = backgroundThreadExecutor.submit(() -> {
+                scenario1.moveToState(Lifecycle.State.CREATED);
                 addUser();
                 addUserClasses();
 
@@ -122,11 +127,10 @@ public class StopSessionTest {
                 editor.remove("userID");
                 editor.apply();
 
-
-                db.clearAllTables();
-                db.close();
-
             });
+            waitForThread(future);
+            db.clearAllTables();
+            db.close();
         });
 
     }
