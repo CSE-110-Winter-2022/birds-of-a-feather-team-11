@@ -131,17 +131,17 @@ public class Utilities {
 
     public static double sizeScore(Course course) {
         switch (course.classSize) {
-            case "Tiny (20)":
+            case "Tiny (<40)":
                 return 1;
-            case "Small (60)":
+            case "Small (40-75)":
                 return .33;
-            case "Medium (112)":
+            case "Medium (75-150)":
                 return .18;
-            case "Large (200)":
+            case "Large (150-250)":
                 return .1;
-            case "Huge (325)":
+            case "Huge (250-400)":
                 return .06;
-            case "Gigantic (600)":
+            case "Gigantic (400+)":
                 return .03;
         }
         return .03;
@@ -177,7 +177,7 @@ public class Utilities {
         int day = currentTime.get(Calendar.DAY_OF_MONTH);
         String quarter;
 
-        if (month < 3 || month == 3 && day <= 12)
+        if (month < 3 || month == 3 && day <= 20)
             quarter = "Winter";
         else if (month < 6 || month == 6 && day <= 13)
             quarter = "Spring";
