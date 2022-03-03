@@ -58,16 +58,18 @@ public class NearbyMock extends AppCompatActivity {
         if (lines.length < 3) return null;
         String name = lines[0].split(",")[0];
         String uri = lines[1].split(",")[0];
+
         // replace with UUID
         Person person = new Person("replace with UUID", name, uri, 0, 0);
         List<Course> courseList = new ArrayList<>();
+
         for (int i = 2; i < lines.length; i++) {
             if (lines[i].length() == 0) continue;
             String [] course = lines[i].split(",");
-            if (course.length != 4) {
+            if (course.length != 5) {
                 return null;
             }
-            courseList.add(new Course("replace with UUID", course[0], course[1], course[2], course[3]));
+            courseList.add(new Course("replace with UUID", course[0], course[1], course[2], course[3], course[4]));
 
         }
         PersonWithCourses personWithCourses = new PersonWithCourses();
