@@ -75,7 +75,14 @@ public class StopSave extends AppCompatActivity {
 
     }
 
-    private List<Course> getCurrCourses(int year, int quarter, String userID) {
+    /**
+     * gets the courses from current quarter of the user based on year and quarter input
+     * @param year current year
+     * @param quarter int representation of current quarter. SSI, SS2, and SSS are all part of the "Summer quarter"
+     * @param userID user's ID
+     * @return the list of the classes that user took current quarter
+     */
+    public List<Course> getCurrCourses(int year, int quarter, String userID) {
         List<Course> courses = new ArrayList<>();
         switch(quarter) {
             case 0:
@@ -96,9 +103,13 @@ public class StopSave extends AppCompatActivity {
         return courses;
     }
 
-    private List<String> getAvailableCourses() {
+    /**
+     * @return the courses from current quarter that has not been used as the session name
+     */
+    public List<String> getAvailableCourses() {
         SharedPreferences preferences = getSharedPreferences("BoF", MODE_PRIVATE);
         String userID = preferences.getString("userID", null);
+
         int[] currQuarter = Utilities.getCurrentQuarterAndYear();
 
         List<Course> courses = getCurrCourses(currQuarter[1], currQuarter[0], userID);
