@@ -58,6 +58,9 @@ public class CreateSessionTest {
             List<String> sessions = db.sessionsDao().getSessionNames();
             assertEquals("test_session", sessions.get(0));
             assertEquals(1, sessions.size());
+
+            db.clearAllTables();
+            db.close();
             return null;
         });
     }
@@ -113,7 +116,8 @@ public class CreateSessionTest {
                     && expectedSessions.containsAll(sessions)
                     && sessions.containsAll(expectedSessions));
 
-
+            db.clearAllTables();
+            db.close();
             return null;
         });
     }
@@ -151,6 +155,8 @@ public class CreateSessionTest {
                     && expectedSessions.containsAll(sessions)
                     && sessions.containsAll(expectedSessions));
 
+            db.clearAllTables();
+            db.close();
             return null;
         });
     }
@@ -164,6 +170,8 @@ public class CreateSessionTest {
             assertEquals(1, db.sessionsDao().similarSession("test_session", "test_person"));
             assertEquals(0, db.sessionsDao().similarSession("1test_session", "test_person"));
             assertEquals(0, db.sessionsDao().similarSession("test_session", "1test_person"));
+            db.clearAllTables();
+            db.close();
             return null;
         });
     }
@@ -183,6 +191,8 @@ public class CreateSessionTest {
             db.sessionsDao().insert(new Session("test_session", "test_person"));
             assertEquals(1, db.sessionsDao().count());
 
+            db.clearAllTables();
+            db.close();
             return null;
         });
     }
@@ -205,6 +215,8 @@ public class CreateSessionTest {
             Utilities.addToSession(db, null, "person");
             assertEquals(2, db.sessionsDao().count());
 
+            db.clearAllTables();
+            db.close();
             return null;
         });
     }
@@ -222,6 +234,8 @@ public class CreateSessionTest {
                 AppDatabase db = AppDatabase.singleton(getApplicationContext());
                 assertEquals(0, db.sessionsDao().count());
 
+                db.clearAllTables();
+                db.close();
                 return null;
             });
 
@@ -240,6 +254,8 @@ public class CreateSessionTest {
                 AppDatabase db = AppDatabase.singleton(getApplicationContext());
                 assertEquals(1, db.sessionsDao().count());
 
+                db.clearAllTables();
+                db.close();
                 return null;
             });
          });
