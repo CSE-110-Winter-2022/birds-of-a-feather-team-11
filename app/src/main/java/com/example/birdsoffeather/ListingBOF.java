@@ -324,6 +324,9 @@ public class ListingBOF extends AppCompatActivity {
 
         sessionName = currTime;
 
+        //Add default user to session
+        Utilities.addToSession(db, sessionName, userID);
+
         //Change Name on title
         TextView title = (TextView) findViewById(R.id.bof_title);
         title.setText(currTime);

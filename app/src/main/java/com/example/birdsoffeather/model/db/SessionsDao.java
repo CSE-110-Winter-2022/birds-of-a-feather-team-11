@@ -25,4 +25,7 @@ public interface SessionsDao {
 
     @Query("SELECT COUNT(*) FROM sessions WHERE name=:name AND personId=:personId")
     int similarSession(String name, String personId);
+
+    @Query("SELECT DISTINCT name FROM sessions")
+    List<String> getSessionNames();
 }
