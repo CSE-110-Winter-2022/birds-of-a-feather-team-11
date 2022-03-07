@@ -63,12 +63,12 @@ public class StopSessionTest {
     public void getCurrCoursesTest() {
         ActivityScenario<StopSave> scenario1 = scenarioRule.getScenario();
 
-
+        scenario1.moveToState(Lifecycle.State.CREATED);
         scenario1.onActivity(activity -> {
             db = AppDatabase.singleton(getApplicationContext());
 
             Future future = backgroundThreadExecutor.submit(() -> {
-                scenario1.moveToState(Lifecycle.State.CREATED);
+
                 addUser();
                 addUserClasses();
                 List<Course> courses = new ArrayList<>();
@@ -78,11 +78,11 @@ public class StopSessionTest {
                 activity.runOnUiThread(() -> {
                     assertEquals(courses.toString(), currCourses.toString());
                 });
-
+                db.clearAllTables();
+                db.close();
             });
             waitForThread(future);
-            db.clearAllTables();
-            db.close();
+
         });
     }
 
@@ -91,12 +91,13 @@ public class StopSessionTest {
 
         ActivityScenario<StopSave> scenario1 = scenarioRule.getScenario();
 
-
+        scenario1.moveToState(Lifecycle.State.CREATED);
         scenario1.onActivity(activity -> {
             db = AppDatabase.singleton(getApplicationContext());
 
+
             Future future = backgroundThreadExecutor.submit(() -> {
-                scenario1.moveToState(Lifecycle.State.CREATED);
+
                 addUser();
                 addUserClasses();
 
@@ -126,11 +127,11 @@ public class StopSessionTest {
 
                 editor.remove("userID");
                 editor.apply();
-
+                db.clearAllTables();
+                db.close();
             });
             waitForThread(future);
-            db.clearAllTables();
-            db.close();
+
         });
 
     }
