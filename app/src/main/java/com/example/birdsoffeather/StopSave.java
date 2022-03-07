@@ -19,11 +19,15 @@ import com.example.birdsoffeather.model.db.PersonWithCourses;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class StopSave extends AppCompatActivity {
 
     private static final String CHOOSE_OTHER_STRING = "Other Name";
 
+
+    private ExecutorService backgroundThreadExecutor = Executors.newSingleThreadExecutor();
     private Spinner dropdown;
     private String currentSelectedName;
     private String currentSessionName;
@@ -60,6 +64,7 @@ public class StopSave extends AppCompatActivity {
 
         db = AppDatabase.singleton(getApplicationContext());
 
+
         ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, getAvailableCourses());
         dropdown = findViewById(R.id.class_dropdown);
         dropdown.setAdapter(adapter);
@@ -84,22 +89,24 @@ public class StopSave extends AppCompatActivity {
      */
     public List<Course> getCurrCourses(int year, int quarter, String userID) {
         List<Course> courses = new ArrayList<>();
-        switch(quarter) {
-            case 0:
-                courses.addAll(db.coursesDao().getCoursesForQuarter("" + year, "Winter", userID));
-                break;
-            case 1:
-                courses.addAll(db.coursesDao().getCoursesForQuarter("" + year, "Spring", userID));
-                break;
-            case 2:
-                courses.addAll(db.coursesDao().getCoursesForQuarter("" + year, "Summer Session I", userID));
-                courses.addAll(db.coursesDao().getCoursesForQuarter("" + year, "Summer Session II", userID));
-                courses.addAll(db.coursesDao().getCoursesForQuarter("" + year, "Special Summer Session", userID));
-                break;
-            case 3:
-                courses.addAll(db.coursesDao().getCoursesForQuarter("" + year, "Fall", userID));
-                break;
-        }
+        backgroundThreadExecutor.submit(() -> {
+            switch (quarter) {
+                case 0:
+                    courses.addAll(db.coursesDao().getCoursesForQuarter("" + year, "Winter", userID));
+                    break;
+                case 1:
+                    courses.addAll(db.coursesDao().getCoursesForQuarter("" + year, "Spring", userID));
+                    break;
+                case 2:
+                    courses.addAll(db.coursesDao().getCoursesForQuarter("" + year, "Summer Session I", userID));
+                    courses.addAll(db.coursesDao().getCoursesForQuarter("" + year, "Summer Session II", userID));
+                    courses.addAll(db.coursesDao().getCoursesForQuarter("" + year, "Special Summer Session", userID));
+                    break;
+                case 3:
+                    courses.addAll(db.coursesDao().getCoursesForQuarter("" + year, "Fall", userID));
+                    break;
+            }
+        });
         return courses;
     }
 
