@@ -112,8 +112,9 @@ public class StopSessionTest {
                 courses.add("Other Name");
                 List<String> availableCourses = activity.getAvailableCourses();
 
-                assertEquals(courses.toString(), availableCourses.toString());
-
+                activity.runOnUiThread(() -> {
+                    assertEquals(courses.toString(), availableCourses.toString());
+                });
 
                 createSession("CSE 110");
                 List<String> courses2 = new ArrayList<>();

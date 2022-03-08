@@ -60,24 +60,26 @@ public class StopSave extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_stop_save);
-
         db = AppDatabase.singleton(getApplicationContext());
 
+        backgroundThreadExecutor.submit(() -> {
 
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, getAvailableCourses());
-        dropdown = findViewById(R.id.class_dropdown);
-        dropdown.setAdapter(adapter);
-        dropdown.setOnItemSelectedListener(listener);
+            ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, getAvailableCourses());
+            runOnUiThread(() -> {
 
-        customNameEditText = findViewById(R.id.rename_other_edit_text);
+                setContentView(R.layout.activity_stop_save);
+                dropdown = findViewById(R.id.class_dropdown);
+                dropdown.setAdapter(adapter);
+                dropdown.setOnItemSelectedListener(listener);
+                customNameEditText = findViewById(R.id.rename_other_edit_text);
 
-        SharedPreferences preferences = getSharedPreferences("BoF", MODE_PRIVATE);
-        currentSessionName = preferences.getString("currentSession", "");
+                SharedPreferences preferences = getSharedPreferences("BoF", MODE_PRIVATE);
+                currentSessionName = preferences.getString("currentSession", "");
 
-        TextView renamedSessionTextView = findViewById(R.id.renamed_session_text_view);
-        renamedSessionTextView.setText(currentSessionName);
-
+                TextView renamedSessionTextView = findViewById(R.id.renamed_session_text_view);
+                renamedSessionTextView.setText(currentSessionName);
+            });
+        });
     }
 
     /**
@@ -89,24 +91,23 @@ public class StopSave extends AppCompatActivity {
      */
     public List<Course> getCurrCourses(int year, int quarter, String userID) {
         List<Course> courses = new ArrayList<>();
-        backgroundThreadExecutor.submit(() -> {
-            switch (quarter) {
-                case 0:
-                    courses.addAll(db.coursesDao().getCoursesForQuarter("" + year, "Winter", userID));
-                    break;
-                case 1:
-                    courses.addAll(db.coursesDao().getCoursesForQuarter("" + year, "Spring", userID));
-                    break;
-                case 2:
-                    courses.addAll(db.coursesDao().getCoursesForQuarter("" + year, "Summer Session I", userID));
-                    courses.addAll(db.coursesDao().getCoursesForQuarter("" + year, "Summer Session II", userID));
-                    courses.addAll(db.coursesDao().getCoursesForQuarter("" + year, "Special Summer Session", userID));
-                    break;
-                case 3:
-                    courses.addAll(db.coursesDao().getCoursesForQuarter("" + year, "Fall", userID));
-                    break;
-            }
-        });
+        switch (quarter) {
+            case 0:
+                courses.addAll(db.coursesDao().getCoursesForQuarter("" + year, "Winter", userID));
+                break;
+            case 1:
+                courses.addAll(db.coursesDao().getCoursesForQuarter("" + year, "Spring", userID));
+                break;
+            case 2:
+                courses.addAll(db.coursesDao().getCoursesForQuarter("" + year, "Summer Session I", userID));
+                courses.addAll(db.coursesDao().getCoursesForQuarter("" + year, "Summer Session II", userID));
+                courses.addAll(db.coursesDao().getCoursesForQuarter("" + year, "Special Summer Session", userID));
+                break;
+            case 3:
+                courses.addAll(db.coursesDao().getCoursesForQuarter("" + year, "Fall", userID));
+                break;
+        }
+
         return courses;
     }
 
