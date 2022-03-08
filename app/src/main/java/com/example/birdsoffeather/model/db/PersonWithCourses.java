@@ -30,6 +30,8 @@ public class PersonWithCourses implements Serializable, IPerson {
         return this.courses;
     }
 
+    public boolean sentWaveTo() { return (this.person.wavedTo != 0); }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

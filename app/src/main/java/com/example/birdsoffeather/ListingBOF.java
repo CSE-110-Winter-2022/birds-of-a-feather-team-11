@@ -24,14 +24,13 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.birdsoffeather.model.db.AppDatabase;
+import com.example.birdsoffeather.model.db.BluetoothMessageComposite;
 import com.example.birdsoffeather.model.db.IPerson;
 import com.example.birdsoffeather.model.db.PersonWithCourses;
-import com.example.birdsoffeather.model.db.Session;
 import com.google.android.gms.nearby.messages.Message;
 import com.google.android.gms.nearby.messages.MessageListener;
 
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -199,32 +198,39 @@ public class ListingBOF extends AppCompatActivity {
         }
 
         // Set up bluetooth Module
-        try {
-            Message selfMessage = new Message(Utilities.serializePerson(selfPerson));
-            bluetooth = new BluetoothModule(this, new MessageListener() {
-                @Override
-                public void onFound(@NonNull Message message) {
-                    try {
-                        PersonWithCourses person = Utilities.deserializePerson(message.getContent());
-                        future = backgroundThreadExecutor.submit(() -> {
-                            Utilities.inputBOF(person, db, userID, sessionName);
-                            updateUI(generateSortedList(Utilities.DEFAULT));
-                            Log.i("Bluetooth",person.toString() + " found");
-                            return null;
-                        });
-                    } catch (IOException | ClassNotFoundException e) {
-                        e.printStackTrace();
-                    }
-
+        bluetooth = new BluetoothModule(this, new MessageListener() {
+            @Override
+            public void onFound(@NonNull Message message) {
+                try {
+                    BluetoothMessageComposite bluetoothMessage = Utilities.deserializeMessage(message.getContent());
+                    future = backgroundThreadExecutor.submit(() -> {
+                        Utilities.inputBOF(bluetoothMessage.person, db, userID, sessionName);
+                        updateUI(generateSortedList(Utilities.DEFAULT));
+                        Log.i("Bluetooth",bluetoothMessage.person.toString() + " found");
+                        return null;
+                    });
+                } catch (IOException | ClassNotFoundException e) {
+                    e.printStackTrace();
                 }
-            });
-            bluetooth.setMessage(selfMessage);
-        } catch (IOException e) {
-            Toast.makeText(this, "Failed to setup bluetooth! Try restarting app.", Toast.LENGTH_SHORT).show();
-            onBluetoothFailed();
-            Log.w("Bluetooth","Bluetooth setup failed");
-            e.printStackTrace();
-        }
+
+            }
+        });
+
+        future = backgroundThreadExecutor.submit(() -> {
+            try {
+                List<String> sentWaveTo = db.personsWithCoursesDao().getSentWaveTo();
+                Message selfMessage = new Message(Utilities.serializeMessage(selfPerson, sentWaveTo));
+                bluetooth.setMessage(selfMessage);
+            } catch (IOException e) {
+                Toast.makeText(this, "Failed to setup bluetooth! Try restarting app.", Toast.LENGTH_SHORT).show();
+                onBluetoothFailed();
+                Log.w("Bluetooth","Bluetooth setup failed");
+                e.printStackTrace();
+            }
+
+            return null;
+        });
+
     }
 
     /**

@@ -21,6 +21,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
@@ -49,8 +50,8 @@ public class BluetoothTest {
         PersonWithCourses person = createTestPersonJohn();
         PersonWithCourses personCopy = null;
         try {
-            Message message = new Message(Utilities.serializePerson(person));
-            personCopy = Utilities.deserializePerson(message.getContent());
+            Message message = new Message(Utilities.serializeMessage(person, new ArrayList<>()));
+            personCopy = Utilities.deserializeMessage(message.getContent()).person;
         } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
         }
@@ -69,8 +70,8 @@ public class BluetoothTest {
 
         PersonWithCourses serializedPerson = null;
         try {
-            Message message = new Message(Utilities.serializePerson(person1));
-            serializedPerson = Utilities.deserializePerson(message.getContent());
+            Message message = new Message(Utilities.serializeMessage(person1, new ArrayList<>()));
+            serializedPerson = Utilities.deserializeMessage(message.getContent()).person;
         } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
         }
@@ -95,8 +96,8 @@ public class BluetoothTest {
 
         PersonWithCourses serializedPerson = null;
         try {
-            Message message = new Message(Utilities.serializePerson(person1));
-            serializedPerson = Utilities.deserializePerson(message.getContent());
+            Message message = new Message(Utilities.serializeMessage(person1, new ArrayList<>()));
+            serializedPerson = Utilities.deserializeMessage(message.getContent()).person;
         } catch (IOException | ClassNotFoundException e) {
             e.printStackTrace();
         }
@@ -121,7 +122,8 @@ public class BluetoothTest {
             fakePerson.person = new Person(userID, "John", "www.google.com", 0, 0);
             fakePerson.courses = Arrays.asList(
                     new Course(userID, "2022", "Winter", "CSE", "110","Large (150-250)"));
-            MessageListener fake = new FakeMessageListener(activity.getMessageListener(), fakePerson);
+
+            MessageListener fake = new FakeMessageListener(activity.getMessageListener(), fakePerson, new ArrayList<>());
             activity.setMessageListener(fake);
 
             backgroundThreadExecutor.submit(() -> {
