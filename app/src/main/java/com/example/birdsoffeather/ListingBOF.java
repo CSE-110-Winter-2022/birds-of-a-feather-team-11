@@ -216,7 +216,7 @@ public class ListingBOF extends AppCompatActivity {
             }
         });
 
-        future = backgroundThreadExecutor.submit(() -> {
+        backgroundThreadExecutor.submit(() -> {
             try {
                 List<String> sentWaveTo = db.personsWithCoursesDao().getSentWaveTo();
                 Message selfMessage = new Message(Utilities.serializeMessage(selfPerson, sentWaveTo));
