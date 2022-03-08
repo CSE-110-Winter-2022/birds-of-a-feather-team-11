@@ -65,17 +65,18 @@ public class Course implements Serializable {
     }
 
     private String getFormattedQuarter(String input) {
-        if(input.equals("FA") || input.equals("Fall")){
+        input = input.toUpperCase();
+        if(input.equals("FA") || input.equals("FALL")){
             return "Fall";
-        } else if(input.equals("WI") || input.equals("Winter")){
+        } else if(input.equals("WI") || input.equals("WINTER")){
             return "Winter";
-        } else if(input.equals("SP") || input.equals("Spring")){
+        } else if(input.equals("SP") || input.equals("SPRING")){
             return "Spring";
-        } else if(input.equals("SSi") || input.equals("Summer Session I")){
+        } else if(input.equals("SSI") || input.equals("SS1") || input.equals("SUMMER SESSION I") || input.equals("SUMMER SESSION 1")){
             return "Summer Session I";
-        } else if(input.equals("SS2") || input.equals("Summer Session II")){
+        } else if(input.equals("SSII") || input.equals("SS2") || input.equals("SUMMER SESSION II") || input.equals("SUMMER SESSION 2")){
             return "Summer Session II";
-        } else if(input.equals("SSS") || input.equals("Special Summer Session")){
+        } else if(input.equals("SSS") || input.equals("SPECIAL SUMMER SESSION")){
             return "Special Summer Session";
         } else {
             return "";
