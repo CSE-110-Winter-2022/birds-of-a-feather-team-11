@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -26,9 +27,8 @@ public class NearbyMock extends AppCompatActivity {
         setContentView(R.layout.activity_nearby_mock);
     }
 
-
+    // TODO: only add mock if the start button is clicked
     public void onAddButtonClicked(View view) {
-        Toast.makeText(this, "L Added person successfully", Toast.LENGTH_SHORT).show();
         EditText personEntryEditText = findViewById(R.id.person_entry_edit_text);
         String entryData = personEntryEditText.getText().toString();
         PersonWithCourses person = generatePerson(entryData);
@@ -36,7 +36,6 @@ public class NearbyMock extends AppCompatActivity {
         SharedPreferences preferences = getSharedPreferences("BoF", MODE_PRIVATE);
         String userID = preferences.getString("userID", null);
         String sessionName = preferences.getString("currentSession", null);
-
         // If successful, clear text and add to database
         if (person != null) {
             Utilities.inputBOF(person, AppDatabase.singleton(getApplicationContext()), userID, sessionName);
@@ -45,6 +44,8 @@ public class NearbyMock extends AppCompatActivity {
         } else {
             Toast.makeText(this, "Failed to add - incorrect formatting", Toast.LENGTH_SHORT).show();
         }
+        AppDatabase db = AppDatabase.singleton(this);
+        System.out.println(db.personsWithCoursesDao().getAll());
 
     }
 
@@ -60,7 +61,7 @@ public class NearbyMock extends AppCompatActivity {
         String uri = lines[1].split(",")[0];
 
         // replace with UUID
-        Person person = new Person("replace with UUID", name, uri, 0, 0);
+        Person person = new Person("replace with UUID", name, uri, 0, 0, 0);
         List<Course> courseList = new ArrayList<>();
 
         for (int i = 2; i < lines.length; i++) {
@@ -75,6 +76,7 @@ public class NearbyMock extends AppCompatActivity {
         PersonWithCourses personWithCourses = new PersonWithCourses();
         personWithCourses.person = person;
         personWithCourses.courses = courseList;
+        System.out.println(courseList);
 
         return personWithCourses;
     }
