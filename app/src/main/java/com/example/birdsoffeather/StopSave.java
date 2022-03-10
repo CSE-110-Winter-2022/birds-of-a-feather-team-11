@@ -74,7 +74,7 @@ public class StopSave extends AppCompatActivity {
                 customNameEditText = findViewById(R.id.rename_other_edit_text);
 
                 SharedPreferences preferences = getSharedPreferences("BoF", MODE_PRIVATE);
-                currentSessionName = preferences.getString("currentSession", "");
+                currentSessionName = preferences.getString("currentSession", null);
 
                 TextView renamedSessionTextView = findViewById(R.id.renamed_session_text_view);
                 renamedSessionTextView.setText(currentSessionName);
