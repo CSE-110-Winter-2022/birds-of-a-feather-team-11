@@ -335,6 +335,13 @@ public class CreateSessionTest {
     public void testNewSessionCreation() {
         ActivityScenario<ListingBOF> scenario = scenarioRule.getScenario();
 
+        scenario.onActivity(activity -> {
+            SharedPreferences preferences = activity.getSharedPreferences("BoF", Context.MODE_PRIVATE);
+            SharedPreferences.Editor editor = preferences.edit();
+            editor.putString("userID", "temp");
+            editor.apply();
+        });
+
         scenario.moveToState(Lifecycle.State.CREATED);
         scenario.moveToState(Lifecycle.State.STARTED);
 
@@ -364,6 +371,19 @@ public class CreateSessionTest {
             startButton.performClick();
 
             assertNotEquals("BOF", title.getText());
+
+            Future future2 = backgroundThreadExecutor.submit(() -> {
+                AppDatabase db = AppDatabase.singleton(getApplicationContext());
+                int after = db.sessionsDao().count();
+
+                activity.runOnUiThread(() -> {
+                    assertEquals(1, after);
+                });
+
+                return null;
+            });
+
+            Utilities.waitForThread(future2);
         });
     }
 }

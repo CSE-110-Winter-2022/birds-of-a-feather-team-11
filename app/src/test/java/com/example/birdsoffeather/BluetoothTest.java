@@ -25,6 +25,8 @@ import java.util.Arrays;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 @RunWith(AndroidJUnit4.class)
 public class BluetoothTest {
@@ -106,10 +108,10 @@ public class BluetoothTest {
 
     @Test
     public void testFakePersonSend() {
-
         ActivityScenario<ListingBOF> scenario = scenarioRule.getScenario();
 
         scenario.moveToState(Lifecycle.State.CREATED);
+        scenario.moveToState(Lifecycle.State.STARTED);
 
 
         scenario.onActivity(activity -> {
@@ -124,21 +126,32 @@ public class BluetoothTest {
             MessageListener fake = new FakeMessageListener(activity.getMessageListener(), fakePerson);
             activity.setMessageListener(fake);
 
-            backgroundThreadExecutor.submit(() -> {
-                int numPeople = db.personsWithCoursesDao().count();
-                int numCourses = db.coursesDao().count();
+            //Wait because of async background thread processes
+            try {
+                TimeUnit.SECONDS.sleep(1);
+            } catch(Exception e) {
+                e.printStackTrace();
+            }
 
-                assertEquals(1, numPeople);
-                assertEquals(1, numCourses);
+            Future future = backgroundThreadExecutor.submit(() -> {
+                int numPeople = db.personsWithCoursesDao().count();
+
+                activity.runOnUiThread(() -> {
+                    assertEquals(1, numPeople);
+                });
 
                 String personName = db.personsWithCoursesDao().get(userID).person.name;
 
-                assertEquals("John", personName);
+                activity.runOnUiThread(() -> {
+                    assertEquals("John", personName);
+                });
 
                 db.close();
 
                 return null;
             });
+
+            Utilities.waitForThread(future);
         });
     }
 
