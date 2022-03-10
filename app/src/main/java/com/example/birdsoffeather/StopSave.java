@@ -3,6 +3,7 @@ package com.example.birdsoffeather;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
@@ -25,13 +26,14 @@ import java.util.concurrent.Executors;
 public class StopSave extends AppCompatActivity {
 
     private static final String CHOOSE_OTHER_STRING = "Other Name";
-
+    public static final String KEY_NAME = "sessionName";
 
     private ExecutorService backgroundThreadExecutor = Executors.newSingleThreadExecutor();
     private Spinner dropdown;
     private String currentSelectedName;
     private String currentSessionName;
     private boolean usingCustomName = false;
+    private SharedPreferences preferences;
     AdapterView.OnItemSelectedListener listener = new AdapterView.OnItemSelectedListener() {
         @Override
         public void onItemSelected(AdapterView<?> adapterView, View view, int pos, long l) {
@@ -53,7 +55,9 @@ public class StopSave extends AppCompatActivity {
         }
     };
 
+    // views
     EditText customNameEditText;
+    TextView renamedSessionTextView;
 
     AppDatabase db;
 
@@ -73,10 +77,10 @@ public class StopSave extends AppCompatActivity {
                 dropdown.setOnItemSelectedListener(listener);
                 customNameEditText = findViewById(R.id.rename_other_edit_text);
 
-                SharedPreferences preferences = getSharedPreferences("BoF", MODE_PRIVATE);
+                preferences = getSharedPreferences("BoF", MODE_PRIVATE);
                 currentSessionName = preferences.getString("currentSession", null);
 
-                TextView renamedSessionTextView = findViewById(R.id.renamed_session_text_view);
+                renamedSessionTextView = findViewById(R.id.renamed_session_text_view);
                 renamedSessionTextView.setText(currentSessionName);
             });
         });
@@ -115,7 +119,6 @@ public class StopSave extends AppCompatActivity {
      * @return the courses from current quarter that has not been used as the session name
      */
     public List<String> getAvailableCourses() {
-        SharedPreferences preferences = getSharedPreferences("BoF", MODE_PRIVATE);
         String userID = preferences.getString("userID", null);
 
         int[] currQuarter = Utilities.getCurrentQuarterAndYear();
@@ -144,12 +147,10 @@ public class StopSave extends AppCompatActivity {
         } else if (isValidSessionName(newName)) {
             renameSession(newName);
 
-            //remove the session name from shared preferences
-            SharedPreferences preferences = getSharedPreferences("BoF", MODE_PRIVATE);
-            SharedPreferences.Editor editor = preferences.edit();
-            editor.putString("currentSession", null);
-            editor.apply();
-
+            // update title to be the new session name
+            Intent intent = new Intent();
+            intent.putExtra(KEY_NAME, currentSessionName);
+            setResult(RESULT_OK, intent);
             finish();
         } else {
             Utilities.showAlert(this, "This name is invalid or already in use");
@@ -160,6 +161,12 @@ public class StopSave extends AppCompatActivity {
     // If person uses back button to exit activity,we just don't bother changing its name
     private void renameSession(String newName) {
         db.sessionsDao().renameSession(currentSessionName, newName);
+
+        // update the session name from shared preferences to equal the new name
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.putString("currentSession", newName);
+        editor.apply();
+        currentSessionName = newName;
     }
 
     // check if name is a valid type and whether it is in use

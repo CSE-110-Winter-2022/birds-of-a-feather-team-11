@@ -1,5 +1,8 @@
 package com.example.birdsoffeather;
 
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -42,6 +45,8 @@ import java.util.concurrent.Future;
 public class ListingBOF extends AppCompatActivity {
 
     private AppDatabase db;
+    private SharedPreferences preferences;
+
     private ExecutorService backgroundThreadExecutor = Executors.newSingleThreadExecutor();
     private Future<Void> future;
 
@@ -58,7 +63,21 @@ public class ListingBOF extends AppCompatActivity {
     private String userID = null;
     private String sessionName = null;
 
+    private TextView title;
     private static final int PERMISSIONS_REQUEST_CODE = 1111;
+
+    // used to retrieve the session name set by user in StopSave activity
+    ActivityResultLauncher<Intent> activityLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
+        @Override
+        public void onActivityResult(ActivityResult result) {
+            if(result != null && result.getResultCode() == RESULT_OK) {
+                if(result.getData() != null && result.getData().getStringExtra(StopSave.KEY_NAME) != null) {
+                    title.setText(result.getData().getStringExtra(StopSave.KEY_NAME));
+                }
+            }
+        }
+    });
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,7 +86,9 @@ public class ListingBOF extends AppCompatActivity {
 
         bluetoothStarted = false;
 
-        SharedPreferences preferences = getSharedPreferences("BoF", MODE_PRIVATE);
+        title = (TextView) findViewById(R.id.bof_title);
+
+        preferences = getSharedPreferences("BoF", MODE_PRIVATE);
         userID = preferences.getString("userID", null);
 
         // Obtain details of use
@@ -131,7 +152,6 @@ public class ListingBOF extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
 
-        SharedPreferences preferences = getSharedPreferences("BoF", MODE_PRIVATE);
         userID = preferences.getString("userID", null);
         sessionName = preferences.getString("currentSession", null);
 
@@ -276,8 +296,16 @@ public class ListingBOF extends AppCompatActivity {
             startStopBtn.setText("Start");
             bluetoothStarted = false;
 
+            // launch StopSave activity
             Intent intent = new Intent(this, StopSave.class);
-            startActivity(intent);
+            activityLauncher.launch(intent);
+
+            // update title if it was changed
+            String sn = preferences.getString("currentSession", null);
+            if(sn != null) {
+                sessionName = sn;
+                title.setText(sessionName);
+            }
 
         } else {
             //When start is pressed
@@ -327,7 +355,6 @@ public class ListingBOF extends AppCompatActivity {
         String currTime = formattedDate + " " + formattedTime;
 
         //Store current session name
-        SharedPreferences preferences = getSharedPreferences("BoF", MODE_PRIVATE);
         SharedPreferences.Editor editor = preferences.edit();
         editor.putString("currentSession", currTime);
         editor.apply();
@@ -338,7 +365,6 @@ public class ListingBOF extends AppCompatActivity {
         Utilities.addToSession(db, sessionName, userID);
 
         //Change Name on title
-        TextView title = (TextView) findViewById(R.id.bof_title);
         title.setText(currTime);
     }
 
