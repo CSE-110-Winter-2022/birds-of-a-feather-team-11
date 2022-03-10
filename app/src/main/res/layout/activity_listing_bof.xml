@@ -17,6 +17,7 @@
         android:text="@string/bof"
         android:textSize="25dp"
         android:textStyle="bold"
+        android:onClick="onTitleClicked"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"

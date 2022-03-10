@@ -64,12 +64,14 @@ public class ListingBOF extends AppCompatActivity {
     private String sessionName = null;
 
     private TextView title;
+    private Button startStopBtn;
     private static final int PERMISSIONS_REQUEST_CODE = 1111;
 
     // used to retrieve the session name set by user in StopSave activity
     ActivityResultLauncher<Intent> activityLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
         @Override
         public void onActivityResult(ActivityResult result) {
+            // update title to be session name entered by user
             if(result != null && result.getResultCode() == RESULT_OK) {
                 if(result.getData() != null && result.getData().getStringExtra(StopSave.KEY_NAME) != null) {
                     title.setText(result.getData().getStringExtra(StopSave.KEY_NAME));
@@ -87,6 +89,7 @@ public class ListingBOF extends AppCompatActivity {
         bluetoothStarted = false;
 
         title = (TextView) findViewById(R.id.bof_title);
+        startStopBtn = findViewById(R.id.start_stop_btn);
 
         preferences = getSharedPreferences("BoF", MODE_PRIVATE);
         userID = preferences.getString("userID", null);
@@ -281,7 +284,6 @@ public class ListingBOF extends AppCompatActivity {
             return;
         }
 
-        Button startStopBtn = findViewById(R.id.start_stop_btn);
         startStopBtn.setSelected(!startStopBtn.isSelected());
 
 
@@ -293,19 +295,10 @@ public class ListingBOF extends AppCompatActivity {
             bluetooth.unsubscribe();
 
             // Update State
-            startStopBtn.setText("Start");
+            startStopBtn.setText("START");
             bluetoothStarted = false;
 
-            // launch StopSave activity
-            Intent intent = new Intent(this, StopSave.class);
-            activityLauncher.launch(intent);
-
-            // update title if it was changed
-            String sn = preferences.getString("currentSession", null);
-            if(sn != null) {
-                sessionName = sn;
-                title.setText(sessionName);
-            }
+            nameSession();
 
         } else {
             //When start is pressed
@@ -316,7 +309,7 @@ public class ListingBOF extends AppCompatActivity {
             bluetooth.subscribe();
 
             // Update State
-            startStopBtn.setText("Stop");
+            startStopBtn.setText("STOP");
             bluetoothStarted = true;
 
         }
@@ -403,5 +396,33 @@ public class ListingBOF extends AppCompatActivity {
 
     private void onBluetoothFailed() {
         finish();
+    }
+
+
+    /**
+     * update current saved session's name by clicking title
+      * @param view
+     */
+    public void onTitleClicked(View view) {
+        if(startStopBtn.getText().toString().equals("START") && !title.getText().toString().equals("BOF")) {
+            nameSession();
+        }
+    }
+
+    /**
+     * The activity that's responsible for naming a session will launch.
+     * The current session's name will be replaced with the new one in the database.
+     */
+    private void nameSession() {
+        // launch StopSave activity
+        Intent intent = new Intent(this, StopSave.class);
+        activityLauncher.launch(intent);
+
+        // update title if it was changed
+        String sn = preferences.getString("currentSession", null);
+        if(sn != null) {
+            sessionName = sn;
+            title.setText(sessionName);
+        }
     }
 }

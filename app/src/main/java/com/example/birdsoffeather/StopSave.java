@@ -33,7 +33,6 @@ public class StopSave extends AppCompatActivity {
     private String currentSelectedName;
     private String currentSessionName;
     private boolean usingCustomName = false;
-    private SharedPreferences preferences;
     AdapterView.OnItemSelectedListener listener = new AdapterView.OnItemSelectedListener() {
         @Override
         public void onItemSelected(AdapterView<?> adapterView, View view, int pos, long l) {
@@ -67,17 +66,15 @@ public class StopSave extends AppCompatActivity {
         db = AppDatabase.singleton(getApplicationContext());
 
         backgroundThreadExecutor.submit(() -> {
-
             ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, getAvailableCourses());
             runOnUiThread(() -> {
-
                 setContentView(R.layout.activity_stop_save);
                 dropdown = findViewById(R.id.class_dropdown);
                 dropdown.setAdapter(adapter);
                 dropdown.setOnItemSelectedListener(listener);
                 customNameEditText = findViewById(R.id.rename_other_edit_text);
 
-                preferences = getSharedPreferences("BoF", MODE_PRIVATE);
+                SharedPreferences preferences = getSharedPreferences("BoF", MODE_PRIVATE);
                 currentSessionName = preferences.getString("currentSession", null);
 
                 renamedSessionTextView = findViewById(R.id.renamed_session_text_view);
@@ -119,6 +116,7 @@ public class StopSave extends AppCompatActivity {
      * @return the courses from current quarter that has not been used as the session name
      */
     public List<String> getAvailableCourses() {
+        SharedPreferences preferences = getSharedPreferences("BoF", MODE_PRIVATE);
         String userID = preferences.getString("userID", null);
 
         int[] currQuarter = Utilities.getCurrentQuarterAndYear();
@@ -126,13 +124,11 @@ public class StopSave extends AppCompatActivity {
         List<Course> courses = getCurrCourses(currQuarter[1], currQuarter[0], userID);
 
         List<String> courseStrings = new ArrayList<>();
-
         for (Course c: courses) {
             String courseString = c.subject + " " + c.number;
             if(isValidSessionName(courseString)) courseStrings.add(courseString);
         }
         courseStrings.add(CHOOSE_OTHER_STRING);
-
         return courseStrings;
     }
 
@@ -163,6 +159,7 @@ public class StopSave extends AppCompatActivity {
         db.sessionsDao().renameSession(currentSessionName, newName);
 
         // update the session name from shared preferences to equal the new name
+        SharedPreferences preferences = getSharedPreferences("BoF", MODE_PRIVATE);
         SharedPreferences.Editor editor = preferences.edit();
         editor.putString("currentSession", newName);
         editor.apply();
