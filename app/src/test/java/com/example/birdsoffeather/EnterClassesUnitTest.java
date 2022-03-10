@@ -64,6 +64,9 @@ public class EnterClassesUnitTest {
                 List<Course> after = db.coursesDao().getForPerson(userID);
 
                 assertEquals(0, after.size());
+
+                db.clearAllTables();
+                db.close();
                 return null;
             });
         });
@@ -93,6 +96,9 @@ public class EnterClassesUnitTest {
                 List<Course> after = db.coursesDao().getForPerson(userID);
 
                 assertEquals(before, after);
+
+                db.clearAllTables();
+                db.close();
                 return null;
             });
         });
@@ -144,6 +150,9 @@ public class EnterClassesUnitTest {
                 expectedCourses.add(new Course(userID, "2021", "Spring", "ECE", "101A", "Huge (250-400)"));
 
                 assertEquals(expectedCourses.toString(), addedCourses.toString());
+
+                db.clearAllTables();
+                db.close();
                 return null;
             });
         });
@@ -199,6 +208,10 @@ public class EnterClassesUnitTest {
 
                 SharedPreferences preferences = activity.getSharedPreferences("BoF", Context.MODE_PRIVATE);
                 assertFalse(preferences.getBoolean("Entered Classes", false));
+
+                db.clearAllTables();
+                db.close();
+
                 return null;
             });
         });

@@ -41,4 +41,7 @@ public interface CoursesDao {
     @Query("DELETE FROM courses WHERE person_id!=:userID")
     void deleteBOFs(String userID);
 
+    @Query("SELECT * FROM courses WHERE year=:year AND quarter=:quarter AND person_id=:userID"  )
+    List<Course> getCoursesForQuarter(String year, String quarter, String userID);
+
 }
