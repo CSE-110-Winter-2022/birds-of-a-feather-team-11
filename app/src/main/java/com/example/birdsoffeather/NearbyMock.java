@@ -27,7 +27,7 @@ public class NearbyMock extends AppCompatActivity {
         setContentView(R.layout.activity_nearby_mock);
     }
 
-
+    // TODO: only add mock if the start button is clicked
     public void onAddButtonClicked(View view) {
         EditText personEntryEditText = findViewById(R.id.person_entry_edit_text);
         String entryData = personEntryEditText.getText().toString();
@@ -61,7 +61,7 @@ public class NearbyMock extends AppCompatActivity {
         String uri = lines[1].split(",")[0];
 
         // replace with UUID
-        Person person = new Person("replace with UUID", name, uri, 0, 0);
+        Person person = new Person("replace with UUID", name, uri, 0, 0, 0);
         List<Course> courseList = new ArrayList<>();
 
         for (int i = 2; i < lines.length; i++) {
