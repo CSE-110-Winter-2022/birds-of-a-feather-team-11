@@ -282,6 +282,9 @@ public class ListingBOF extends AppCompatActivity {
             startStopBtn.setText("Start");
             bluetoothStarted = false;
 
+            Intent intent = new Intent(this, StopSave.class);
+            startActivity(intent);
+
         } else {
             //When start is pressed
             createSession();
@@ -293,6 +296,7 @@ public class ListingBOF extends AppCompatActivity {
             // Update State
             startStopBtn.setText("Stop");
             bluetoothStarted = true;
+
         }
 
     }
