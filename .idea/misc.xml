@@ -11,14 +11,18 @@
         <entry key="app/src/main/res/layout/activity_listing_bof.xml" value="0.33" />
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.25" />
         <entry key="app/src/main/res/layout/activity_nearby_mock.xml" value="0.1" />
-        <entry key="app/src/main/res/layout/activity_person_detail.xml" value="0.1" />
+        <entry key="app/src/main/res/layout/activity_person_detail.xml" value="0.25" />
         <entry key="app/src/main/res/layout/activity_stop_save.xml" value="0.25" />
         <entry key="app/src/main/res/layout/activity_upload_photo.xml" value="0.25" />
+        <entry key="app/src/main/res/layout/activity_view_sessions.xml" value="0.24364406779661016" />
+        <entry key="app/src/main/res/layout/course_row.xml" value="0.3795289855072464" />
         <entry key="app/src/main/res/layout/fragment_first.xml" value="0.375" />
+        <entry key="app/src/main/res/layout/person_row.xml" value="0.3795289855072464" />
+        <entry key="app/src/main/res/layout/session_row.xml" value="0.24261603375527427" />
       </map>
     </option>
   </component>
-  <component name="ProjectRootManager" version="2" languageLevel="JDK_15" project-jdk-name="15" project-jdk-type="JavaSDK">
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_15_PREVIEW" project-jdk-name="15" project-jdk-type="JavaSDK">
     <output url="file://$PROJECT_DIR$/build/classes" />
   </component>
   <component name="ProjectType">

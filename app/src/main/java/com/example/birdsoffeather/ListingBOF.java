@@ -66,15 +66,31 @@ public class ListingBOF extends AppCompatActivity {
     private TextView title;
     private Button startStopBtn;
     private static final int PERMISSIONS_REQUEST_CODE = 1111;
+    private static boolean VIEW_BTN_CLICKED = false;
+    private static boolean SHOW_SAVED_SESSION = false;
 
     // used to retrieve the session name set by user in StopSave activity
     ActivityResultLauncher<Intent> activityLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
         @Override
         public void onActivityResult(ActivityResult result) {
-            // update title to be session name entered by user
-            if(result != null && result.getResultCode() == RESULT_OK) {
-                if(result.getData() != null && result.getData().getStringExtra(StopSave.KEY_NAME) != null) {
-                    title.setText(result.getData().getStringExtra(StopSave.KEY_NAME));
+            // update session name in SharedPreferences
+            if(result != null) {
+                if(result.getResultCode() == RESULT_OK) {
+                    if(result.getData() != null && result.getData().getStringExtra(StopSave.KEY_NAME) != null) {
+                        Log.i("ListingBOF: onActivityResult", "RESULT_OK");
+                        String sn = result.getData().getStringExtra(StopSave.KEY_NAME);
+                        SharedPreferences.Editor editor = preferences.edit();
+                        editor.putString("currentSession", sn);
+                        editor.apply();
+                        updateCurrentSessionName();
+
+                        // a session was selected from the view sessions page
+                        if(VIEW_BTN_CLICKED) {
+                            Log.i("ListingBOF: onActivityResult", "A session was selected from the view sessions page.");
+                            SHOW_SAVED_SESSION = true;
+                            VIEW_BTN_CLICKED = false;
+                        }
+                    }
                 }
             }
         }
@@ -166,7 +182,18 @@ public class ListingBOF extends AppCompatActivity {
             });
             return null;
         });
+    }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        // update homepage to display the session that was selected in the view sessions page
+        if(SHOW_SAVED_SESSION) {
+            Log.i("ListingBOF_Activity", "Homepage updated to display selected saved session.");
+            showSavedSession();
+            SHOW_SAVED_SESSION = false;
+        }
     }
 
     public List<PersonWithCourses> generateSortedList(String sortType) {
@@ -299,6 +326,8 @@ public class ListingBOF extends AppCompatActivity {
             bluetoothStarted = false;
 
             nameSession();
+            updateCurrentSessionName();
+            updateTitle();
 
         } else {
             //When start is pressed
@@ -418,11 +447,56 @@ public class ListingBOF extends AppCompatActivity {
         Intent intent = new Intent(this, StopSave.class);
         activityLauncher.launch(intent);
 
+        updateTitle();
+    }
+
+    /**
+     * Updates title to the current session's name
+     */
+    private void updateTitle() {
         // update title if it was changed
+        title.setText(sessionName);
+    }
+
+    private void updateCurrentSessionName() {
         String sn = preferences.getString("currentSession", null);
         if(sn != null) {
             sessionName = sn;
-            title.setText(sessionName);
         }
+    }
+
+    /**
+     * When a session is selected from the view sessions activity,
+     * the BOF homepage title will be updated to be the selected session's name
+     * and the students associated with that session will be shown.
+     */
+    private void showSavedSession() {
+        // first get saved session name
+        updateCurrentSessionName();
+
+        // get students associated with session except for user
+        List<String> studentsID = db.sessionsDao().getPeopleForSession(sessionName);
+        List<PersonWithCourses> students = new ArrayList<>();
+
+        for(String id : studentsID) {
+            PersonWithCourses p = db.personsWithCoursesDao().get(id);
+
+            if(!p.getId().equals(selfPerson.getId())) {
+                students.add(p);
+            }
+        }
+
+        // update title
+        updateTitle();
+
+        // update recycler view
+        updateUI(students);
+    }
+
+
+    public void onViewSessionsClicked(View view) {
+        VIEW_BTN_CLICKED = true;
+        Intent intent = new Intent(this, ViewSessions.class);
+        activityLauncher.launch(intent);
     }
 }

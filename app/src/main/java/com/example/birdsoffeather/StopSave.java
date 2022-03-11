@@ -143,7 +143,7 @@ public class StopSave extends AppCompatActivity {
         } else if (isValidSessionName(newName)) {
             renameSession(newName);
 
-            // update title to be the new session name
+            // new session name will be passed
             Intent intent = new Intent();
             intent.putExtra(KEY_NAME, currentSessionName);
             setResult(RESULT_OK, intent);
@@ -157,12 +157,6 @@ public class StopSave extends AppCompatActivity {
     // If person uses back button to exit activity,we just don't bother changing its name
     private void renameSession(String newName) {
         db.sessionsDao().renameSession(currentSessionName, newName);
-
-        // update the session name from shared preferences to equal the new name
-        SharedPreferences preferences = getSharedPreferences("BoF", MODE_PRIVATE);
-        SharedPreferences.Editor editor = preferences.edit();
-        editor.putString("currentSession", newName);
-        editor.apply();
         currentSessionName = newName;
     }
 
