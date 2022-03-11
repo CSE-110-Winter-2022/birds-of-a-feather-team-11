@@ -35,7 +35,7 @@ public class NearbyMockTest {
 
         PersonWithCourses generatedPerson = NearbyMock.generatePerson(testStringBuilder.toString());
         PersonWithCourses personWithCourses = new PersonWithCourses();
-        Person person = new Person("replace with UUID","Bill","https://lh3.googleusercontent.com/pw/AM-JKLXQ2ix4dg-PzLrPOSMOOy6M3PSUrijov9jCLXs4IGSTwN73B4kr-F6Nti_4KsiUU8LzDSGPSWNKnFdKIPqCQ2dFTRbARsW76pevHPBzc51nceZDZrMPmDfAYyI4XNOnPrZarGlLLUZW9wal6j-z9uA6WQ=w854-h924-no?authuser=0", 0, 0);
+        Person person = new Person("replace with UUID","Bill","https://lh3.googleusercontent.com/pw/AM-JKLXQ2ix4dg-PzLrPOSMOOy6M3PSUrijov9jCLXs4IGSTwN73B4kr-F6Nti_4KsiUU8LzDSGPSWNKnFdKIPqCQ2dFTRbARsW76pevHPBzc51nceZDZrMPmDfAYyI4XNOnPrZarGlLLUZW9wal6j-z9uA6WQ=w854-h924-no?authuser=0", 0, 0, 0);
         List<Course> courses = new ArrayList<>();
         courses.add(new Course("replace with UUID","2021","FA","CSE","210", "Large (150-250)"));
         courses.add(new Course("replace with UUID","2022","WI","CSE","110", "Huge (250-400)"));
@@ -88,7 +88,7 @@ public class NearbyMockTest {
         PersonWithCourses generatedPerson = NearbyMock.generatePerson(testStringBuilder.toString());
 
         PersonWithCourses personWithCourses = new PersonWithCourses();
-        Person person = new Person("replace with UUID","Bill","https://lh3.googleusercontent.com/pw/AM-JKLXQ2ix4dg-PzLrPOSMOOy6M3PSUrijov9jCLXs4IGSTwN73B4kr-F6Nti_4KsiUU8LzDSGPSWNKnFdKIPqCQ2dFTRbARsW76pevHPBzc51nceZDZrMPmDfAYyI4XNOnPrZarGlLLUZW9wal6j-z9uA6WQ=w854-h924-no?authuser=0", 0, 0);
+        Person person = new Person("replace with UUID","Bill","https://lh3.googleusercontent.com/pw/AM-JKLXQ2ix4dg-PzLrPOSMOOy6M3PSUrijov9jCLXs4IGSTwN73B4kr-F6Nti_4KsiUU8LzDSGPSWNKnFdKIPqCQ2dFTRbARsW76pevHPBzc51nceZDZrMPmDfAYyI4XNOnPrZarGlLLUZW9wal6j-z9uA6WQ=w854-h924-no?authuser=0", 0, 0, 0);
         List<Course> courses = new ArrayList<>();
         courses.add(new Course("replace with UUID","2021","FA","CSE","210", "Large (150-250)"));
         courses.add(new Course("replace with UUID","2022","WI","CSE","110", "Large (150-250)"));
