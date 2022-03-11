@@ -6,19 +6,25 @@
         <entry key="..\:/Users/email/AndroidStudioProjects/birds-of-a-feather-team-11/app/src/main/res/layout/activity_enter_classes.xml" value="0.36666666666666664" />
         <entry key="..\:/Users/email/AndroidStudioProjects/birds-of-a-feather-team-11/app/src/main/res/layout/activity_listing_bof.xml" value="0.25" />
         <entry key="..\:/Users/email/AndroidStudioProjects/birds-of-a-feather-team-11/app/src/main/res/layout/activity_nearby_mock.xml" value="0.15260416666666668" />
+        <entry key="app/src/main/res/drawable-v24/ic_launcher_foreground.xml" value="0.13020833333333334" />
+        <entry key="app/src/main/res/drawable/button_text_color.xml" value="0.13020833333333334" />
+        <entry key="app/src/main/res/drawable/ic_launcher_background.xml" value="0.13020833333333334" />
         <entry key="app/src/main/res/layout/activity_create_profile.xml" value="0.4904891304347826" />
         <entry key="app/src/main/res/layout/activity_enter_classes.xml" value="0.25" />
+        <entry key="app/src/main/res/layout/activity_favorite_listing.xml" value="0.25" />
         <entry key="app/src/main/res/layout/activity_listing_bof.xml" value="0.23072916666666668" />
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.25" />
         <entry key="app/src/main/res/layout/activity_nearby_mock.xml" value="0.1" />
         <entry key="app/src/main/res/layout/activity_person_detail.xml" value="0.1" />
         <entry key="app/src/main/res/layout/activity_stop_save.xml" value="0.25" />
         <entry key="app/src/main/res/layout/activity_upload_photo.xml" value="0.25" />
+        <entry key="app/src/main/res/layout/course_row.xml" value="0.1" />
         <entry key="app/src/main/res/layout/fragment_first.xml" value="0.375" />
+        <entry key="app/src/main/res/layout/person_row.xml" value="0.335" />
       </map>
     </option>
   </component>
-  <component name="ProjectRootManager" version="2" languageLevel="JDK_15" project-jdk-name="15" project-jdk-type="JavaSDK">
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_15_PREVIEW" project-jdk-name="15" project-jdk-type="JavaSDK">
     <output url="file://$PROJECT_DIR$/build/classes" />
   </component>
   <component name="ProjectType">

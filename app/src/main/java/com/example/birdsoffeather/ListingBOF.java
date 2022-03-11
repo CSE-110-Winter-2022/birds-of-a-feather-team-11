@@ -381,4 +381,14 @@ public class ListingBOF extends AppCompatActivity {
     private void onBluetoothFailed() {
         finish();
     }
+
+    public void onFavoriteButtonClicked(View view) {
+
+        if(bluetoothStarted) {
+            Utilities.showAlert(this, "Favorites cannot be checked while a session is active");
+        } else {
+            Intent intent = new Intent(this, FavoriteListing.class);
+            startActivity(intent);
+        }
+    }
 }
