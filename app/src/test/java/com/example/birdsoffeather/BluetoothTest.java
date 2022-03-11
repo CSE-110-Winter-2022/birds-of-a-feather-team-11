@@ -39,8 +39,8 @@ public class BluetoothTest {
     public PersonWithCourses createTestPersonJohn() {
         PersonWithCourses person = new PersonWithCourses();
         person.courses = Arrays.asList(
-                new Course(userID, "1999", "WI", "C", "1","Tiny (<40)"),
-                new Course(userID, "1999", "FA", "C", "2","Small (40-75)"));
+                new Course(userID, "1999", "WI", "C", "1",Course.tinyClass),
+                new Course(userID, "1999", "FA", "C", "2",Course.smallClass));
         person.person = new Person(userID,"John","", 0, 0, 0);
         return person;
     }
@@ -90,7 +90,7 @@ public class BluetoothTest {
         String userID = person1.getId();
 
         person2.courses = Arrays.asList(
-                new Course(userID, "1999", "WI", "C", "1","Tiny (<40)")
+                new Course(userID, "1999", "WI", "C", "1",Course.tinyClass)
         );
         person2.person = new Person(userID,"John","url", 0, 0, 0);
 
@@ -121,7 +121,7 @@ public class BluetoothTest {
             PersonWithCourses fakePerson = new PersonWithCourses();
             fakePerson.person = new Person(userID, "John", "www.google.com", 0, 0, 0);
             fakePerson.courses = Arrays.asList(
-                    new Course(userID, "2022", "Winter", "CSE", "110","Large (150-250)"));
+                    new Course(userID, "2022", "Winter", "CSE", "110",Course.largeClass));
 
             MessageListener fake = new FakeMessageListener(activity.getMessageListener(), fakePerson, new ArrayList<>());
             activity.setMessageListener(fake);

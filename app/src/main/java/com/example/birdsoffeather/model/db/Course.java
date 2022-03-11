@@ -14,6 +14,11 @@ import java.util.Objects;
 
 @Entity(tableName = "courses")
 public class Course implements Serializable {
+
+    public static final String tinyClass = "Tiny (<40)", smallClass = "Small (40–75)", mediumClass = "Medium (75–150)",
+                         largeClass = "Large (150–250)", hugeClass = "Huge (250–400)", giganticClass = "Gigantic (400+)";
+
+
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "id")
     public int courseId;
@@ -87,18 +92,18 @@ public class Course implements Serializable {
     }
 
     private String getFormattedClassSize(String input) {
-        if(input.equals("Tiny") || input.equals("Tiny (<40)")){
-            return "Tiny (<40)";
-        } else if(input.equals("Small") || input.equals("Small (40–75)")){
-            return "Small (40–75)";
-        } else if(input.equals("Medium") || input.equals("Medium (75–150)")){
-            return "Medium (75–150)";
-        } else if(input.equals("Large") || input.equals("Large (150–250)")){
-            return "Large (150–250)";
-        } else if(input.equals("Huge") || input.equals("Huge (250–400)")){
-            return "Huge (250–400)";
-        } else if(input.equals("Gigantic") || input.equals("Gigantic (400+)")){
-            return "Gigantic (400+)";
+        if(input.equals("Tiny") || input.equals(tinyClass)){
+            return tinyClass;
+        } else if(input.equals("Small") || input.equals(smallClass)){
+            return smallClass;
+        } else if(input.equals("Medium") || input.equals(mediumClass)){
+            return mediumClass;
+        } else if(input.equals("Large") || input.equals(largeClass)){
+            return largeClass;
+        } else if(input.equals("Huge") || input.equals(hugeClass)){
+            return hugeClass;
+        } else if(input.equals("Gigantic") || input.equals(giganticClass)){
+            return giganticClass;
         } else {
             Log.w("Create Course", "invalid class size input");
             return "";
