@@ -65,7 +65,10 @@ public class ListingBOF extends AppCompatActivity {
 
     private TextView title;
     private Button startStopBtn;
+    private Button viewSessionBtn;
+
     private static final int PERMISSIONS_REQUEST_CODE = 1111;
+
     private static boolean VIEW_BTN_CLICKED = false;
     private static boolean SHOW_SAVED_SESSION = false;
 
@@ -106,6 +109,7 @@ public class ListingBOF extends AppCompatActivity {
 
         title = (TextView) findViewById(R.id.bof_title);
         startStopBtn = findViewById(R.id.start_stop_btn);
+        viewSessionBtn = findViewById(R.id.view_sessions_btn);
 
         preferences = getSharedPreferences("BoF", MODE_PRIVATE);
         userID = preferences.getString("userID", null);
@@ -329,6 +333,9 @@ public class ListingBOF extends AppCompatActivity {
             updateCurrentSessionName();
             updateTitle();
 
+            // display view sessions button
+            viewSessionBtn.setVisibility(View.VISIBLE);
+
         } else {
             //When start is pressed
             createSession();
@@ -341,6 +348,8 @@ public class ListingBOF extends AppCompatActivity {
             startStopBtn.setText("STOP");
             bluetoothStarted = true;
 
+            // hide view sessions button
+            viewSessionBtn.setVisibility(View.INVISIBLE);
         }
 
     }
@@ -458,6 +467,9 @@ public class ListingBOF extends AppCompatActivity {
         title.setText(sessionName);
     }
 
+    /**
+     * Updates session name variable
+     */
     private void updateCurrentSessionName() {
         String sn = preferences.getString("currentSession", null);
         if(sn != null) {
