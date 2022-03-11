@@ -8,4 +8,5 @@ public interface IPerson {
     public String getUrl();
     public List<Course> getCourses();
     boolean sentWaveTo();
+    public boolean getFavorite();
 }

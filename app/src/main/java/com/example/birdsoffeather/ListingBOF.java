@@ -25,7 +25,9 @@ import android.widget.Toast;
 
 import com.example.birdsoffeather.model.db.AppDatabase;
 import com.example.birdsoffeather.model.db.BluetoothMessageComposite;
+import com.example.birdsoffeather.model.db.Course;
 import com.example.birdsoffeather.model.db.IPerson;
+import com.example.birdsoffeather.model.db.Person;
 import com.example.birdsoffeather.model.db.PersonWithCourses;
 import com.google.android.gms.nearby.messages.Message;
 import com.google.android.gms.nearby.messages.MessageListener;
@@ -34,6 +36,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -91,7 +94,7 @@ public class ListingBOF extends AppCompatActivity {
         personsRecyclerView.setLayoutManager(personsLayoutManager);
 
         // set adapter
-        personsViewAdapter = new PersonsViewAdapter(new ArrayList<>());
+        personsViewAdapter = new PersonsViewAdapter(new ArrayList<>(), db);
         personsRecyclerView.setAdapter(personsViewAdapter);
 
         //set filter spinner
@@ -133,6 +136,8 @@ public class ListingBOF extends AppCompatActivity {
         SharedPreferences preferences = getSharedPreferences("BoF", MODE_PRIVATE);
         userID = preferences.getString("userID", null);
         sessionName = preferences.getString("currentSession", null);
+
+        updateTitle();
 
         // Get updated list of similar classes in background thread and then use ui thread to update UI
         this.future = backgroundThreadExecutor.submit(() -> {
@@ -291,6 +296,8 @@ public class ListingBOF extends AppCompatActivity {
             //When start is pressed
             createSession();
 
+            //addTestPerson();
+
             // Publish and Listen
             bluetooth.publish();
             bluetooth.subscribe();
@@ -329,7 +336,7 @@ public class ListingBOF extends AppCompatActivity {
     private void createSession() {
         //Get current time for initial session name
         Calendar c = Calendar.getInstance();
-        String formattedDate = c.get(Calendar.MONTH) + "/" + c.get(Calendar.DAY_OF_MONTH) + "/" + c.get(Calendar.YEAR);
+        String formattedDate = (c.get(Calendar.MONTH)+1) + "/" + c.get(Calendar.DAY_OF_MONTH) + "/" + c.get(Calendar.YEAR);
         String AM_PM = c.get(Calendar.AM_PM) == 0 ? "AM" : "PM";
         String formattedTime = c.get(Calendar.HOUR) + ":" + c.get(Calendar.MINUTE) + AM_PM;
         String currTime = formattedDate + " " + formattedTime;
@@ -349,8 +356,7 @@ public class ListingBOF extends AppCompatActivity {
         });
 
         //Change Name on title
-        TextView title = (TextView) findViewById(R.id.bof_title);
-        title.setText(currTime);
+        updateTitle();
     }
 
     private boolean havePermissions() {
@@ -388,5 +394,35 @@ public class ListingBOF extends AppCompatActivity {
 
     private void onBluetoothFailed() {
         finish();
+    }
+
+    private void updateTitle() {
+        TextView title = (TextView) findViewById(R.id.bof_title);
+        if(sessionName == null) {
+            title.setText("BoF");
+        } else {
+            title.setText(sessionName);
+        }
+    }
+
+    private void addTestPerson() {
+        String userIDs = "test_id";
+        Person person1 = new Person(userIDs, "John", "", 0, 0, 0);
+        ArrayList<Course> courses= new ArrayList<>();
+        courses.add(new Course(userIDs,"2021", "Spring", "CSE", "110", "Large (150-250)"));
+        courses.add(new Course(userIDs,"2021", "Winter", "CSE", "100", "Huge (250-400)"));
+        courses.add(new Course(userIDs,"2020", "Spring", "CSE", "12", "Huge (250-450)"));
+        PersonWithCourses personWithCourses = new PersonWithCourses();
+        personWithCourses.courses = courses;
+        personWithCourses.person = person1;
+
+        backgroundThreadExecutor.submit(() -> {
+            Utilities.inputBOF(personWithCourses, db, userID, sessionName);
+            List<PersonWithCourses> list = generateSortedList(Utilities.DEFAULT);
+            Log.d("Test", list.toString());
+            runOnUiThread(() -> {
+                updateUI(list);
+            });
+        });
     }
 }

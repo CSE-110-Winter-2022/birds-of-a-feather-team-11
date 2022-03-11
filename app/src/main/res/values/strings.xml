@@ -24,7 +24,7 @@
     <string name="classes_you_share">Classes you share</string>
     <string name="back">BACK</string>
     <string name="start">START</string>
-    <string name="bof">BOF</string>
+    <string name="bof">BoF</string>
     <string name="add_mock">Add mock</string>
 
     <string-array name="years_array">
