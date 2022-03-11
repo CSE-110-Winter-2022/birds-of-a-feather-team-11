@@ -61,7 +61,7 @@
         android:layout_height="26dp"
         android:layout_marginStart="60dp"
         android:layout_marginTop="8dp"
-        android:text="Sort:"
+        android:text="@string/sort"
         android:textSize="20sp"
         app:layout_constraintStart_toEndOf="@+id/start_stop_btn"
         app:layout_constraintTop_toTopOf="@+id/start_stop_btn" />

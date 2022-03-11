@@ -26,6 +26,24 @@
     <string name="start">START</string>
     <string name="bof">BoF</string>
     <string name="add_mock">Add mock</string>
+    <string name="enter_name_here">Enter name here</string>
+    <string name="confirm">Confirm</string>
+    <string name="first_name">First Name:</string>
+    <string name="cse">CSE</string>
+    <string name="_110">110</string>
+    <string name="class_size">Class Size:</string>
+    <string name="skip_text">SKIP</string>
+    <string name="sort">Sort:</string>
+    <string name="enter_people_here">Enter People Here</string>
+    <string name="add">Add</string>
+    <string name="wave">WAVE</string>
+    <string name="confirm_text">CONFIRM</string>
+    <string name="name">Name</string>
+    <string name="rename_session">Rename session</string>
+    <string name="session_name">session name</string>
+    <string name="submit">Submit</string>
+    <string name="favorite_person">favorite person</string>
+    <string name="profile_pic">profile_pic</string>
 
     <string-array name="years_array">
         <item>2022</item>
