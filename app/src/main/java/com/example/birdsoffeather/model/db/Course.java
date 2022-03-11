@@ -1,5 +1,7 @@
 package com.example.birdsoffeather.model.db;
 
+import android.util.Log;
+
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.Ignore;
@@ -40,7 +42,7 @@ public class Course implements Serializable {
         this.quarter = getFormattedQuarter(quarter);
         this.subject = subject.trim().toUpperCase();
         this.number = number.trim().toUpperCase();
-        this.classSize = classSize;
+        this.classSize = getFormattedClassSize(classSize);
     }
 
     public int getAge(int[] currentQuarterAndYear) {
@@ -79,6 +81,26 @@ public class Course implements Serializable {
         } else if(input.equals("SSS") || input.equals("SPECIAL SUMMER SESSION")){
             return "Special Summer Session";
         } else {
+            Log.w("Create Course", "invalid class quarter input");
+            return "";
+        }
+    }
+
+    private String getFormattedClassSize(String input) {
+        if(input.equals("Tiny") || input.equals("Tiny (<40)")){
+            return "Tiny (<40)";
+        } else if(input.equals("Small") || input.equals("Small (40–75)")){
+            return "Small (40–75)";
+        } else if(input.equals("Medium") || input.equals("Medium (75–150)")){
+            return "Medium (75–150)";
+        } else if(input.equals("Large") || input.equals("Large (150–250)")){
+            return "Large (150–250)";
+        } else if(input.equals("Huge") || input.equals("Huge (250–400)")){
+            return "Huge (250–400)";
+        } else if(input.equals("Gigantic") || input.equals("Gigantic (400+)")){
+            return "Gigantic (400+)";
+        } else {
+            Log.w("Create Course", "invalid class size input");
             return "";
         }
     }
