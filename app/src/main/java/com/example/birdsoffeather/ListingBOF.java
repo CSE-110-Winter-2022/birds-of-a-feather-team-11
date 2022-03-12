@@ -471,7 +471,7 @@ public class ListingBOF extends AppCompatActivity {
         for(String id : studentsID) {
             PersonWithCourses p = db.personsWithCoursesDao().get(id);
 
-            if(!p.getId().equals(selfPerson.getId())) {
+            if(!p.getId().equals(userID)) {
                 students.add(p);
             }
         }

@@ -364,13 +364,13 @@ public class CreateSessionTest {
 
             TextView title = activity.findViewById(R.id.bof_title);
 
-            assertEquals("BOF", title.getText());
+            assertEquals("BoF", title.getText());
 
             Button startButton = activity.findViewById(R.id.start_stop_btn);
 
             startButton.performClick();
 
-            assertNotEquals("BoF", title.getText());
+            assertNotEquals("BOF", title.getText());
         });
     }
 
