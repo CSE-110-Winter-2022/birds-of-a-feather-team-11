@@ -49,6 +49,40 @@ public class ListingBOF extends AppCompatActivity {
     private String userID = null;
     private String sessionName = null;
 
+    MessageListener messageListener = new MessageListener() {
+        @Override
+        public void onFound(@NonNull Message message) {
+            super.onFound(message);
+            try {
+                BluetoothMessageComposite bluetoothMessage = Utilities.deserializeMessage(message.getContent());
+                Log.i("Bluetooth","onFound() called");
+                Log.i("Bluetooth",bluetoothMessage.person.toString() + " found");
+                Log.i("Bluetooth","They sent waves to: " + bluetoothMessage.wavedToUUID);
+                backgroundThreadExecutor.submit(() -> {
+                    Utilities.inputBOF(bluetoothMessage.person, db, userID, sessionName);
+                    updateUI(generateSortedList(Utilities.DEFAULT));
+                    return null;
+                });
+            } catch (IOException | ClassNotFoundException e) {
+                e.printStackTrace();
+            }
+
+        }
+
+        @Override
+        public void onLost(@NonNull Message message) {
+            super.onLost(message);
+            try {
+                BluetoothMessageComposite bluetoothMessage = Utilities.deserializeMessage(message.getContent());
+                Log.i("Bluetooth","onLost() called");
+                Log.i("Bluetooth",bluetoothMessage.person.toString() + " lost");
+                Log.i("Bluetooth","They sent waves to: " + bluetoothMessage.wavedToUUID);
+            } catch (IOException | ClassNotFoundException e) {
+                e.printStackTrace();
+            }
+        }
+    };
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -169,39 +203,7 @@ public class ListingBOF extends AppCompatActivity {
      */
     private void setupBluetooth(PersonWithCourses selfPerson) {
         // Set up bluetooth Module
-        bluetooth = new BluetoothModule(new MessageListener() {
-            @Override
-            public void onFound(@NonNull Message message) {
-                super.onFound(message);
-                try {
-                    BluetoothMessageComposite bluetoothMessage = Utilities.deserializeMessage(message.getContent());
-                    Log.i("Bluetooth","onFound() called");
-                    Log.i("Bluetooth",bluetoothMessage.person.toString() + " found");
-                    Log.i("Bluetooth","They sent waves to: " + bluetoothMessage.wavedToUUID);
-                    backgroundThreadExecutor.submit(() -> {
-                        Utilities.inputBOF(bluetoothMessage.person, db, userID, sessionName);
-                        updateUI(generateSortedList(Utilities.DEFAULT));
-                        return null;
-                    });
-                } catch (IOException | ClassNotFoundException e) {
-                    e.printStackTrace();
-                }
-
-            }
-
-            @Override
-            public void onLost(@NonNull Message message) {
-                super.onLost(message);
-                try {
-                    BluetoothMessageComposite bluetoothMessage = Utilities.deserializeMessage(message.getContent());
-                    Log.i("Bluetooth","onLost() called");
-                    Log.i("Bluetooth",bluetoothMessage.person.toString() + " lost");
-                    Log.i("Bluetooth","They sent waves to: " + bluetoothMessage.wavedToUUID);
-                } catch (IOException | ClassNotFoundException e) {
-                    e.printStackTrace();
-                }
-            }
-        });
+        bluetooth = new BluetoothModule(messageListener);
 
         try {
             List<String> sentWaveTo = db.personsWithCoursesDao().getSentWaveTo();
@@ -224,7 +226,7 @@ public class ListingBOF extends AppCompatActivity {
     }
 
     public MessageListener getMessageListener() {
-        return bluetooth.messageListener;
+        return messageListener;
     }
 
     public PersonsViewAdapter getPersonsViewAdapter() { return personsViewAdapter; }
