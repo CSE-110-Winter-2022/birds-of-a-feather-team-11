@@ -246,6 +246,9 @@ public class ListingBOF extends AppCompatActivity {
      * @param view - Button view
      */
     public void onStartStopClicked(View view) {
+        if(bluetooth == null) {
+            return;
+        }
 
         Button startStopBtn = findViewById(R.id.start_stop_btn);
         startStopBtn.setSelected(!startStopBtn.isSelected());
