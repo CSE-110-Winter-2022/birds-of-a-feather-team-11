@@ -25,7 +25,9 @@ import android.widget.Toast;
 
 import com.example.birdsoffeather.model.db.AppDatabase;
 import com.example.birdsoffeather.model.db.BluetoothMessageComposite;
+import com.example.birdsoffeather.model.db.Course;
 import com.example.birdsoffeather.model.db.IPerson;
+import com.example.birdsoffeather.model.db.Person;
 import com.example.birdsoffeather.model.db.PersonWithCourses;
 import com.google.android.gms.nearby.messages.Message;
 import com.google.android.gms.nearby.messages.MessageListener;
@@ -34,6 +36,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -91,7 +94,7 @@ public class ListingBOF extends AppCompatActivity {
         personsRecyclerView.setLayoutManager(personsLayoutManager);
 
         // set adapter
-        personsViewAdapter = new PersonsViewAdapter(new ArrayList<>());
+        personsViewAdapter = new PersonsViewAdapter(new ArrayList<>(), db);
         personsRecyclerView.setAdapter(personsViewAdapter);
 
         //set filter spinner
@@ -133,6 +136,8 @@ public class ListingBOF extends AppCompatActivity {
         SharedPreferences preferences = getSharedPreferences("BoF", MODE_PRIVATE);
         userID = preferences.getString("userID", null);
         sessionName = preferences.getString("currentSession", null);
+
+        updateTitle();
 
         // Get updated list of similar classes in background thread and then use ui thread to update UI
         this.future = backgroundThreadExecutor.submit(() -> {
@@ -343,7 +348,7 @@ public class ListingBOF extends AppCompatActivity {
     private void createSession() {
         //Get current time for initial session name
         Calendar c = Calendar.getInstance();
-        String formattedDate = c.get(Calendar.MONTH) + "/" + c.get(Calendar.DAY_OF_MONTH) + "/" + c.get(Calendar.YEAR);
+        String formattedDate = (c.get(Calendar.MONTH)+1) + "/" + c.get(Calendar.DAY_OF_MONTH) + "/" + c.get(Calendar.YEAR);
         String AM_PM = c.get(Calendar.AM_PM) == 0 ? "AM" : "PM";
         String formattedTime = c.get(Calendar.HOUR) + ":" + c.get(Calendar.MINUTE) + AM_PM;
         String currTime = formattedDate + " " + formattedTime;
@@ -363,8 +368,7 @@ public class ListingBOF extends AppCompatActivity {
         });
 
         //Change Name on title
-        TextView title = (TextView) findViewById(R.id.bof_title);
-        title.setText(currTime);
+        updateTitle();
     }
 
     private boolean havePermissions() {
@@ -403,4 +407,14 @@ public class ListingBOF extends AppCompatActivity {
     private void onBluetoothFailed() {
         finish();
     }
+
+    private void updateTitle() {
+        TextView title = (TextView) findViewById(R.id.bof_title);
+        if(sessionName == null) {
+            title.setText("BoF");
+        } else {
+            title.setText(sessionName);
+        }
+    }
+
 }

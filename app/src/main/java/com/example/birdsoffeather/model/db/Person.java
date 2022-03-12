@@ -37,6 +37,9 @@ public class Person implements Serializable {
     @ColumnInfo(name = "wave_from")
     public int waveFrom;
 
+    @ColumnInfo(name = "favorite")
+    public int favorite;
+
     public Person(@NonNull String personId, String name, String profile_url, double sizeScore, int ageScore, int classScore){
         this.personId = personId;
         this.name = name;
@@ -46,6 +49,7 @@ public class Person implements Serializable {
         this.classScore = classScore;
         this.wavedTo = 0;
         this.waveFrom = 0;
+        this.favorite = 0;
     }
 
     @Override
@@ -53,6 +57,8 @@ public class Person implements Serializable {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Person person = (Person) o;
-        return personId.equals(person.personId) && Objects.equals(name, person.name) && Objects.equals(profile_url, person.profile_url) && this.sizeScore == person.sizeScore && this.ageScore == person.ageScore && this.classScore == person.classScore && this.wavedTo == person.wavedTo && this.waveFrom == person.waveFrom;
+        return personId.equals(person.personId) && Objects.equals(name, person.name) && Objects.equals(profile_url, person.profile_url)
+                && this.sizeScore == person.sizeScore && this.ageScore == person.ageScore && this.classScore == person.classScore
+                && this.wavedTo == person.wavedTo && this.waveFrom == person.waveFrom && this.favorite == person.favorite;
     }
 }
