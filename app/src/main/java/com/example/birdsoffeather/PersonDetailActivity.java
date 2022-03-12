@@ -44,27 +44,21 @@ public class PersonDetailActivity extends AppCompatActivity {
 
         String personId = intent.getStringExtra("person_id");
 
-
         // set name
         TextView nameView = findViewById(R.id.personName);
-        nameView.setText(person.getName());
 
         // set profile pic of person
         ImageView imageView = findViewById(R.id.pd_profilePic);
         LoadImage loadImage = new LoadImage(imageView);
-        loadImage.execute(person.getUrl());
-
-        // recycler view
-        coursesRecyclerView = findViewById(R.id.course_view);
-        coursesLayoutManager = new LinearLayoutManager(this);
-        coursesRecyclerView.setLayoutManager(coursesLayoutManager);
 
         backgroundThreadExecutor.submit(() -> {
             db = AppDatabase.singleton(this);
             person = db.personsWithCoursesDao().get(personId);
-            List<Course> courses = person.getCourses();
 
             runOnUiThread(() -> {
+                List<Course> courses = person.getCourses();
+                nameView.setText(person.getName());
+                loadImage.execute(person.getUrl());
                 coursesViewAdapter = new CourseViewAdapter(courses);
                 coursesRecyclerView.setAdapter(coursesViewAdapter);
                 if (person.sentWaveTo()) {
@@ -73,6 +67,10 @@ public class PersonDetailActivity extends AppCompatActivity {
             });
         });
 
+        // recycler view
+        coursesRecyclerView = findViewById(R.id.course_view);
+        coursesLayoutManager = new LinearLayoutManager(this);
+        coursesRecyclerView.setLayoutManager(coursesLayoutManager);
 
     }
 
