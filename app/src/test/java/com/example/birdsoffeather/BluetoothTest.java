@@ -94,7 +94,7 @@ public class BluetoothTest {
 
         String userID = person1.person.getId();
 
-        person2.courses = Arrays.asList(
+        person2.person.courses = Arrays.asList(
                 new Course(userID, "1999", "WI", "C", "1",Course.tinyClass)
         );
         person2.person.person = new Person(userID,"John","url", 0, 0, 0);
