@@ -71,7 +71,7 @@
         android:layout_marginStart="92dp"
         android:layout_marginTop="48dp"
         android:onClick="onWaved"
-        android:text="WAVE"
+        android:text="@string/wave"
         app:layout_constraintBottom_toTopOf="@+id/course_view"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.465"

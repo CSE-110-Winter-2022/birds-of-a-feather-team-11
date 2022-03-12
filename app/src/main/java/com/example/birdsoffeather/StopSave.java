@@ -3,6 +3,7 @@ package com.example.birdsoffeather;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
@@ -25,7 +26,7 @@ import java.util.concurrent.Executors;
 public class StopSave extends AppCompatActivity {
 
     private static final String CHOOSE_OTHER_STRING = "Other Name";
-
+    public static final String KEY_NAME = "sessionName";
 
     private ExecutorService backgroundThreadExecutor = Executors.newSingleThreadExecutor();
     private Spinner dropdown;
@@ -53,7 +54,9 @@ public class StopSave extends AppCompatActivity {
         }
     };
 
+    // views
     EditText customNameEditText;
+    TextView renamedSessionTextView;
 
     AppDatabase db;
 
@@ -63,10 +66,8 @@ public class StopSave extends AppCompatActivity {
         db = AppDatabase.singleton(getApplicationContext());
 
         backgroundThreadExecutor.submit(() -> {
-
             ArrayAdapter<String> adapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_dropdown_item, getAvailableCourses());
             runOnUiThread(() -> {
-
                 setContentView(R.layout.activity_stop_save);
                 dropdown = findViewById(R.id.class_dropdown);
                 dropdown.setAdapter(adapter);
@@ -76,7 +77,7 @@ public class StopSave extends AppCompatActivity {
                 SharedPreferences preferences = getSharedPreferences("BoF", MODE_PRIVATE);
                 currentSessionName = preferences.getString("currentSession", null);
 
-                TextView renamedSessionTextView = findViewById(R.id.renamed_session_text_view);
+                renamedSessionTextView = findViewById(R.id.renamed_session_text_view);
                 renamedSessionTextView.setText(currentSessionName);
             });
         });
@@ -123,13 +124,11 @@ public class StopSave extends AppCompatActivity {
         List<Course> courses = getCurrCourses(currQuarter[1], currQuarter[0], userID);
 
         List<String> courseStrings = new ArrayList<>();
-
         for (Course c: courses) {
             String courseString = c.subject + " " + c.number;
             if(isValidSessionName(courseString)) courseStrings.add(courseString);
         }
         courseStrings.add(CHOOSE_OTHER_STRING);
-
         return courseStrings;
     }
 
@@ -144,11 +143,17 @@ public class StopSave extends AppCompatActivity {
         } else if (isValidSessionName(newName)) {
             renameSession(newName);
 
-            //remove the session name from shared preferences
+            //modify the session name in shared preferences
             SharedPreferences preferences = getSharedPreferences("BoF", MODE_PRIVATE);
             SharedPreferences.Editor editor = preferences.edit();
-            editor.putString("currentSession", null);
+            editor.putString("currentSession", newName);
             editor.apply();
+
+            // new session name will be passed
+            Intent intent = new Intent();
+            intent.putExtra(KEY_NAME, currentSessionName);
+            Log.i("onConfirmName", currentSessionName);
+            setResult(RESULT_OK, intent);
 
             finish();
         } else {
@@ -160,6 +165,7 @@ public class StopSave extends AppCompatActivity {
     // If person uses back button to exit activity,we just don't bother changing its name
     private void renameSession(String newName) {
         db.sessionsDao().renameSession(currentSessionName, newName);
+        currentSessionName = newName;
     }
 
     // check if name is a valid type and whether it is in use

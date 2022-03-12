@@ -34,6 +34,8 @@ public class PersonWithCourses implements Serializable, IPerson {
 
     public boolean sentWaveTo() { return (this.person.wavedTo != 0); }
 
+    public boolean getFavorite() { return (this.person.favorite != 0); }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -47,6 +49,10 @@ public class PersonWithCourses implements Serializable, IPerson {
     public PersonWithCourses(Person person, List<Course> courses) {
         this.person = person;
         this.courses = courses;
+    }
+
+    public String toString() {
+        return person.toString() + courses.toString();
     }
 
 }

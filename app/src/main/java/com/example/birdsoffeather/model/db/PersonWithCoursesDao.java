@@ -38,6 +38,12 @@ public interface PersonWithCoursesDao {
     @Query("UPDATE persons SET wave_from=1 WHERE id=:bofID")
     void updateWaveFrom(String bofID);
 
+    @Query("UPDATE persons SET favorite=1 WHERE id=:bofID")
+    void addFavorite(String bofID);
+
+    @Query("UPDATE persons SET favorite=0 WHERE id=:bofID")
+    void removeFavorite(String bofID);
+
     @Transaction
     @Query("SELECT * FROM persons WHERE size_score!=0 ORDER BY wave_from DESC, size_score DESC")
     List<PersonWithCourses> getSizeScoreOrdering();
@@ -49,4 +55,8 @@ public interface PersonWithCoursesDao {
     @Transaction
     @Query("SELECT * FROM persons WHERE class_score!=0 ORDER BY wave_from DESC, class_score DESC")
     List<PersonWithCourses> getClassScoreOrdering();
+
+    @Transaction
+    @Query("SELECT * FROM persons WHERE favorite!=0 ORDER BY wave_from DESC, class_score DESC")
+    List<PersonWithCourses> getFavorites();
 }
