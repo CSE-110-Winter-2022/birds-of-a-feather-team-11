@@ -457,7 +457,7 @@ public class DBQueryingUnitTest {
 
                 return null;
             });
-            waitForThread(future);
+            Utilities.waitForThread(future);
         });
     }
 
