@@ -11,14 +11,15 @@
         android:id="@+id/bof_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginStart="184dp"
         android:layout_marginTop="28dp"
-        android:layout_marginEnd="180dp"
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:onClick="onTitleClicked"
+        android:scrollHorizontally="true"
         android:text="@string/bof"
-        android:textSize="25dp"
+        android:textSize="23sp"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -27,7 +28,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="32dp"
-        android:layout_marginTop="24dp"
+        android:layout_marginTop="20dp"
         android:backgroundTint="@drawable/button_text_color"
         android:onClick="onStartStopClicked"
         android:text="@string/start"
@@ -36,13 +37,13 @@
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/persons_view"
-        android:layout_width="330dp"
-        android:layout_height="487dp"
+        android:layout_width="359dp"
+        android:layout_height="390dp"
         android:layout_marginStart="50dp"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="12dp"
         android:layout_marginEnd="50dp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.526"
+        app:layout_constraintHorizontal_bias="0.516"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/add_mock" />
 
@@ -74,7 +75,7 @@
         android:layout_width="140dp"
         android:layout_height="48dp"
         android:layout_marginStart="16dp"
-        android:layout_marginTop="84dp"
+        android:layout_marginTop="76dp"
         android:spinnerMode="dropdown"
         app:layout_constraintStart_toEndOf="@+id/sort_text"
         app:layout_constraintTop_toTopOf="parent" />
@@ -90,6 +91,18 @@
         app:layout_constraintHorizontal_bias="0.37"
         app:layout_constraintStart_toEndOf="@+id/add_mock"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/view_sessions_btn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:onClick="onViewSessionsClicked"
+        android:text="RENAME A SESSION"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/persons_view" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
