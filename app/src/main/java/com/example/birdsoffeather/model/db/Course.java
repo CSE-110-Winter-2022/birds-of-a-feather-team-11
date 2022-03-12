@@ -50,6 +50,12 @@ public class Course implements Serializable {
         this.classSize = getFormattedClassSize(classSize);
     }
 
+    /**
+     * Retrieves the age of the current quarter in quarters
+     *
+     * @param currentQuarterAndYear contains the current quarter and year
+     * @return
+     */
     public int getAge(int[] currentQuarterAndYear) {
         int currentQuarter = currentQuarterAndYear[0];
         int currentYear = currentQuarterAndYear[1];
@@ -71,6 +77,12 @@ public class Course implements Serializable {
         return courseId == course.courseId && personId.equals(course.personId) && Objects.equals(year, course.year) && Objects.equals(quarter, course.quarter) && Objects.equals(subject, course.subject) && Objects.equals(number, course.number) && classSize.equals(course.classSize);
     }
 
+    /**
+     * Formats the quarter for consistency
+     *
+     * @param input inputted quarter
+     * @return
+     */
     private String getFormattedQuarter(String input) {
         input = input.toUpperCase();
         if(input.equals("FA") || input.equals("FALL")){
@@ -91,6 +103,12 @@ public class Course implements Serializable {
         }
     }
 
+    /**
+     * Formats the class size for consistency
+     *
+     * @param input inputted class size
+     * @return
+     */
     private String getFormattedClassSize(String input) {
         if(input.equals("Tiny") || input.equals(tinyClass)){
             return tinyClass;
