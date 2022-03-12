@@ -1,23 +1,12 @@
 package com.example.birdsoffeather;
 
-import android.bluetooth.BluetoothAdapter;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 
-import com.example.birdsoffeather.model.db.AppDatabase;
-
-import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 
 public class MainActivity extends AppCompatActivity {
-
-    private AppDatabase db;
-    private ExecutorService backgroundThreadExecutor = Executors.newSingleThreadExecutor();
-    private Future<Void> future;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,18 +15,9 @@ public class MainActivity extends AppCompatActivity {
 
         SharedPreferences preferences = getSharedPreferences("BoF", MODE_PRIVATE);
 
-        BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 
-        // If Bluetooth capable and Bluetooth off, request to turn on (let them pass even if they deny)
-        if (bluetoothAdapter != null && !bluetoothAdapter.isEnabled()) {
-            Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-            registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
-                nextActivity(preferences);
-            }).launch(enableBtIntent);
 
-        } else {
-            nextActivity(preferences);
-        }
+        nextActivity(preferences);
     }
 
     /**
@@ -56,17 +36,5 @@ public class MainActivity extends AppCompatActivity {
         else
             intent = new Intent(this, GoogleSignInPrompt.class);
         startActivity(intent);
-    }
-
-    /**
-     * Removes all of the previously generated BOFs from the database
-     */
-    public void clearBOFs(String userID) {
-        this.future = backgroundThreadExecutor.submit(() -> {
-            db = AppDatabase.singleton(getApplicationContext());
-            db.coursesDao().deleteBOFs(userID);
-            db.personsWithCoursesDao().deleteBOFs(userID);
-            return null;
-        });
     }
 }

@@ -111,7 +111,7 @@ public class PersonDetailActivity extends AppCompatActivity {
 
     private void updateBluetoothMessage(PersonWithCourses selfPerson, List<String> sentWaveTo) {
         BluetoothModule bluetoothModule = BluetoothModule.getBluetoothSingleton();
-        bluetoothModule.unpublish();
+        bluetoothModule.unpublish(this);
 
         byte [] message = new byte[0];
         try {
@@ -120,6 +120,6 @@ public class PersonDetailActivity extends AppCompatActivity {
             e.printStackTrace();
         }
         bluetoothModule.setMessage(new Message(message));
-        bluetoothModule.publish();
+        bluetoothModule.publish(this);
     }
 }

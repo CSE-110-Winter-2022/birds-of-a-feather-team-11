@@ -6,15 +6,10 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.Manifest;
-import android.bluetooth.BluetoothAdapter;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
@@ -37,6 +32,7 @@ import com.google.android.gms.nearby.messages.MessageListener;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
 import java.util.UUID;
@@ -52,24 +48,56 @@ public class ListingBOF extends AppCompatActivity {
     private ExecutorService backgroundThreadExecutor = Executors.newSingleThreadExecutor();
     private Future<Void> future;
 
-
     private boolean bluetoothStarted;
-    private BluetoothAdapter bluetoothAdapter;
 
     private BluetoothModule bluetooth;
-
-    private PersonWithCourses selfPerson;
 
     private RecyclerView personsRecyclerView;
     private PersonsViewAdapter personsViewAdapter;
     private String userID = null;
     private String sessionName = null;
 
+    private final MessageListener messageListener = new MessageListener() {
+        @Override
+        public void onFound(@NonNull Message message) {
+            super.onFound(message);
+            try {
+                BluetoothMessageComposite bluetoothMessage = Utilities.deserializeMessage(message.getContent());
+                Log.i("Bluetooth","onFound() called");
+                Log.i("Bluetooth",bluetoothMessage.person.toString() + " found");
+                Log.i("Bluetooth","They sent waves to: " + bluetoothMessage.wavedToUUID);
+                backgroundThreadExecutor.submit(() -> {
+                    PersonWithCourses potentialBOF = bluetoothMessage.person;
+                    Utilities.inputBOF(potentialBOF, db, userID, sessionName);
+                    Utilities.updateWaves(db, userID, potentialBOF.getId(), bluetoothMessage.wavedToUUID);
+                    List<PersonWithCourses> sortedList = generateSortedList(Utilities.DEFAULT);
+                    runOnUiThread(() -> {
+                        updateUI(sortedList);
+                    });
+                    return null;
+                });
+            } catch (IOException | ClassNotFoundException e) {
+                e.printStackTrace();
+            }
+
+        }
+
+        @Override
+        public void onLost(@NonNull Message message) {
+            super.onLost(message);
+            try {
+                BluetoothMessageComposite bluetoothMessage = Utilities.deserializeMessage(message.getContent());
+                Log.i("Bluetooth","onLost() called");
+                Log.i("Bluetooth",bluetoothMessage.person.toString() + " lost");
+                Log.i("Bluetooth","They sent waves to: " + bluetoothMessage.wavedToUUID);
+            } catch (IOException | ClassNotFoundException e) {
+                e.printStackTrace();
+            }
+        }
+    };
     private TextView title;
     private Button startStopBtn;
     private Button viewSessionBtn;
-
-    private static final int PERMISSIONS_REQUEST_CODE = 1111;
 
     private static boolean VIEW_BTN_CLICKED = false;
     private static boolean SHOW_SAVED_SESSION = false;
@@ -121,19 +149,12 @@ public class ListingBOF extends AppCompatActivity {
         userID = preferences.getString("userID", null);
 
         // Obtain details of use
-        this.future = backgroundThreadExecutor.submit(() -> {
+        backgroundThreadExecutor.submit(() -> {
             db = AppDatabase.singleton(getApplicationContext());
-
-            selfPerson = db.personsWithCoursesDao().get(userID);
-
-            return null;
+            PersonWithCourses person = db.personsWithCoursesDao().get(userID);
+            setupBluetooth(person);
+            return;
         });
-
-        if (!havePermissions()) {
-            requestPermissions();
-        }
-
-        setupBluetooth();
 
         personsRecyclerView = findViewById(R.id.persons_view);
 
@@ -245,61 +266,19 @@ public class ListingBOF extends AppCompatActivity {
     /**
      * Runs the process of setting up Message Listeners and messages so we can use BluetoothModule
      */
-    private void setupBluetooth() {
-        // Check if phone is bluetooth capable and if enabled
-        bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-        if (bluetoothAdapter == null) {
-            Utilities.showAlert(this, "Your phone is not Bluetooth capable. You will not be able to use this app.");
-            onBluetoothFailed();
-            Log.w("Bluetooth", "Phone is not bluetooth capable");
-            return;
-        } else if (!bluetoothAdapter.isEnabled()) {
-            Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-            registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
-
-            }).launch(enableBtIntent);
-        }
-
+    private void setupBluetooth(PersonWithCourses selfPerson) {
         // Set up bluetooth Module
-        bluetooth = new BluetoothModule(this, new MessageListener() {
-            @Override
-            public void onFound(@NonNull Message message) {
-                try {
-                    BluetoothMessageComposite bluetoothMessage = Utilities.deserializeMessage(message.getContent());
-                    future = backgroundThreadExecutor.submit(() -> {
-                        PersonWithCourses potentialBOF = bluetoothMessage.person;
-                        Utilities.inputBOF(potentialBOF, db, userID, sessionName);
-                        Utilities.updateWaves(db, userID, potentialBOF.getId(), bluetoothMessage.wavedToUUID);
-                        List<PersonWithCourses> sortedList = generateSortedList(Utilities.DEFAULT);
-                        runOnUiThread(() -> {
-                            updateUI(sortedList);
-                        });
-                        Log.i("Bluetooth",potentialBOF.toString() + " found");
-                        return null;
-                    });
-                } catch (IOException | ClassNotFoundException e) {
-                    e.printStackTrace();
-                }
+        bluetooth = new BluetoothModule(messageListener);
 
-            }
-        });
-
-        backgroundThreadExecutor.submit(() -> {
-            try {
-                List<String> sentWaveTo = db.personsWithCoursesDao().getSentWaveTo();
-                Message selfMessage = new Message(Utilities.serializeMessage(selfPerson, sentWaveTo));
-                bluetooth.setMessage(selfMessage);
-            } catch (IOException e) {
-                runOnUiThread(() -> {
-                    Toast.makeText(this, "Failed to setup bluetooth! Try restarting app.", Toast.LENGTH_SHORT).show();
-                });
-                onBluetoothFailed();
-                Log.w("Bluetooth","Bluetooth setup failed");
-                e.printStackTrace();
-            }
-
-            return null;
-        });
+        try {
+            List<String> sentWaveTo = db.personsWithCoursesDao().getSentWaveTo();
+            Message selfMessage = new Message(Utilities.serializeMessage(selfPerson, sentWaveTo));
+            bluetooth.setMessage(selfMessage);
+        } catch (IOException e) {
+            onBluetoothFailed();
+            Log.w("Bluetooth","Bluetooth setup failed");
+            e.printStackTrace();
+        }
 
     }
 
@@ -308,11 +287,11 @@ public class ListingBOF extends AppCompatActivity {
      * @param listener A custom listener can be passed in
      */
     public void setMessageListener(MessageListener listener) {
-        bluetooth = new BluetoothModule(this, listener);
+        bluetooth = new BluetoothModule(listener);
     }
 
     public MessageListener getMessageListener() {
-        return bluetooth.messageListener;
+        return messageListener;
     }
 
     public PersonsViewAdapter getPersonsViewAdapter() { return personsViewAdapter; }
@@ -330,12 +309,9 @@ public class ListingBOF extends AppCompatActivity {
      * @param view - Button view
      */
     public void onStartStopClicked(View view) {
-
-        // Stop button from being used if Bluetooth is not enabled
-        /*if (!bluetoothAdapter.isEnabled()) {
-            Utilities.showAlert(this,"Don't forget to turn on Bluetooth");
+        if(bluetooth == null) {
             return;
-        }*/
+        }
 
         startStopBtn.setSelected(!startStopBtn.isSelected());
 
@@ -347,8 +323,8 @@ public class ListingBOF extends AppCompatActivity {
             //when stop is pressed
 
             // Unpublish and stop Listening
-            bluetooth.unpublish();
-            bluetooth.unsubscribe();
+            bluetooth.unpublish(this);
+            bluetooth.unsubscribe(this);
 
             editor.putBoolean("isSessionRunning", false);
             editor.apply();
@@ -372,8 +348,8 @@ public class ListingBOF extends AppCompatActivity {
             editor.apply();
 
             // Publish and Listen
-            bluetooth.publish();
-            bluetooth.subscribe();
+            bluetooth.publish(this);
+            bluetooth.subscribe(this);
 
             // Update State
             startStopBtn.setText("STOP");
@@ -400,8 +376,8 @@ public class ListingBOF extends AppCompatActivity {
 
         if (bluetoothStarted) {
             // Unpublish and stop Listening
-            bluetooth.unpublish();
-            bluetooth.unsubscribe();
+            bluetooth.unpublish(this);
+            bluetooth.unsubscribe(this);
         }
     }
 
@@ -432,39 +408,6 @@ public class ListingBOF extends AppCompatActivity {
         //Change Name on title
         updateTitle();
     }
-
-    private boolean havePermissions() {
-        Log.i("Bluetooth", "Checking if location permissions are granted");
-        return ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
-                == PackageManager.PERMISSION_GRANTED;
-    }
-
-    private void requestPermissions() {
-        Log.i("Bluetooth","Requesting location permissions");
-        ActivityCompat.requestPermissions(this,
-                new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, PERMISSIONS_REQUEST_CODE);
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
-                                           @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode != PERMISSIONS_REQUEST_CODE) {
-            return;
-        }
-        for (int i = 0; i < permissions.length; i++) {
-            String permission = permissions[i];
-            if (grantResults[i] == PackageManager.PERMISSION_DENIED) {
-                Log.i("Bluetooth", "Nearby Permissions denied");
-                Toast.makeText(this, "This app needs permission", Toast.LENGTH_SHORT).show();
-                onBluetoothFailed();
-            } else {
-                Log.i("Bluetooth", "Permission granted");
-                setupBluetooth();
-            }
-        }
-    }
-
 
     private void onBluetoothFailed() {
         finish();
@@ -528,7 +471,7 @@ public class ListingBOF extends AppCompatActivity {
         for(String id : studentsID) {
             PersonWithCourses p = db.personsWithCoursesDao().get(id);
 
-            if(!p.getId().equals(selfPerson.getId())) {
+            if(!p.getId().equals(userID)) {
                 students.add(p);
             }
         }
