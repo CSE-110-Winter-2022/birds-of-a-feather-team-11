@@ -5,6 +5,7 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 
 import com.example.birdsoffeather.model.db.AppDatabase;
+import com.example.birdsoffeather.model.db.BluetoothMessageComposite;
 import com.example.birdsoffeather.model.db.Course;
 import com.example.birdsoffeather.model.db.Person;
 import com.example.birdsoffeather.model.db.PersonWithCourses;
@@ -18,6 +19,7 @@ import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 
 public class Utilities {
@@ -47,15 +49,15 @@ public class Utilities {
     /**
      * Serializes the user's information to send over bluetooth
      *
-     * @param person user's information to be serialized to stream over bluetooth
+     * @param messageInfo user's information to be serialized to stream over bluetooth
      * @return serialized representation of the user's information
      * @throws IOException
      */
-    public static byte[] serializePerson(PersonWithCourses person) throws IOException {
+    public static byte[] serializeMessage(BluetoothMessageComposite messageInfo) throws IOException {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         ObjectOutputStream out = new ObjectOutputStream(bos);
 
-        out.writeObject(person);
+        out.writeObject(messageInfo);
         out.flush();
 
         byte [] message = bos.toByteArray();
@@ -66,6 +68,10 @@ public class Utilities {
         return message;
     }
 
+    public static byte[] serializeMessage(PersonWithCourses person, List<String> wavedToUUID) throws IOException {
+        return serializeMessage(new BluetoothMessageComposite(person, wavedToUUID));
+    }
+
     /**
      * Deserializes a byte array into an object that represents a user's information
      *
@@ -74,16 +80,16 @@ public class Utilities {
      * @throws IOException
      * @throws ClassNotFoundException
      */
-    public static PersonWithCourses deserializePerson(byte [] message) throws IOException, ClassNotFoundException {
+    public static BluetoothMessageComposite deserializeMessage(byte [] message) throws IOException, ClassNotFoundException {
         ByteArrayInputStream bis = new ByteArrayInputStream(message);
         ObjectInputStream in = new ObjectInputStream(bis);
 
-        PersonWithCourses person = (PersonWithCourses) in.readObject();
+        BluetoothMessageComposite messageInfo = (BluetoothMessageComposite) in.readObject();
 
         in.close();
         bis.close();
 
-        return person;
+        return messageInfo;
     }
 
     /**
@@ -218,6 +224,9 @@ public class Utilities {
      * @param personId ID of the BoF being inputted
      */
     public static void addToSession(AppDatabase db, String sessionName, String personId){
+        if(sessionName == null || personId == null) {
+            return;
+        }
         if(db.sessionsDao().similarSession(sessionName, personId) == 0){
             db.sessionsDao().insert(new Session(sessionName, personId));
         }
@@ -256,5 +265,15 @@ public class Utilities {
             if (c.year.equals(newCourse.year) && c.quarter.equals(newCourse.quarter) && c.subject.equals(newCourse.subject) && c.number.equals(newCourse.number))
                 return true;
         return false;
+    }
+
+    /**
+     * Helper function that will wait for a thread to finish before returning
+     *
+     * @param future a future associated with a thread that indicates the threads status
+     */
+    public static void waitForThread(Future future) {
+        while(!future.isDone())
+            continue;
     }
 }

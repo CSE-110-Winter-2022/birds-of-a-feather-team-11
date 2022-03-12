@@ -18,6 +18,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.birdsoffeather.model.db.AppDatabase;
+import com.example.birdsoffeather.model.db.BluetoothMessageComposite;
 import com.example.birdsoffeather.model.db.IPerson;
 import com.example.birdsoffeather.model.db.Person;
 import com.example.birdsoffeather.model.db.PersonWithCourses;
@@ -169,34 +170,35 @@ public class ListingBOF extends AppCompatActivity {
      */
     private void setupBluetooth(PersonWithCourses selfPerson) {
         // Set up bluetooth Module
-        try {
-            Message selfMessage = new Message(Utilities.serializePerson(selfPerson));
-            bluetooth = new BluetoothModule(new MessageListener() {
-                @Override
-                public void onFound(@NonNull Message message) {
-                    Log.i("Bluetooth","msg recieved");
-                    Toast.makeText(ListingBOF.this, "woow rec",Toast.LENGTH_SHORT).show();
-                    try {
-                        PersonWithCourses person = Utilities.deserializePerson(message.getContent());
-                        backgroundThreadExecutor.submit(() -> {
-                            Utilities.inputBOF(person, db, userID, sessionName);
-                            updateUI(generateSortedList(Utilities.DEFAULT));
-                            Log.i("Bluetooth",person.toString() + " found");
-                            return null;
-                        });
-                    } catch (IOException | ClassNotFoundException e) {
-                        e.printStackTrace();
-                    }
-
+        bluetooth = new BluetoothModule(new MessageListener() {
+            @Override
+            public void onFound(@NonNull Message message) {
+                try {
+                    BluetoothMessageComposite bluetoothMessage = Utilities.deserializeMessage(message.getContent());
+                    backgroundThreadExecutor.submit(() -> {
+                        Utilities.inputBOF(bluetoothMessage.person, db, userID, sessionName);
+                        updateUI(generateSortedList(Utilities.DEFAULT));
+                        Log.i("Bluetooth",bluetoothMessage.person.toString() + " found");
+                        return null;
+                    });
+                } catch (IOException | ClassNotFoundException e) {
+                    e.printStackTrace();
                 }
-            });
+
+            }
+        });
+
+        try {
+            List<String> sentWaveTo = db.personsWithCoursesDao().getSentWaveTo();
+            Message selfMessage = new Message(Utilities.serializeMessage(selfPerson, sentWaveTo));
             bluetooth.setMessage(selfMessage);
         } catch (IOException e) {
-            Toast.makeText(this, "Failed to setup bluetooth! Try restarting app.", Toast.LENGTH_SHORT).show();
             onBluetoothFailed();
             Log.w("Bluetooth","Bluetooth setup failed");
             e.printStackTrace();
         }
+
+
     }
 
     /**
@@ -301,7 +303,10 @@ public class ListingBOF extends AppCompatActivity {
         sessionName = currTime;
 
         //Add default user to session
-        Utilities.addToSession(db, sessionName, userID);
+        this.future = backgroundThreadExecutor.submit(() -> {
+            Utilities.addToSession(db, sessionName, userID);
+            return null;
+        });
 
         //Change Name on title
         TextView title = (TextView) findViewById(R.id.bof_title);

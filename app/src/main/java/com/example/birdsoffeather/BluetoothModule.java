@@ -3,6 +3,7 @@ package com.example.birdsoffeather;
 import android.content.Context;
 import android.util.Log;
 
+import com.example.birdsoffeather.model.db.Person;
 import com.google.android.gms.nearby.Nearby;
 import com.google.android.gms.nearby.messages.Message;
 import com.google.android.gms.nearby.messages.MessageListener;
@@ -12,11 +13,21 @@ import com.google.android.gms.nearby.messages.MessageListener;
  */
 public class BluetoothModule {
 
+    private static BluetoothModule bluetoothSingleton;
 
     public final MessageListener messageListener;
     public Message message;
     public BluetoothModule(MessageListener messageListener) {
         this.messageListener = messageListener;
+        setBluetoothSingleton(this);
+    }
+
+    private static void setBluetoothSingleton(BluetoothModule bluetoothModule) {
+        bluetoothSingleton = bluetoothModule;
+    }
+
+    public static BluetoothModule getBluetoothSingleton() {
+        return bluetoothSingleton;
     }
 
     /**

@@ -3,7 +3,6 @@ package com.example.birdsoffeather.model.db;
 import androidx.annotation.NonNull;
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
-import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
 
 import java.io.Serializable;
@@ -28,6 +27,12 @@ public class Person implements Serializable {
 
     @ColumnInfo(name = "age_score")
     public int ageScore;
+
+    @ColumnInfo(name = "waved_to")
+    public int wavedTo = 0;
+
+    @ColumnInfo(name = "wave_from")
+    public int waveFrom = 0;
 
     public Person(@NonNull String personId, String name, String profile_url, double sizeScore, int ageScore){
         this.personId = personId;
