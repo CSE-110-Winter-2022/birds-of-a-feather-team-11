@@ -3,6 +3,7 @@ package com.example.birdsoffeather;
 import static androidx.test.core.app.ApplicationProvider.getApplicationContext;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertTrue;
 
 import androidx.lifecycle.Lifecycle;
 import androidx.test.core.app.ActivityScenario;
@@ -497,6 +498,48 @@ public class DBQueryingUnitTest {
                 db.clearAllTables();
                 db.close();
 
+            });
+            Utilities.waitForThread(future);
+        });
+    }
+
+    @Test
+    public void getFavoriteTest() {
+        ActivityScenario<ListingBOF> scenario = scenarioRule.getScenario();
+
+        scenario.moveToState(Lifecycle.State.CREATED);
+
+        scenario.onActivity(activity -> {
+            db = AppDatabase.singleton(getApplicationContext());
+
+            Future future = backgroundThreadExecutor.submit(() -> {
+                addUser();
+
+                Utilities.inputBOF(testPersons.get(0), db, userID, "test");
+                Utilities.inputBOF(testPersons.get(1), db, userID, "test");
+                Utilities.inputBOF(testPersons.get(2), db, userID, "test");
+                Utilities.inputBOF(testPersons.get(3), db, userID, "test");
+
+                List<PersonWithCourses> persons = db.personsWithCoursesDao().getAll();
+
+                List<PersonWithCourses> favoritesBefore = db.personsWithCoursesDao().getFavorites();
+
+
+                db.personsWithCoursesDao().addFavorite(persons.get(1).person.personId);
+                db.personsWithCoursesDao().addFavorite(persons.get(3).person.personId);
+
+
+                List<PersonWithCourses> favoritesAfter = db.personsWithCoursesDao().getFavorites();
+
+                activity.runOnUiThread(() -> {
+                    assertEquals(0, favoritesBefore.size());
+                    assertEquals(2, favoritesAfter.size());
+
+                    System.out.println(favoritesAfter);
+                });
+
+                db.clearAllTables();
+                db.close();
             });
             Utilities.waitForThread(future);
         });

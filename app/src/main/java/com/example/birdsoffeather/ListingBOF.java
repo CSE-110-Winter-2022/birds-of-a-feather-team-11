@@ -306,6 +306,7 @@ public class ListingBOF extends AppCompatActivity {
         } else {
             //When start is pressed
             createSession();
+            updateUI(new ArrayList<>());
 
             editor.putBoolean("isSessionRunning", true);
             editor.apply();
@@ -415,6 +416,12 @@ public class ListingBOF extends AppCompatActivity {
         } else {
             title.setText(sessionName);
         }
+    }
+
+    public void onFavoriteButtonClicked(View view) {
+
+        Intent intent = new Intent(this, FavoriteListing.class);
+        startActivity(intent);
     }
 
 }

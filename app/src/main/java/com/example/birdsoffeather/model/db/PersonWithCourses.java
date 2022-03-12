@@ -51,4 +51,8 @@ public class PersonWithCourses implements Serializable, IPerson {
         this.courses = courses;
     }
 
+    public String toString() {
+        return person.toString() + courses.toString();
+    }
+
 }
