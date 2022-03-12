@@ -419,7 +419,7 @@ public class ListingBOF extends AppCompatActivity {
       * @param view
      */
     public void onTitleClicked(View view) {
-        if(startStopBtn.getText().toString().equals("START") && !title.getText().toString().equals("BOF")) {
+        if(startStopBtn.getText().toString().equals("START") && !title.getText().toString().equals("BoF")) {
             nameSession();
         }
     }
