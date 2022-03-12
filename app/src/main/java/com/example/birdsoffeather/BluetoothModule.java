@@ -3,10 +3,14 @@ package com.example.birdsoffeather;
 import android.content.Context;
 import android.util.Log;
 
+import com.example.birdsoffeather.model.db.BluetoothMessageComposite;
 import com.example.birdsoffeather.model.db.Person;
 import com.google.android.gms.nearby.Nearby;
 import com.google.android.gms.nearby.messages.Message;
 import com.google.android.gms.nearby.messages.MessageListener;
+import com.google.android.gms.nearby.messages.MessagesClient;
+
+import java.io.IOException;
 
 /**
  * Adapter class for Nearby interface to work with our function calls
@@ -36,6 +40,15 @@ public class BluetoothModule {
      */
     public void setMessage(Message message) {
         this.message = message;
+        try {
+            BluetoothMessageComposite bluetoothMessage = Utilities.deserializeMessage(message.getContent());
+            Log.i("Bluetooth","setMessage() called");
+            Log.i("Bluetooth","details are " + bluetoothMessage.person.toString());
+            Log.i("Bluetooth","Sending waves to: " + bluetoothMessage.wavedToUUID);
+        } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+
     }
 
     /**
@@ -43,8 +56,10 @@ public class BluetoothModule {
      * @param context Passes in current activity
      */
     public void publish(Context context) {
-        Nearby.getMessagesClient(context).publish(message);
-        Log.i("Bluetooth","User's Message Published");
+        MessagesClient client = Nearby.getMessagesClient(context);
+        Log.i("Bluetooth","Client Class is " + client.getClass().getSimpleName());
+        client.publish(message);
+        Log.i("Bluetooth","User's Message Published (publish())");
     }
 
     /**
@@ -52,8 +67,10 @@ public class BluetoothModule {
      * @param context Passes in current activity
      */
     public void unpublish(Context context) {
-        Nearby.getMessagesClient(context).unpublish(message);
-        Log.i("Bluetooth","User's Message Unpublished");
+        MessagesClient client = Nearby.getMessagesClient(context);
+        Log.i("Bluetooth","Client Class is " + client.getClass().getSimpleName());
+        client.unpublish(message);
+        Log.i("Bluetooth","User's Message Unpublished (unpublish())");
     }
 
     /**
@@ -61,8 +78,10 @@ public class BluetoothModule {
      * @param context Passes in current activity
      */
     public void subscribe(Context context) {
-        Nearby.getMessagesClient(context).subscribe(messageListener);
-        Log.i("Bluetooth","Listening to Messages");
+        MessagesClient client = Nearby.getMessagesClient(context);
+        Log.i("Bluetooth","Client Class is " + client.getClass().getSimpleName());
+        client.subscribe(messageListener);
+        Log.i("Bluetooth","Listening to Messages (subscribe())");
     }
 
     /**
@@ -70,7 +89,9 @@ public class BluetoothModule {
      * @param context Passes in current activity
      */
     public void unsubscribe(Context context) {
-        Nearby.getMessagesClient(context).unsubscribe(messageListener);
-        Log.i("Bluetooth","Stopped listening for Messages");
+        MessagesClient client = Nearby.getMessagesClient(context);
+        Log.i("Bluetooth","Client Class is " + client.getClass().getSimpleName());
+        client.unsubscribe(messageListener);
+        Log.i("Bluetooth","Stopped listening for Messages (unsubscribe())");
     }
 }
