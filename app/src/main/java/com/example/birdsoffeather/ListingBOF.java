@@ -1,17 +1,11 @@
 package com.example.birdsoffeather;
 
-import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.Manifest;
-import android.bluetooth.BluetoothAdapter;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
@@ -25,14 +19,14 @@ import android.widget.Toast;
 
 import com.example.birdsoffeather.model.db.AppDatabase;
 import com.example.birdsoffeather.model.db.IPerson;
+import com.example.birdsoffeather.model.db.Person;
 import com.example.birdsoffeather.model.db.PersonWithCourses;
-import com.example.birdsoffeather.model.db.Session;
 import com.google.android.gms.nearby.messages.Message;
 import com.google.android.gms.nearby.messages.MessageListener;
 
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -45,20 +39,14 @@ public class ListingBOF extends AppCompatActivity {
     private ExecutorService backgroundThreadExecutor = Executors.newSingleThreadExecutor();
     private Future<Void> future;
 
-
     private boolean bluetoothStarted;
-    private BluetoothAdapter bluetoothAdapter;
 
     private BluetoothModule bluetooth;
-
-    private PersonWithCourses selfPerson;
 
     private RecyclerView personsRecyclerView;
     private PersonsViewAdapter personsViewAdapter;
     private String userID = null;
     private String sessionName = null;
-
-    private static final int PERMISSIONS_REQUEST_CODE = 1111;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,19 +59,13 @@ public class ListingBOF extends AppCompatActivity {
         userID = preferences.getString("userID", null);
 
         // Obtain details of use
-        this.future = backgroundThreadExecutor.submit(() -> {
+        backgroundThreadExecutor.submit(() -> {
             db = AppDatabase.singleton(getApplicationContext());
 
-            selfPerson = db.personsWithCoursesDao().get(userID);
-
-            return null;
+            PersonWithCourses person = db.personsWithCoursesDao().get(userID);
+            setupBluetooth(person);
+            return;
         });
-
-        if (!havePermissions()) {
-            requestPermissions();
-        }
-
-        setupBluetooth();
 
         personsRecyclerView = findViewById(R.id.persons_view);
 
@@ -177,36 +159,26 @@ public class ListingBOF extends AppCompatActivity {
      * @param persons - List of persons to show in recycler view
      */
     public void updateUI(List<? extends IPerson> persons) {
-        personsViewAdapter.updateList(persons);
+        runOnUiThread(() -> {
+            personsViewAdapter.updateList(persons);
+        });
     }
 
     /**
      * Runs the process of setting up Message Listeners and messages so we can use BluetoothModule
      */
-    private void setupBluetooth() {
-        // Check if phone is bluetooth capable and if enabled
-        bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-        if (bluetoothAdapter == null) {
-            Utilities.showAlert(this, "Your phone is not Bluetooth capable. You will not be able to use this app.");
-            onBluetoothFailed();
-            Log.w("Bluetooth", "Phone is not bluetooth capable");
-            return;
-        } else if (!bluetoothAdapter.isEnabled()) {
-            Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-            registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
-
-            }).launch(enableBtIntent);
-        }
-
+    private void setupBluetooth(PersonWithCourses selfPerson) {
         // Set up bluetooth Module
         try {
             Message selfMessage = new Message(Utilities.serializePerson(selfPerson));
-            bluetooth = new BluetoothModule(this, new MessageListener() {
+            bluetooth = new BluetoothModule(new MessageListener() {
                 @Override
                 public void onFound(@NonNull Message message) {
+                    Log.i("Bluetooth","msg recieved");
+                    Toast.makeText(ListingBOF.this, "woow rec",Toast.LENGTH_SHORT).show();
                     try {
                         PersonWithCourses person = Utilities.deserializePerson(message.getContent());
-                        future = backgroundThreadExecutor.submit(() -> {
+                        backgroundThreadExecutor.submit(() -> {
                             Utilities.inputBOF(person, db, userID, sessionName);
                             updateUI(generateSortedList(Utilities.DEFAULT));
                             Log.i("Bluetooth",person.toString() + " found");
@@ -232,7 +204,7 @@ public class ListingBOF extends AppCompatActivity {
      * @param listener A custom listener can be passed in
      */
     public void setMessageListener(MessageListener listener) {
-        bluetooth = new BluetoothModule(this, listener);
+        bluetooth = new BluetoothModule(listener);
     }
 
     public MessageListener getMessageListener() {
@@ -255,12 +227,6 @@ public class ListingBOF extends AppCompatActivity {
      */
     public void onStartStopClicked(View view) {
 
-        // Stop button from being used if Bluetooth is not enabled
-        if (!bluetoothAdapter.isEnabled()) {
-            Utilities.showAlert(this,"Don't forget to turn on Bluetooth");
-            return;
-        }
-
         Button startStopBtn = findViewById(R.id.start_stop_btn);
         startStopBtn.setSelected(!startStopBtn.isSelected());
 
@@ -269,8 +235,8 @@ public class ListingBOF extends AppCompatActivity {
             //when stop is pressed
 
             // Unpublish and stop Listening
-            bluetooth.unpublish();
-            bluetooth.unsubscribe();
+            bluetooth.unpublish(this);
+            bluetooth.unsubscribe(this);
 
             // Update State
             startStopBtn.setText("Start");
@@ -284,8 +250,8 @@ public class ListingBOF extends AppCompatActivity {
             createSession();
 
             // Publish and Listen
-            bluetooth.publish();
-            bluetooth.subscribe();
+            bluetooth.publish(this);
+            bluetooth.subscribe(this);
 
             // Update State
             startStopBtn.setText("Stop");
@@ -310,8 +276,8 @@ public class ListingBOF extends AppCompatActivity {
 
         if (bluetoothStarted) {
             // Unpublish and stop Listening
-            bluetooth.unpublish();
-            bluetooth.unsubscribe();
+            bluetooth.unpublish(this);
+            bluetooth.unsubscribe(this);
         }
     }
 
@@ -341,39 +307,6 @@ public class ListingBOF extends AppCompatActivity {
         TextView title = (TextView) findViewById(R.id.bof_title);
         title.setText(currTime);
     }
-
-    private boolean havePermissions() {
-        Log.i("Bluetooth", "Checking if location permissions are granted");
-        return ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
-                == PackageManager.PERMISSION_GRANTED;
-    }
-
-    private void requestPermissions() {
-        Log.i("Bluetooth","Requesting location permissions");
-        ActivityCompat.requestPermissions(this,
-                new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, PERMISSIONS_REQUEST_CODE);
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
-                                           @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode != PERMISSIONS_REQUEST_CODE) {
-            return;
-        }
-        for (int i = 0; i < permissions.length; i++) {
-            String permission = permissions[i];
-            if (grantResults[i] == PackageManager.PERMISSION_DENIED) {
-                Log.i("Bluetooth", "Nearby Permissions denied");
-                Toast.makeText(this, "This app needs permission", Toast.LENGTH_SHORT).show();
-                onBluetoothFailed();
-            } else {
-                Log.i("Bluetooth", "Permission granted");
-                setupBluetooth();
-            }
-        }
-    }
-
 
     private void onBluetoothFailed() {
         finish();

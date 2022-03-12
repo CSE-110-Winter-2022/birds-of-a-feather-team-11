@@ -1,6 +1,5 @@
 package com.example.birdsoffeather;
 
-import android.bluetooth.BluetoothAdapter;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -28,18 +27,8 @@ public class MainActivity extends AppCompatActivity {
 
         clearBOFs(preferences.getString("userID", "default"));
 
-        BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 
-        // If Bluetooth capable and Bluetooth off, request to turn on (let them pass even if they deny)
-        if (bluetoothAdapter != null && !bluetoothAdapter.isEnabled()) {
-            Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-            registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
-                nextActivity(preferences);
-            }).launch(enableBtIntent);
-
-        } else {
-            nextActivity(preferences);
-        }
+        nextActivity(preferences);
     }
 
     /**
