@@ -13,6 +13,7 @@ import com.google.android.gms.nearby.messages.MessageListener;
  */
 public class BluetoothModule {
 
+    private static BluetoothModule bluetoothSingleton;
 
     public final MessageListener messageListener;
     public final Context context;
@@ -20,6 +21,15 @@ public class BluetoothModule {
     public BluetoothModule(Context context, MessageListener messageListener) {
         this.context = context;
         this.messageListener = messageListener;
+        setBluetoothSingleton(this);
+    }
+
+    private static void setBluetoothSingleton(BluetoothModule bluetoothModule) {
+        bluetoothSingleton = bluetoothModule;
+    }
+
+    public static BluetoothModule getBluetoothSingleton() {
+        return bluetoothSingleton;
     }
 
     /**
@@ -47,7 +57,7 @@ public class BluetoothModule {
     }
 
     /**
-     * Sets up the message listener to react to Bluetooth messaes
+     * Sets up the message listener to react to Bluetooth messages
      */
     public void subscribe() {
         Nearby.getMessagesClient(context).subscribe(messageListener);

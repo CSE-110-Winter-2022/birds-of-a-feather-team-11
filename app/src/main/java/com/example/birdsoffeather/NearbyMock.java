@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -28,7 +29,6 @@ public class NearbyMock extends AppCompatActivity {
 
 
     public void onAddButtonClicked(View view) {
-        Toast.makeText(this, "L Added person successfully", Toast.LENGTH_SHORT).show();
         EditText personEntryEditText = findViewById(R.id.person_entry_edit_text);
         String entryData = personEntryEditText.getText().toString();
         PersonWithCourses person = generatePerson(entryData);
@@ -36,7 +36,6 @@ public class NearbyMock extends AppCompatActivity {
         SharedPreferences preferences = getSharedPreferences("BoF", MODE_PRIVATE);
         String userID = preferences.getString("userID", null);
         String sessionName = preferences.getString("currentSession", null);
-
         // If successful, clear text and add to database
         if (person != null) {
             Utilities.inputBOF(person, AppDatabase.singleton(getApplicationContext()), userID, sessionName);
@@ -45,6 +44,8 @@ public class NearbyMock extends AppCompatActivity {
         } else {
             Toast.makeText(this, "Failed to add - incorrect formatting", Toast.LENGTH_SHORT).show();
         }
+        AppDatabase db = AppDatabase.singleton(this);
+        System.out.println(db.personsWithCoursesDao().getAll());
 
     }
 
@@ -75,6 +76,7 @@ public class NearbyMock extends AppCompatActivity {
         PersonWithCourses personWithCourses = new PersonWithCourses();
         personWithCourses.person = person;
         personWithCourses.courses = courseList;
+        System.out.println(courseList);
 
         return personWithCourses;
     }
