@@ -127,6 +127,10 @@ public class PersonsViewAdapter extends RecyclerView.Adapter<PersonsViewAdapter.
             context.startActivity(intent);
         }
 
+        /**
+         * Handles a user adding or removing a person from favorites. Updates UI to reflect updated
+         * star and updates backend to reflect change
+         */
         public void onFavoriteClicked() {
             if(favorite) {
                 this.favoriteView.setImageResource(R.drawable.empty_star);

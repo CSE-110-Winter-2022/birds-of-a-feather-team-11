@@ -113,6 +113,14 @@ public class Utilities {
             db.coursesDao().insert(course);
     }
 
+    /**
+     * Returns list of courses that the potential BoF has in common with the user
+     *
+     * @param potentialBOF Different app user who has connected with current user by bluetooth
+     * @param db database
+     * @param userID ID of the current user
+     * @return
+     */
     public static List<Course> generateSimilarCourses(PersonWithCourses potentialBOF, AppDatabase db, String userID) {
         List<Course> courses = potentialBOF.getCourses(), similarCourses = new ArrayList<>();
         for (Course course : courses) {
@@ -123,6 +131,14 @@ public class Utilities {
         return similarCourses;
     }
 
+    /**
+     * Returns a course if the user has taken the same course as the inputted course
+     *
+     * @param db database
+     * @param userID ID of the user
+     * @param course course in question
+     * @return The course that the user has taken that matches the input course
+     */
     public static Course getSimilarCourse(AppDatabase db, String userID, Course course) {
         List<Course> similarCourse = db.coursesDao().getSimilarCourse(userID, course.year, course.quarter, course.subject, course.number);
         if (similarCourse.size() != 0)
@@ -130,7 +146,11 @@ public class Utilities {
         return null;
     }
 
-
+    /**
+     * Generates a size score for the potential BOF based off of the classes they have in common with the user
+     * @param similarCourses courses that the potential BOF has in common with the user
+     * @return cumulative size course for their similar courses
+     */
     public static double calculateSizeScore(List<Course> similarCourses) {
         double sum = 0;
         for (Course course : similarCourses)
@@ -138,6 +158,11 @@ public class Utilities {
         return sum;
     }
 
+    /**
+     * Converts the size of a class into a score
+     * @param course course we want the score of
+     * @return size score of the course
+     */
     public static double sizeScore(Course course) {
         switch (course.classSize) {
             case Course.tinyClass:
@@ -156,6 +181,11 @@ public class Utilities {
         return .03;
     }
 
+    /**
+     * Calculates an age score for a potential BOF based on their similar classes with the user
+     * @param similarCourses list of courses that the bof has similar with the user
+     * @return cumulative age score of their similar course
+     */
     public static int calculateAgeScore(List<Course> similarCourses) {
         int sum = 0;
         for (Course course : similarCourses)
@@ -163,6 +193,12 @@ public class Utilities {
         return sum;
     }
 
+    /**
+     * Calculates a score for the course based off of the course age
+     *
+     * @param course course to calculate score of
+     * @return age score of the course
+     */
     public static int ageScore(Course course) {
         switch (course.getAge(getCurrentQuarterAndYear())) {
             case 0:
@@ -177,6 +213,10 @@ public class Utilities {
         return 1;
     }
 
+    /**
+     * Retrieve the current quarter and year based off the current date and time
+     * @return current quarter and year
+     */
     public static int[] getCurrentQuarterAndYear() {
         int[] quarterAndYear = new int[2];
         Calendar currentTime = Calendar.getInstance();
@@ -200,6 +240,12 @@ public class Utilities {
         return quarterAndYear;
     }
 
+    /**
+     * Converts the academic quarter to an integer representation
+     *
+     * @param quarter quarter to be converted
+     * @return integer representation of the quarter
+     */
     public static int quarterToInt(String quarter) {
         switch (quarter) {
             case "Winter":
@@ -233,18 +279,35 @@ public class Utilities {
         }
     }
 
+    /**
+     * Orders the BoFs based off of a class size score
+     */
     public static List<PersonWithCourses> generateSizeScoreOrder(AppDatabase db) {
         return db.personsWithCoursesDao().getSizeScoreOrdering();
     }
 
+    /**
+     * Orders the BoFs based off of a class age score
+     */
     public static List<PersonWithCourses> generateAgeScoreOrder(AppDatabase db) {
         return db.personsWithCoursesDao().getAgeScoreOrdering();
     }
 
+    /**
+     * Orders the BoFs based off of a class similarity score
+     */
     public static List<PersonWithCourses> generateClassScoreOrder(AppDatabase db) {
         return db.personsWithCoursesDao().getClassScoreOrdering();
     }
 
+    /**
+     * Updates the waver in the database if they waved to the current user
+     *
+     * @param db
+     * @param userID ID of the current user
+     * @param bofID ID of the waver
+     * @param wavers List of people the waver waved to
+     */
     public static void updateWaves(AppDatabase db, String userID, String bofID, List<String> wavers) {
         if (wavers.contains(userID))
             db.personsWithCoursesDao().updateWaveFrom(bofID);
