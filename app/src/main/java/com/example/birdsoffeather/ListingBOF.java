@@ -224,7 +224,9 @@ public class ListingBOF extends AppCompatActivity {
                 Message selfMessage = new Message(Utilities.serializeMessage(selfPerson, sentWaveTo));
                 bluetooth.setMessage(selfMessage);
             } catch (IOException e) {
-                Toast.makeText(this, "Failed to setup bluetooth! Try restarting app.", Toast.LENGTH_SHORT).show();
+                runOnUiThread(() -> {
+                    Toast.makeText(this, "Failed to setup bluetooth! Try restarting app.", Toast.LENGTH_SHORT).show();
+                });
                 onBluetoothFailed();
                 Log.w("Bluetooth","Bluetooth setup failed");
                 e.printStackTrace();

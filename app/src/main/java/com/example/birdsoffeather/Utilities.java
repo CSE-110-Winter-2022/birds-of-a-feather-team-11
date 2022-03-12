@@ -230,22 +230,6 @@ public class Utilities {
         }
     }
 
-
-    /**
-     * Generates an ordering of the BOFs based on how many courses they have in common with the user
-     * TODO: Delete this function
-     *
-     * @param db Singleton instance to access the Room database
-     * @return list of BOFs in order of how many courses they have in common with the user.
-     */
-
-    /*
-    public static List<PersonWithCourses> generateSimilarityOrder(AppDatabase db, String userID) {
-        List<String> orderedIds = db.coursesDao().getSimilarityOrdering(userID);
-        List<PersonWithCourses> orderedBOFs = orderedIds.stream().map((id) -> db.personsWithCoursesDao().get(id)).collect(Collectors.toList());
-        return orderedBOFs;
-    }*/
-
     public static List<PersonWithCourses> generateSizeScoreOrder(AppDatabase db) {
         return db.personsWithCoursesDao().getSizeScoreOrdering();
     }

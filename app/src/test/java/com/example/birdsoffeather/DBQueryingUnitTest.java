@@ -21,6 +21,7 @@ import org.junit.runner.RunWith;
 import org.robolectric.util.Util;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
@@ -423,6 +424,40 @@ public class DBQueryingUnitTest {
                 db.close();
             });
             Utilities.waitForThread(future);
+        });
+    }
+
+    @Test
+    public void sendWavesTest() {
+        ActivityScenario<ListingBOF> scenario = scenarioRule.getScenario();
+
+        scenario.moveToState(Lifecycle.State.CREATED);
+
+        scenario.onActivity(activity -> {
+            db = AppDatabase.singleton(getApplicationContext());
+
+            Future future = backgroundThreadExecutor.submit(() -> {
+                addUser();
+
+                for (PersonWithCourses person : testPersons) {
+                    Utilities.inputBOF(person, db, userID, "test");
+                }
+
+                db.personsWithCoursesDao().updateSentWaveTo(testPersons.get(0).getId());
+                db.personsWithCoursesDao().updateSentWaveTo(testPersons.get(2).getId());
+
+                List<String> wavesSent = db.personsWithCoursesDao().getSentWaveTo();
+
+                activity.runOnUiThread(() -> {
+                    assertEquals(Arrays.asList(testPersons.get(0).getId(), testPersons.get(2).getId()), wavesSent);
+                });
+
+                db.clearAllTables();
+                db.close();
+
+                return null;
+            });
+            waitForThread(future);
         });
     }
 
