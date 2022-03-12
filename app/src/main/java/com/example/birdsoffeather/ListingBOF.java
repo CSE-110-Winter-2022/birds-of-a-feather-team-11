@@ -155,7 +155,7 @@ public class ListingBOF extends AppCompatActivity {
         else if (sortType.equals(Utilities.CLASS_AGE))
             orderedList = Utilities.generateAgeScoreOrder(db);
         else
-            orderedList = Utilities.generateSimilarityOrder(db, userID);
+            orderedList = Utilities.generateClassScoreOrder(db);
 
         //Get the list of people in that session
         List<String> sessionUUIDs = db.sessionsDao().getPeopleForSession(sessionName);
@@ -204,9 +204,11 @@ public class ListingBOF extends AppCompatActivity {
                 try {
                     BluetoothMessageComposite bluetoothMessage = Utilities.deserializeMessage(message.getContent());
                     future = backgroundThreadExecutor.submit(() -> {
-                        Utilities.inputBOF(bluetoothMessage.person, db, userID, sessionName);
+                        PersonWithCourses potentialBOF = bluetoothMessage.person;
+                        Utilities.inputBOF(potentialBOF, db, userID, sessionName);
+                        Utilities.updateWaves(db, userID, potentialBOF.getId(), bluetoothMessage.wavedToUUID);
                         updateUI(generateSortedList(Utilities.DEFAULT));
-                        Log.i("Bluetooth",bluetoothMessage.person.toString() + " found");
+                        Log.i("Bluetooth",potentialBOF.toString() + " found");
                         return null;
                     });
                 } catch (IOException | ClassNotFoundException e) {
