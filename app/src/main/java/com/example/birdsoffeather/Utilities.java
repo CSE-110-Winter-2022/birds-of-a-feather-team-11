@@ -18,6 +18,7 @@ import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 
 public class Utilities {
@@ -218,6 +219,9 @@ public class Utilities {
      * @param personId ID of the BoF being inputted
      */
     public static void addToSession(AppDatabase db, String sessionName, String personId){
+        if(sessionName == null || personId == null) {
+            return;
+        }
         if(db.sessionsDao().similarSession(sessionName, personId) == 0){
             db.sessionsDao().insert(new Session(sessionName, personId));
         }
@@ -256,5 +260,15 @@ public class Utilities {
             if (c.year.equals(newCourse.year) && c.quarter.equals(newCourse.quarter) && c.subject.equals(newCourse.subject) && c.number.equals(newCourse.number))
                 return true;
         return false;
+    }
+
+    /**
+     * Helper function that will wait for a thread to finish before returning
+     *
+     * @param future a future associated with a thread that indicates the threads status
+     */
+    public static void waitForThread(Future future) {
+        while(!future.isDone())
+            continue;
     }
 }
