@@ -61,4 +61,8 @@ public class Person implements Serializable {
                 && this.sizeScore == person.sizeScore && this.ageScore == person.ageScore && this.classScore == person.classScore
                 && this.wavedTo == person.wavedTo && this.waveFrom == person.waveFrom && this.favorite == person.favorite;
     }
+
+    public String toString() {
+        return personId + ", " + name + ", " + profile_url + ", " + sizeScore + ", " + ageScore + ", " + classScore + ", " + wavedTo + ", "+ waveFrom+", " + favorite + ", ";
+    }
 }

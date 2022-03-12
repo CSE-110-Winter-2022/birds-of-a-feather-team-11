@@ -296,7 +296,7 @@ public class ListingBOF extends AppCompatActivity {
             //When start is pressed
             createSession();
 
-            //addTestPerson();
+            addTestPerson();
 
             // Publish and Listen
             bluetooth.publish();
@@ -428,11 +428,7 @@ public class ListingBOF extends AppCompatActivity {
 
     public void onFavoriteButtonClicked(View view) {
 
-        if(bluetoothStarted) {
-            Utilities.showAlert(this, "Favorites cannot be checked while a session is active");
-        } else {
-            Intent intent = new Intent(this, FavoriteListing.class);
-            startActivity(intent);
-        }
+        Intent intent = new Intent(this, FavoriteListing.class);
+        startActivity(intent);
     }
 }

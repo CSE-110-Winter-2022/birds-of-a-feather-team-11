@@ -46,17 +46,17 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/add_mock" />
 
+
     <Button
         android:id="@+id/add_mock"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="140dp"
         android:onClick="onAddMockClicked"
         android:text="@string/add_mock"
         app:layout_constraintStart_toEndOf="@+id/start_stop_btn"
-        app:layout_constraintTop_toBottomOf="@+id/start_stop_btn" />
-
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/sort_text"
@@ -73,21 +73,21 @@
         android:id="@+id/filter_spinner"
         android:layout_width="140dp"
         android:layout_height="48dp"
-        android:layout_marginStart="15dp"
-        android:layout_marginTop="4dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="84dp"
         android:spinnerMode="dropdown"
         app:layout_constraintStart_toEndOf="@+id/sort_text"
-        app:layout_constraintTop_toTopOf="@+id/start_stop_btn" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <Button
         android:id="@+id/fav_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="152dp"
+        android:layout_marginTop="140dp"
         android:onClick="onFavoriteButtonClicked"
         android:text="FAVORITES"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.425"
+        app:layout_constraintHorizontal_bias="0.37"
         app:layout_constraintStart_toEndOf="@+id/add_mock"
         app:layout_constraintTop_toTopOf="parent" />
 

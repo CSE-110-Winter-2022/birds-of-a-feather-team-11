@@ -33,12 +33,13 @@ public class FavoriteListing extends AppCompatActivity {
 
         RecyclerView.LayoutManager personsLayoutManager = new LinearLayoutManager(this);
         personsRecyclerView.setLayoutManager(personsLayoutManager);
+        db = AppDatabase.singleton(getApplicationContext());
 
         personsViewAdapter = new PersonsViewAdapter(new ArrayList<>(), db);
         personsRecyclerView.setAdapter(personsViewAdapter);
 
         backgroundThreadExecutor.submit(() -> {
-            db = AppDatabase.singleton(getApplicationContext());
+
             List<PersonWithCourses> persons = db.personsWithCoursesDao().getFavorites();
             runOnUiThread(()-> {
                 personsViewAdapter.updateList(persons);
