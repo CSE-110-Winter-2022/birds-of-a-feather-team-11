@@ -106,7 +106,8 @@ public class Utilities {
         List<Course> similarCourses = generateSimilarCourses(potentialBOF, db, userID);
         double sizeScore = calculateSizeScore(similarCourses);
         int ageScore = calculateAgeScore(similarCourses);
-        Person user = new Person(userInfo.personId, userInfo.name, userInfo.profile_url, sizeScore, ageScore);
+        int classScore = similarCourses.size();
+        Person user = new Person(userInfo.personId, userInfo.name, userInfo.profile_url, sizeScore, ageScore, classScore);
         db.personsWithCoursesDao().insertPerson(user);
         for (Course course : similarCourses)
             db.coursesDao().insert(course);
@@ -232,25 +233,21 @@ public class Utilities {
         }
     }
 
-
-    /**
-     * Generates an ordering of the BOFs based on how many courses they have in common with the user
-     *
-     * @param db Singleton instance to access the Room database
-     * @return list of BOFs in order of how many courses they have in common with the user.
-     */
-    public static List<PersonWithCourses> generateSimilarityOrder(AppDatabase db, String userID) {
-        List<String> orderedIds = db.coursesDao().getSimilarityOrdering(userID);
-        List<PersonWithCourses> orderedBOFs = orderedIds.stream().map((id) -> db.personsWithCoursesDao().get(id)).collect(Collectors.toList());
-        return orderedBOFs;
-    }
-
     public static List<PersonWithCourses> generateSizeScoreOrder(AppDatabase db) {
         return db.personsWithCoursesDao().getSizeScoreOrdering();
     }
 
     public static List<PersonWithCourses> generateAgeScoreOrder(AppDatabase db) {
         return db.personsWithCoursesDao().getAgeScoreOrdering();
+    }
+
+    public static List<PersonWithCourses> generateClassScoreOrder(AppDatabase db) {
+        return db.personsWithCoursesDao().getClassScoreOrdering();
+    }
+
+    public static void updateWaves(AppDatabase db, String userID, String bofID, List<String> wavers) {
+        if (wavers.contains(userID))
+            db.personsWithCoursesDao().updateWaveFrom(bofID);
     }
 
     /**

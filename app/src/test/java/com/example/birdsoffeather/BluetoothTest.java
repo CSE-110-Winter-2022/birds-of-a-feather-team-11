@@ -47,7 +47,7 @@ public class BluetoothTest {
         person.courses = Arrays.asList(
                 new Course(userID, "1999", "WI", "C", "1","Tiny (<40)"),
                 new Course(userID, "1999", "FA", "C", "2","Small (40-75)"));
-        person.person = new Person(userID,"John","", 0, 0);
+        person.person = new Person(userID,"John","", 0, 0, 0);
         return new BluetoothMessageComposite(person, bofIDs);
     }
 
@@ -97,7 +97,7 @@ public class BluetoothTest {
         person2.person.courses = Arrays.asList(
                 new Course(userID, "1999", "WI", "C", "1","Tiny (<40)")
         );
-        person2.person.person = new Person(userID,"John","url", 0, 0);
+        person2.person.person = new Person(userID,"John","url", 0, 0, 0);
 
         BluetoothMessageComposite serializedPerson = null;
         try {
@@ -124,7 +124,7 @@ public class BluetoothTest {
             String userID = UUID.randomUUID().toString();
 
             PersonWithCourses fakePerson = new PersonWithCourses();
-            fakePerson.person = new Person(userID, "John", "www.google.com", 0, 0);
+            fakePerson.person = new Person(userID, "John", "www.google.com", 0, 0, 0);
             fakePerson.courses = Arrays.asList(
                     new Course(userID, "2022", "Winter", "CSE", "110","Large (150-250)"));
             MessageListener fake = new FakeMessageListener(activity.getMessageListener(), fakePerson, bofIDs);

@@ -59,7 +59,9 @@ public class ListingBOF extends AppCompatActivity {
                 Log.i("Bluetooth",bluetoothMessage.person.toString() + " found");
                 Log.i("Bluetooth","They sent waves to: " + bluetoothMessage.wavedToUUID);
                 backgroundThreadExecutor.submit(() -> {
+                    PersonWithCourses potentialBOF = bluetoothMessage.person;
                     Utilities.inputBOF(bluetoothMessage.person, db, userID, sessionName);
+                    Utilities.updateWaves(db, userID, potentialBOF.getId(), bluetoothMessage.wavedToUUID);
                     updateUI(generateSortedList(Utilities.DEFAULT));
                     return null;
                 });

@@ -39,7 +39,7 @@ public class StopSessionTest {
     AppDatabase db;
 
     public void addUser() {
-        Person user = new Person(userID, "user", "", 0, 0);
+        Person user = new Person(userID, "user", "", 0, 0, 0);
         db.personsWithCoursesDao().insertPerson(user);
     }
     public void addUserClasses() {

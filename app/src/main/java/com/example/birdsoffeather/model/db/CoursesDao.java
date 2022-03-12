@@ -29,9 +29,6 @@ public interface CoursesDao {
     @Query("DELETE FROM courses")
     void deleteAll();
 
-    @Query("SELECT person_id FROM courses WHERE person_id!=:userID GROUP BY person_id ORDER BY COUNT(*) DESC")
-    List<String> getSimilarityOrdering(String userID);
-
     @Query("SELECT COUNT(*) FROM courses WHERE person_id=:userID AND year=:year AND quarter=:quarter AND subject=:subject AND number=:number")
     int similarCourseNum(String userID, String year, String quarter, String subject, String number);
 
