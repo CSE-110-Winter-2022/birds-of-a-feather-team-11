@@ -146,6 +146,7 @@ public class StopSave extends AppCompatActivity {
             // new session name will be passed
             Intent intent = new Intent();
             intent.putExtra(KEY_NAME, currentSessionName);
+            Log.i("onConfirmName", currentSessionName);
             setResult(RESULT_OK, intent);
             finish();
         } else {

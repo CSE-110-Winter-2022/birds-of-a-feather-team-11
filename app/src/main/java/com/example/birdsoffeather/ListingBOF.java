@@ -72,11 +72,14 @@ public class ListingBOF extends AppCompatActivity {
     private static boolean VIEW_BTN_CLICKED = false;
     private static boolean SHOW_SAVED_SESSION = false;
 
-    // used to retrieve the session name set by user in StopSave activity
+    /**
+     * used to retrieve the session name set by user in StopSave activity.
+     * will not execute if user presses back button during StopSave activity.
+     */
     ActivityResultLauncher<Intent> activityLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
         @Override
         public void onActivityResult(ActivityResult result) {
-            // update session name in SharedPreferences
+            // update session name in SharedPreferences and title
             if(result != null) {
                 if(result.getResultCode() == RESULT_OK) {
                     if(result.getData() != null && result.getData().getStringExtra(StopSave.KEY_NAME) != null) {
@@ -86,6 +89,7 @@ public class ListingBOF extends AppCompatActivity {
                         editor.putString("currentSession", sn);
                         editor.apply();
                         updateCurrentSessionName();
+                        updateTitle();
 
                         // a session was selected from the view sessions page
                         if(VIEW_BTN_CLICKED) {
@@ -329,9 +333,8 @@ public class ListingBOF extends AppCompatActivity {
             startStopBtn.setText("START");
             bluetoothStarted = false;
 
+            // launch StopSave activity
             nameSession();
-            updateCurrentSessionName();
-            updateTitle();
 
             // display view sessions button
             viewSessionBtn.setVisibility(View.VISIBLE);
@@ -455,8 +458,6 @@ public class ListingBOF extends AppCompatActivity {
         // launch StopSave activity
         Intent intent = new Intent(this, StopSave.class);
         activityLauncher.launch(intent);
-
-        updateTitle();
     }
 
     /**
