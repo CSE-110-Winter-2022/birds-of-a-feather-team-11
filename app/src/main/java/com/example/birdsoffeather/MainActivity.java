@@ -26,8 +26,6 @@ public class MainActivity extends AppCompatActivity {
 
         SharedPreferences preferences = getSharedPreferences("BoF", MODE_PRIVATE);
 
-        clearBOFs(preferences.getString("userID", "default"));
-
         BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 
         // If Bluetooth capable and Bluetooth off, request to turn on (let them pass even if they deny)

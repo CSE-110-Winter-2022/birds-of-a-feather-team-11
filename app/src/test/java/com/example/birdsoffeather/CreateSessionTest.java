@@ -42,208 +42,292 @@ public class CreateSessionTest {
     //Unit Tests
     @Test
     public void testSessionInsertion() {
-        backgroundThreadExecutor.submit(() -> {
-            AppDatabase db = AppDatabase.singleton(getApplicationContext());
+        ActivityScenario<ListingBOF> scenario1 = scenarioRule.getScenario();
 
-            assertEquals(0, db.sessionsDao().count());
+        scenario1.moveToState(Lifecycle.State.CREATED);
+        scenario1.onActivity(activity -> {
+            Future future = backgroundThreadExecutor.submit(() -> {
+                AppDatabase db = AppDatabase.singleton(getApplicationContext());
 
-            db.sessionsDao().insert(new Session("test_session", "test_person"));
+                int numSessions = db.sessionsDao().count();
+                activity.runOnUiThread(() -> {
+                    assertEquals(0, numSessions);
+                });
 
-            assertEquals(1, db.sessionsDao().count());
+                db.sessionsDao().insert(new Session("test_session", "test_person"));
 
-            List<String> people = db.sessionsDao().getPeopleForSession("test_session");
-            assertEquals("test_person", people.get(0));
-            assertEquals(1, people.size());
+                int numSessions2 = db.sessionsDao().count();
 
-            List<String> sessions = db.sessionsDao().getSessionNames();
-            assertEquals("test_session", sessions.get(0));
-            assertEquals(1, sessions.size());
-            return null;
+                activity.runOnUiThread(() -> {
+                    assertEquals(1, numSessions2);
+                });
+
+                List<String> people = db.sessionsDao().getPeopleForSession("test_session");
+
+                activity.runOnUiThread(() -> {
+                    assertEquals("test_person", people.get(0));
+                    assertEquals(1, people.size());
+                });
+
+                List<String> sessions = db.sessionsDao().getSessionNames();
+
+                activity.runOnUiThread(() -> {
+                    assertEquals("test_session", sessions.get(0));
+                    assertEquals(1, sessions.size());
+                });
+                return null;
+            });
+
+            Utilities.waitForThread(future);
+
         });
     }
 
     @Test
     public void testMultipleInsertion() {
-        backgroundThreadExecutor.submit(() -> {
-            AppDatabase db = AppDatabase.singleton(getApplicationContext());
+        ActivityScenario<ListingBOF> scenario1 = scenarioRule.getScenario();
 
-            assertEquals(0, db.sessionsDao().count());
+        scenario1.moveToState(Lifecycle.State.CREATED);
+        scenario1.onActivity(activity -> {
+            Future future = backgroundThreadExecutor.submit(() -> {
+                AppDatabase db = AppDatabase.singleton(getApplicationContext());
 
-            db.sessionsDao().insert(new Session("test_session1", "test_person1"));
-            db.sessionsDao().insert(new Session("test_session1", "test_person2"));
-            db.sessionsDao().insert(new Session("test_session1", "test_person3"));
-            db.sessionsDao().insert(new Session("test_session1", "test_person4"));
+                int numSessions = db.sessionsDao().count();
 
-            db.sessionsDao().insert(new Session("test_session2", "test_person1"));
-            db.sessionsDao().insert(new Session("test_session2", "test_person2"));
-            db.sessionsDao().insert(new Session("test_session2", "test_person3"));
+                activity.runOnUiThread(() -> {
+                    assertEquals(0, numSessions);
+                });
 
-            assertEquals(7, db.sessionsDao().count());
+                db.sessionsDao().insert(new Session("test_session1", "test_person1"));
+                db.sessionsDao().insert(new Session("test_session1", "test_person2"));
+                db.sessionsDao().insert(new Session("test_session1", "test_person3"));
+                db.sessionsDao().insert(new Session("test_session1", "test_person4"));
 
-            List<String> expectedPeople1 = new ArrayList<>();
-            expectedPeople1.add("test_person1");
-            expectedPeople1.add("test_person2");
-            expectedPeople1.add("test_person3");
-            expectedPeople1.add("test_person4");
+                db.sessionsDao().insert(new Session("test_session2", "test_person1"));
+                db.sessionsDao().insert(new Session("test_session2", "test_person2"));
+                db.sessionsDao().insert(new Session("test_session2", "test_person3"));
 
-            List<String> people1 = db.sessionsDao().getPeopleForSession("test_session1");
+                int numSessions2 = db.sessionsDao().count();
 
-            assertTrue(expectedPeople1.size() == people1.size()
-                    && expectedPeople1.containsAll(people1)
-                    && people1.containsAll(expectedPeople1));
+                activity.runOnUiThread(() -> {
+                    assertEquals(7, numSessions2);
+                });
 
-            List<String> expectedPeople2 = new ArrayList<>();
-            expectedPeople1.add("test_person1");
-            expectedPeople1.add("test_person2");
-            expectedPeople1.add("test_person3");
+                List<String> expectedPeople1 = new ArrayList<>();
+                expectedPeople1.add("test_person1");
+                expectedPeople1.add("test_person2");
+                expectedPeople1.add("test_person3");
+                expectedPeople1.add("test_person4");
 
-            List<String> people2 = db.sessionsDao().getPeopleForSession("test_session2");
+                List<String> people1 = db.sessionsDao().getPeopleForSession("test_session1");
 
-            assertTrue(expectedPeople2.size() == people2.size()
-                    && expectedPeople2.containsAll(people2)
-                    && people2.containsAll(expectedPeople2));
+                activity.runOnUiThread(() -> {
+                    assertTrue(expectedPeople1.size()==people1.size()
+                            && expectedPeople1.containsAll(people1)
+                            && people1.containsAll(expectedPeople1));
+                });
 
-            List<String> expectedSessions = new ArrayList<>();
-            expectedPeople1.add("test_session1");
-            expectedPeople1.add("test_session2");
+                List<String> expectedPeople2 = new ArrayList<>();
+                expectedPeople2.add("test_person1");
+                expectedPeople2.add("test_person2");
+                expectedPeople2.add("test_person3");
 
-            List<String> sessions = db.sessionsDao().getSessionNames();
+                List<String> people2 = db.sessionsDao().getPeopleForSession("test_session2");
 
-            assertTrue(expectedSessions.size() == sessions.size()
-                    && expectedSessions.containsAll(sessions)
-                    && sessions.containsAll(expectedSessions));
+                activity.runOnUiThread(() -> {
+                    assertTrue(expectedPeople2.size() == people2.size()
+                            && expectedPeople2.containsAll(people2)
+                            && people2.containsAll(expectedPeople2));
+                });
 
+                List<String> expectedSessions = new ArrayList<>();
+                expectedSessions.add("test_session1");
+                expectedSessions.add("test_session2");
 
-            return null;
+                List<String> sessions = db.sessionsDao().getSessionNames();
+
+                activity.runOnUiThread(() -> {
+                    assertTrue(expectedSessions.size() == sessions.size()
+                            && expectedSessions.containsAll(sessions)
+                            && sessions.containsAll(expectedSessions));
+                });
+
+                return null;
+            });
+
+            Utilities.waitForThread(future);
+
         });
     }
 
     @Test
     public void testRenameSession() {
-        backgroundThreadExecutor.submit(() -> {
-            AppDatabase db = AppDatabase.singleton(getApplicationContext());
+        ActivityScenario<ListingBOF> scenario1 = scenarioRule.getScenario();
 
-            db.sessionsDao().insert(new Session("test_session1", "test_person1"));
-            db.sessionsDao().insert(new Session("test_session1", "test_person2"));
-            db.sessionsDao().insert(new Session("test_session1", "test_person3"));
-            db.sessionsDao().insert(new Session("test_session1", "test_person4"));
+        scenario1.moveToState(Lifecycle.State.CREATED);
+        scenario1.onActivity(activity -> {
+            Future future = backgroundThreadExecutor.submit(() -> {
+                AppDatabase db = AppDatabase.singleton(getApplicationContext());
 
-            db.sessionsDao().renameSession("test_session1", "session");
+                db.sessionsDao().insert(new Session("test_session1", "test_person1"));
+                db.sessionsDao().insert(new Session("test_session1", "test_person2"));
+                db.sessionsDao().insert(new Session("test_session1", "test_person3"));
+                db.sessionsDao().insert(new Session("test_session1", "test_person4"));
 
-            List<String> expectedPeople = new ArrayList<>();
-            expectedPeople.add("test_person1");
-            expectedPeople.add("test_person2");
-            expectedPeople.add("test_person3");
-            expectedPeople.add("test_person4");
+                db.sessionsDao().renameSession("test_session1", "session");
 
-            List<String> people = db.sessionsDao().getPeopleForSession("session");
+                List<String> expectedPeople = new ArrayList<>();
+                expectedPeople.add("test_person1");
+                expectedPeople.add("test_person2");
+                expectedPeople.add("test_person3");
+                expectedPeople.add("test_person4");
 
-            assertTrue(expectedPeople.size() == people.size()
-                    && expectedPeople.containsAll(people)
-                    && people.containsAll(expectedPeople));
+                List<String> people = db.sessionsDao().getPeopleForSession("session");
 
-            List<String> expectedSessions = new ArrayList<>();
-            expectedPeople.add("session");
+                activity.runOnUiThread(() -> {
+                    assertTrue(expectedPeople.size() == people.size()
+                            && expectedPeople.containsAll(people)
+                            && people.containsAll(expectedPeople));
+                });
 
-            List<String> sessions = db.sessionsDao().getSessionNames();
+                List<String> expectedSessions = new ArrayList<>();
+                expectedSessions.add("session");
 
-            assertTrue(expectedSessions.size() == sessions.size()
-                    && expectedSessions.containsAll(sessions)
-                    && sessions.containsAll(expectedSessions));
+                List<String> sessions = db.sessionsDao().getSessionNames();
 
-            return null;
+                activity.runOnUiThread(() -> {
+                    assertTrue(expectedSessions.size() == sessions.size()
+                            && expectedSessions.containsAll(sessions)
+                            && sessions.containsAll(expectedSessions));
+                });
+
+                return null;
+            });
+
+            Utilities.waitForThread(future);
+
         });
     }
 
     @Test
     public void testSessionSimilarity() {
-        backgroundThreadExecutor.submit(() -> {
-            AppDatabase db = AppDatabase.singleton(getApplicationContext());
-            db.sessionsDao().insert(new Session("test_session", "test_person"));
+        ActivityScenario<ListingBOF> scenario1 = scenarioRule.getScenario();
 
-            assertEquals(1, db.sessionsDao().similarSession("test_session", "test_person"));
-            assertEquals(0, db.sessionsDao().similarSession("1test_session", "test_person"));
-            assertEquals(0, db.sessionsDao().similarSession("test_session", "1test_person"));
-            return null;
+        scenario1.moveToState(Lifecycle.State.CREATED);
+        scenario1.onActivity(activity -> {
+            Future future = backgroundThreadExecutor.submit(() -> {
+                AppDatabase db = AppDatabase.singleton(getApplicationContext());
+                db.sessionsDao().insert(new Session("test_session", "test_person"));
+
+                int test1 = db.sessionsDao().similarSession("test_session", "test_person");
+                int test2 = db.sessionsDao().similarSession("1test_session", "test_person");
+                int test3 = db.sessionsDao().similarSession("test_session", "1test_person");
+
+                activity.runOnUiThread(() -> {
+                    assertEquals(1, test1);
+                    assertEquals(0, test2);
+                    assertEquals(0, test3);
+                });
+
+                return null;
+            });
+
+            Utilities.waitForThread(future);
+
         });
     }
 
     @Test
     public void testNullInsertion() {
-        backgroundThreadExecutor.submit(() -> {
-            AppDatabase db = AppDatabase.singleton(getApplicationContext());
-            assertEquals(0, db.sessionsDao().count());
+        ActivityScenario<ListingBOF> scenario1 = scenarioRule.getScenario();
 
-            db.sessionsDao().insert(new Session(null, "test_person"));
-            assertEquals(0, db.sessionsDao().count());
+        scenario1.moveToState(Lifecycle.State.CREATED);
+        scenario1.onActivity(activity -> {
+            Future future = backgroundThreadExecutor.submit(() -> {
+                AppDatabase db = AppDatabase.singleton(getApplicationContext());
+                int initial = db.sessionsDao().count();
 
-            db.sessionsDao().insert(new Session("test_session", null));
-            assertEquals(0, db.sessionsDao().count());
+                activity.runOnUiThread(() -> {
+                    assertEquals(0, initial);
+                });
 
-            db.sessionsDao().insert(new Session("test_session", "test_person"));
-            assertEquals(1, db.sessionsDao().count());
+                db.sessionsDao().insert(new Session(null, "test_person"));
+                int nullSession = db.sessionsDao().count();
 
-            return null;
+                activity.runOnUiThread(() -> {
+                    assertEquals(0, nullSession);
+                });
+
+                db.sessionsDao().insert(new Session("test_session", null));
+                int nullPerson = db.sessionsDao().count();
+
+                activity.runOnUiThread(() -> {
+                    assertEquals(0, nullPerson);
+                });
+
+                db.sessionsDao().insert(new Session("test_session", "test_person"));
+                int valid = db.sessionsDao().count();
+
+                activity.runOnUiThread(() -> {
+                    assertEquals(1, valid);
+                });
+
+                return null;
+            });
+
+            Utilities.waitForThread(future);
+
         });
     }
 
     @Test
     public void testAddToSession() {
-        backgroundThreadExecutor.submit(() -> {
-            AppDatabase db = AppDatabase.singleton(getApplicationContext());
-            assertEquals(0, db.sessionsDao().count());
+        ActivityScenario<ListingBOF> scenario1 = scenarioRule.getScenario();
 
-            Utilities.addToSession(db, "session", "person");
-            assertEquals(1, db.sessionsDao().count());
+        scenario1.moveToState(Lifecycle.State.CREATED);
+        scenario1.onActivity(activity -> {
+            Future future = backgroundThreadExecutor.submit(() -> {
+                AppDatabase db = AppDatabase.singleton(getApplicationContext());
+                int initial = db.sessionsDao().count();
 
-            Utilities.addToSession(db, "session", "person");
-            assertEquals(1, db.sessionsDao().count());
+                activity.runOnUiThread(() -> {
+                    assertEquals(0, initial);
+                });
 
-            Utilities.addToSession(db, "session2", "person");
-            assertEquals(2, db.sessionsDao().count());
+                Utilities.addToSession(db, "session", "person");
+                int first = db.sessionsDao().count();
 
-            Utilities.addToSession(db, null, "person");
-            assertEquals(2, db.sessionsDao().count());
+                activity.runOnUiThread(() -> {
+                    assertEquals(1, first);
+                });
 
-            return null;
+                Utilities.addToSession(db, "session", "person");
+                int repeat = db.sessionsDao().count();
+
+                activity.runOnUiThread(() -> {
+                    assertEquals(1, repeat);
+                });
+
+                Utilities.addToSession(db, "session2", "person");
+                int second = db.sessionsDao().count();
+
+                activity.runOnUiThread(() -> {
+                    assertEquals(2, second);
+                });
+
+                Utilities.addToSession(db, null, "person");
+                int repeat2 = db.sessionsDao().count();
+
+                activity.runOnUiThread(() -> {
+                    assertEquals(2, repeat2);
+                });
+
+                return null;
+            });
+
+            Utilities.waitForThread(future);
+
         });
     }
 
-    //Test BDD scenarios
-    @Test
-    public void testNewSessionCreation() {
-        ActivityScenario<ListingBOF> scenario = scenarioRule.getScenario();
-
-        scenario.moveToState(Lifecycle.State.CREATED);
-        scenario.moveToState(Lifecycle.State.STARTED);
-
-        scenario.onActivity(activity -> {
-            backgroundThreadExecutor.submit(() -> {
-                AppDatabase db = AppDatabase.singleton(getApplicationContext());
-                assertEquals(0, db.sessionsDao().count());
-
-                return null;
-            });
-
-            SharedPreferences preferences = activity.getSharedPreferences("BoF", Context.MODE_PRIVATE);
-            assertEquals(null, preferences.getString("currentSession", null));
-
-            TextView title = activity.findViewById(R.id.bof_title);
-
-            assertEquals("BOF", title.getText());
-
-            Button startButton = activity.findViewById(R.id.start_stop_btn);
-
-            startButton.performClick();
-
-            backgroundThreadExecutor.submit(() -> {
-                AppDatabase db = AppDatabase.singleton(getApplicationContext());
-                assertEquals(1, db.sessionsDao().count());
-
-                return null;
-            });
-         });
-
-
-    }
 }

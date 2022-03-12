@@ -7,7 +7,8 @@
 
     <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" >
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
@@ -17,6 +18,8 @@
                 android:id="@+id/profile_pic"
                 android:layout_width="93dp"
                 android:layout_height="94dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
                 tools:srcCompat="@tools:sample/avatars" />
 
             <TextView
@@ -41,6 +44,16 @@
                 android:textSize="15dp"
                 app:layout_constraintStart_toEndOf="@+id/profile_pic"
                 app:layout_constraintTop_toBottomOf="@+id/person_row_name" />
+
+            <ImageView
+                android:id="@+id/wavingHand"
+                android:layout_width="46dp"
+                android:layout_height="51dp"
+                android:layout_marginStart="60dp"
+                android:layout_marginTop="4dp"
+                app:layout_constraintStart_toEndOf="@+id/person_row_name"
+                app:layout_constraintTop_toTopOf="parent"
+                android:src="@drawable/waving_hand_icon" />
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.cardview.widget.CardView>
 </androidx.constraintlayout.widget.ConstraintLayout>

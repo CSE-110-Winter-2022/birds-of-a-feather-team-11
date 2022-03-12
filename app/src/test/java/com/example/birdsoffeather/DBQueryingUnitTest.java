@@ -21,6 +21,7 @@ import org.junit.runner.RunWith;
 import org.robolectric.util.Util;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
@@ -250,67 +251,6 @@ public class DBQueryingUnitTest {
     }
 
     @Test
-    public void getSimilarityOrderingTest(){
-        ActivityScenario<ListingBOF> scenario = scenarioRule.getScenario();
-
-        scenario.moveToState(Lifecycle.State.CREATED);
-
-        scenario.onActivity(activity -> {
-            db = AppDatabase.singleton(getApplicationContext());
-
-            Future future = backgroundThreadExecutor.submit(() -> {
-                addUser();
-                for (int i = 0; i < testPersons.size(); i++) {
-                    Utilities.inputBOF(testPersons.get(i), db, userID, "test");
-                }
-                List<String> orderingByID = db.coursesDao().getSimilarityOrdering(userID);
-
-                activity.runOnUiThread(() -> {
-                    assertEquals(testIds.get(0), orderingByID.get(0));
-                    assertEquals(testIds.get(2), orderingByID.get(1));
-                    assertEquals(testIds.get(1), orderingByID.get(2));
-                });
-            });
-            Utilities.waitForThread(future);
-        });
-    }
-
-    @Test
-    public void similarityOrderTest() {
-
-        ActivityScenario<ListingBOF> scenario = scenarioRule.getScenario();
-
-        scenario.moveToState(Lifecycle.State.CREATED);
-
-        scenario.onActivity(activity -> {
-            db = AppDatabase.singleton(getApplicationContext());
-
-            Future future = backgroundThreadExecutor.submit(() -> {
-                addUser();
-                for(int i = 0; i<testPersons.size(); i++) {
-                    Utilities.inputBOF(testPersons.get(i), db, userID, "test");
-                }
-
-                List<PersonWithCourses> ordering = Utilities.generateClassScoreOrder(db);
-
-                activity.runOnUiThread(() -> {
-                    assertEquals(testIds.get(0), ordering.get(0).person.personId);
-                    assertEquals(testIds.get(2), ordering.get(1).person.personId);
-                    assertEquals(testIds.get(1), ordering.get(2).person.personId);
-
-                    assertEquals(3, ordering.size()); //check that only 3 people had classes in course table
-                });
-
-                db.clearAllTables();
-                db.close();
-
-                return null;
-            });
-            Utilities.waitForThread(future);
-        });
-    }
-
-    @Test
     public void similarityOrderNoInputTest() {
 
         ActivityScenario<ListingBOF> scenario = scenarioRule.getScenario();
@@ -426,10 +366,44 @@ public class DBQueryingUnitTest {
         });
     }
 
+    @Test
+    public void sendWavesTest() {
+        ActivityScenario<ListingBOF> scenario = scenarioRule.getScenario();
+
+        scenario.moveToState(Lifecycle.State.CREATED);
+
+        scenario.onActivity(activity -> {
+            db = AppDatabase.singleton(getApplicationContext());
+
+            Future future = backgroundThreadExecutor.submit(() -> {
+                addUser();
+
+                for (PersonWithCourses person : testPersons) {
+                    Utilities.inputBOF(person, db, userID, "test");
+                }
+
+                db.personsWithCoursesDao().updateSentWaveTo(testPersons.get(0).getId());
+                db.personsWithCoursesDao().updateSentWaveTo(testPersons.get(2).getId());
+
+                List<String> wavesSent = db.personsWithCoursesDao().getSentWaveTo();
+
+                activity.runOnUiThread(() -> {
+                    assertEquals(Arrays.asList(testPersons.get(0).getId(), testPersons.get(2).getId()), wavesSent);
+                });
+
+                db.clearAllTables();
+                db.close();
+
+                return null;
+            });
+            Utilities.waitForThread(future);
+        });
+    }
+
 
 
     @Test
-    public void test_size_score() {
+    public void testSizeScore() {
         assertEquals(.1, Utilities.sizeScore(testPersons.get(0).courses.get(0)), 0.01);
         assertEquals(1, Utilities.sizeScore(testPersons.get(0).courses.get(1)), 0.01);
         assertEquals(.18, Utilities.sizeScore(testPersons.get(0).courses.get(2)), 0.01);
@@ -439,7 +413,7 @@ public class DBQueryingUnitTest {
     }
 
     @Test
-    public void test_quarter_to_int_conversion() {
+    public void testQuarterToIntConversion() {
         assertEquals(0, Utilities.quarterToInt("Winter"));
         assertEquals(1, Utilities.quarterToInt("Spring"));
         assertEquals(2, Utilities.quarterToInt("Summer Session I"));
@@ -451,7 +425,7 @@ public class DBQueryingUnitTest {
 
 
     @Test
-    public void calculate_course_age_test() {
+    public void calculateCourseAgeTest() {
         int[] currentQuarterAndYear = {3, 2022};
         assertEquals(3, testPersons.get(0).courses.get(0).getAge(currentQuarterAndYear));
         assertEquals(5, testPersons.get(1).courses.get(1).getAge(currentQuarterAndYear));
@@ -468,7 +442,7 @@ public class DBQueryingUnitTest {
     }
 
     @Test
-    public void calculate_age_score_test() {
+    public void calculateAgeScoreTest() {
 
         ActivityScenario<ListingBOF> scenario = scenarioRule.getScenario();
 
@@ -501,7 +475,7 @@ public class DBQueryingUnitTest {
     }
 
     @Test
-    public void calculate_size_score_test() {
+    public void calculateSizeScoreTest() {
         ActivityScenario<ListingBOF> scenario = scenarioRule.getScenario();
 
         scenario.moveToState(Lifecycle.State.CREATED);
@@ -527,4 +501,143 @@ public class DBQueryingUnitTest {
             Utilities.waitForThread(future);
         });
     }
+
+    @Test
+    public void classSizeOrderTest() {
+
+        ActivityScenario<ListingBOF> scenario = scenarioRule.getScenario();
+
+        scenario.moveToState(Lifecycle.State.CREATED);
+
+        scenario.onActivity(activity -> {
+            db = AppDatabase.singleton(getApplicationContext());
+
+            Future future = backgroundThreadExecutor.submit(() -> {
+                addUser();
+                for(int i = 0; i<testPersons.size(); i++) {
+                    Utilities.inputBOF(testPersons.get(i), db, userID, "test");
+                }
+
+                List<PersonWithCourses> ordering = Utilities.generateSizeScoreOrder(db);
+
+                activity.runOnUiThread(() -> {
+                    assertEquals(testIds.get(0), ordering.get(0).person.personId);
+                    assertEquals(testIds.get(2), ordering.get(1).person.personId);
+                    assertEquals(testIds.get(1), ordering.get(2).person.personId);
+
+                    assertEquals(3, ordering.size()); //check that only 3 people had classes in course table
+                });
+
+                db.personsWithCoursesDao().updateWaveFrom(testIds.get(1));
+
+                List<PersonWithCourses> newOrdering = Utilities.generateSizeScoreOrder(db);
+
+                activity.runOnUiThread(() -> {
+                    assertEquals(testIds.get(1), newOrdering.get(0).person.personId);
+                    assertEquals(testIds.get(0), newOrdering.get(1).person.personId);
+                    assertEquals(testIds.get(2), newOrdering.get(2).person.personId);
+
+                });
+
+                db.clearAllTables();
+                db.close();
+
+                return null;
+            });
+            Utilities.waitForThread(future);
+        });
+    }
+
+    @Test
+    public void classAgeOrderTest() {
+
+        ActivityScenario<ListingBOF> scenario = scenarioRule.getScenario();
+
+        scenario.moveToState(Lifecycle.State.CREATED);
+
+        scenario.onActivity(activity -> {
+            db = AppDatabase.singleton(getApplicationContext());
+
+            Future future = backgroundThreadExecutor.submit(() -> {
+                addUser();
+                for(int i = 0; i<testPersons.size(); i++) {
+                    Utilities.inputBOF(testPersons.get(i), db, userID, "test");
+                }
+
+                List<PersonWithCourses> ordering = Utilities.generateAgeScoreOrder(db);
+
+                activity.runOnUiThread(() -> {
+                    assertEquals(testIds.get(0), ordering.get(0).person.personId);
+                    assertEquals(testIds.get(2), ordering.get(1).person.personId);
+                    assertEquals(testIds.get(1), ordering.get(2).person.personId);
+
+                    assertEquals(3, ordering.size()); //check that only 3 people had classes in course table
+                });
+
+                db.personsWithCoursesDao().updateWaveFrom(testIds.get(2));
+
+                List<PersonWithCourses> newOrdering = Utilities.generateAgeScoreOrder(db);
+
+                activity.runOnUiThread(() -> {
+                    assertEquals(testIds.get(2), newOrdering.get(0).person.personId);
+                    assertEquals(testIds.get(0), newOrdering.get(1).person.personId);
+                    assertEquals(testIds.get(1), newOrdering.get(2).person.personId);
+
+                });
+
+                db.clearAllTables();
+                db.close();
+
+                return null;
+            });
+            Utilities.waitForThread(future);
+        });
+    }
+
+    @Test
+    public void similarityOrderTest() {
+
+        ActivityScenario<ListingBOF> scenario = scenarioRule.getScenario();
+
+        scenario.moveToState(Lifecycle.State.CREATED);
+
+        scenario.onActivity(activity -> {
+            db = AppDatabase.singleton(getApplicationContext());
+
+            Future future = backgroundThreadExecutor.submit(() -> {
+                addUser();
+                for(int i = 0; i<testPersons.size(); i++) {
+                    Utilities.inputBOF(testPersons.get(i), db, userID, "test");
+                }
+
+                List<PersonWithCourses> ordering = Utilities.generateClassScoreOrder(db);
+
+                activity.runOnUiThread(() -> {
+                    assertEquals(testIds.get(0), ordering.get(0).person.personId);
+                    assertEquals(testIds.get(2), ordering.get(1).person.personId);
+                    assertEquals(testIds.get(1), ordering.get(2).person.personId);
+
+                    assertEquals(3, ordering.size()); //check that only 3 people had classes in course table
+                });
+
+                db.personsWithCoursesDao().updateWaveFrom(testIds.get(2));
+
+                List<PersonWithCourses> newOrdering = Utilities.generateClassScoreOrder(db);
+
+                activity.runOnUiThread(() -> {
+                    assertEquals(testIds.get(2), newOrdering.get(0).person.personId);
+                    assertEquals(testIds.get(0), newOrdering.get(1).person.personId);
+                    assertEquals(testIds.get(1), newOrdering.get(2).person.personId);
+
+                });
+
+                db.clearAllTables();
+                db.close();
+
+                return null;
+            });
+            Utilities.waitForThread(future);
+        });
+    }
+
 }

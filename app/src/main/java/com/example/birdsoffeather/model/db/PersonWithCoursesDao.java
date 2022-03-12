@@ -29,8 +29,8 @@ public interface PersonWithCoursesDao {
     @Query("DELETE FROM persons WHERE id!=:userID")
     void deleteBOFs(String userID);
 
-    @Query("UPDATE persons SET waved_to=1 WHERE id=:userID")
-    void updateSentWaveTo(String userID);
+    @Query("UPDATE persons SET waved_to=1 WHERE id=:bofID")
+    void updateSentWaveTo(String bofID);
 
     @Query("SELECT id FROM persons WHERE waved_to!=0")
     List<String> getSentWaveTo();

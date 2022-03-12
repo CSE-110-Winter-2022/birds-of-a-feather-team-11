@@ -225,26 +225,13 @@ public class Utilities {
      * @param personId ID of the BoF being inputted
      */
     public static void addToSession(AppDatabase db, String sessionName, String personId){
+        if(sessionName == null || personId == null) {
+            return;
+        }
         if(db.sessionsDao().similarSession(sessionName, personId) == 0){
             db.sessionsDao().insert(new Session(sessionName, personId));
         }
     }
-
-
-    /**
-     * Generates an ordering of the BOFs based on how many courses they have in common with the user
-     * TODO: Delete this function
-     *
-     * @param db Singleton instance to access the Room database
-     * @return list of BOFs in order of how many courses they have in common with the user.
-     */
-
-    /*
-    public static List<PersonWithCourses> generateSimilarityOrder(AppDatabase db, String userID) {
-        List<String> orderedIds = db.coursesDao().getSimilarityOrdering(userID);
-        List<PersonWithCourses> orderedBOFs = orderedIds.stream().map((id) -> db.personsWithCoursesDao().get(id)).collect(Collectors.toList());
-        return orderedBOFs;
-    }*/
 
     public static List<PersonWithCourses> generateSizeScoreOrder(AppDatabase db) {
         return db.personsWithCoursesDao().getSizeScoreOrdering();
@@ -277,6 +264,11 @@ public class Utilities {
         return false;
     }
 
+    /**
+     * Helper function that will wait for a thread to finish before returning
+     *
+     * @param future a future associated with a thread that indicates the threads status
+     */
     public static void waitForThread(Future future) {
         while(!future.isDone())
             continue;
