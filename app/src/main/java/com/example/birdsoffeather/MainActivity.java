@@ -26,7 +26,7 @@ public class MainActivity extends AppCompatActivity {
 
         SharedPreferences preferences = getSharedPreferences("BoF", MODE_PRIVATE);
 
-        clearBOFs(preferences.getString("userID", "default"));
+        //clearBOFs(preferences.getString("userID", "default"));
 
         BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
 

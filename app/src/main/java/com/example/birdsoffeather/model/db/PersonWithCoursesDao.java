@@ -55,4 +55,8 @@ public interface PersonWithCoursesDao {
     @Transaction
     @Query("SELECT * FROM persons WHERE class_score!=0 ORDER BY wave_from DESC, class_score DESC")
     List<PersonWithCourses> getClassScoreOrdering();
+
+    @Transaction
+    @Query("SELECT * FROM persons WHERE favorite != 0")
+    List<PersonWithCourses> getFavorites();
 }

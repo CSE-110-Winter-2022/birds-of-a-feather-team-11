@@ -147,7 +147,7 @@ public class StopSave extends AppCompatActivity {
             //remove the session name from shared preferences
             SharedPreferences preferences = getSharedPreferences("BoF", MODE_PRIVATE);
             SharedPreferences.Editor editor = preferences.edit();
-            editor.putString("currentSession", null);
+            editor.putString("currentSession", newName);
             editor.apply();
 
             finish();

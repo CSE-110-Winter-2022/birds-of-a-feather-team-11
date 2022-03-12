@@ -31,7 +31,7 @@
         android:layout_height="39dp"
         android:layout_marginTop="272dp"
         android:ems="10"
-        android:hint="CSE"
+        android:hint="@string/cse"
         android:inputType="textPersonName"
         app:layout_constraintStart_toStartOf="@+id/quarter_input"
         app:layout_constraintTop_toTopOf="parent" />
@@ -42,7 +42,7 @@
         android:layout_height="40dp"
         android:layout_marginTop="324dp"
         android:ems="10"
-        android:hint="110"
+        android:hint="@string/_110"
         android:inputType="textPersonName"
         app:layout_constraintStart_toStartOf="@+id/subject_input"
         app:layout_constraintTop_toTopOf="parent" />
@@ -142,7 +142,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="400dp"
-        android:text="Class Size:"
+        android:text="@string/class_size"
         app:layout_constraintStart_toStartOf="@+id/description"
         app:layout_constraintTop_toTopOf="parent" />
 

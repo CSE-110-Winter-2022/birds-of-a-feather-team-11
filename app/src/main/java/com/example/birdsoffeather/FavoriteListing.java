@@ -28,21 +28,24 @@ public class FavoriteListing extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_favorite_listing);
-
         personsRecyclerView = findViewById(R.id.favorites_view);
 
-        personsLayoutManager = new LinearLayoutManager(this);
+
+        RecyclerView.LayoutManager personsLayoutManager = new LinearLayoutManager(this);
         personsRecyclerView.setLayoutManager(personsLayoutManager);
-        personsViewAdapter = new PersonsViewAdapter(new ArrayList<>());
+
+        personsViewAdapter = new PersonsViewAdapter(new ArrayList<>(), db);
+        personsRecyclerView.setAdapter(personsViewAdapter);
 
         backgroundThreadExecutor.submit(() -> {
             db = AppDatabase.singleton(getApplicationContext());
-            List<PersonWithCourses> persons = db.personsWithCoursesDao().getAll();//TODO replace getALl with getFavorites
+            List<PersonWithCourses> persons = db.personsWithCoursesDao().getFavorites();
             runOnUiThread(()-> {
                 personsViewAdapter.updateList(persons);
             });
         });
     }
+
 
     public void onGoBackToHomeClicked(View view) {
         finish();
