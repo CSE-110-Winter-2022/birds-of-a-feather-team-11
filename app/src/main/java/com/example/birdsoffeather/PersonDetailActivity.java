@@ -15,6 +15,8 @@ import android.widget.Toast;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import com.example.birdsoffeather.model.db.BluetoothMessageComposite;
 import com.example.birdsoffeather.model.db.IPerson;
@@ -24,6 +26,7 @@ import com.example.birdsoffeather.model.db.PersonWithCourses;
 import com.google.android.gms.nearby.messages.Message;
 
 public class PersonDetailActivity extends AppCompatActivity {
+    private ExecutorService backgroundThreadExecutor = Executors.newSingleThreadExecutor();
 
     private AppDatabase db;
     private IPerson person;
@@ -41,9 +44,6 @@ public class PersonDetailActivity extends AppCompatActivity {
 
         String personId = intent.getStringExtra("person_id");
 
-        db = AppDatabase.singleton(this);
-        person = db.personsWithCoursesDao().get(personId);
-        List<Course> courses = person.getCourses();
 
         // set name
         TextView nameView = findViewById(R.id.personName);
@@ -59,12 +59,20 @@ public class PersonDetailActivity extends AppCompatActivity {
         coursesLayoutManager = new LinearLayoutManager(this);
         coursesRecyclerView.setLayoutManager(coursesLayoutManager);
 
-        coursesViewAdapter = new CourseViewAdapter(courses);
-        coursesRecyclerView.setAdapter(coursesViewAdapter);
+        backgroundThreadExecutor.submit(() -> {
+            db = AppDatabase.singleton(this);
+            person = db.personsWithCoursesDao().get(personId);
+            List<Course> courses = person.getCourses();
 
-        if (person.sentWaveTo()) {
-            updateWaveButton();
-        }
+            runOnUiThread(() -> {
+                coursesViewAdapter = new CourseViewAdapter(courses);
+                coursesRecyclerView.setAdapter(coursesViewAdapter);
+                if (person.sentWaveTo()) {
+                    updateWaveButton();
+                }
+            });
+        });
+
 
     }
 
@@ -76,16 +84,18 @@ public class PersonDetailActivity extends AppCompatActivity {
 
         // Update Database
         String personID = person.getId();
-        db.personsWithCoursesDao().updateSentWaveTo(personID);
-
-        // Update Bluetooth Message
         SharedPreferences preferences = getSharedPreferences("BoF", MODE_PRIVATE);
         String selfID = preferences.getString("userID", null);
 
-        PersonWithCourses selfPerson = db.personsWithCoursesDao().get(selfID);
-        List<String> sentWaveTo = db.personsWithCoursesDao().getSentWaveTo();
+        backgroundThreadExecutor.submit(() -> {
+            db.personsWithCoursesDao().updateSentWaveTo(personID);
 
-        updateBluetoothMessage(selfPerson, sentWaveTo);
+            PersonWithCourses selfPerson = db.personsWithCoursesDao().get(selfID);
+            List<String> sentWaveTo = db.personsWithCoursesDao().getSentWaveTo();
+
+            // Update Bluetooth Message
+            updateBluetoothMessage(selfPerson, sentWaveTo);
+        });
 
         // Update UI
         updateWaveButton();

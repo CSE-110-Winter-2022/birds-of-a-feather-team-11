@@ -1,5 +1,8 @@
 package com.example.birdsoffeather;
 
+import static android.view.View.INVISIBLE;
+import static android.view.View.VISIBLE;
+
 import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
@@ -106,6 +109,13 @@ public class PersonsViewAdapter extends RecyclerView.Adapter<PersonsViewAdapter.
                 this.favoriteView.setImageResource(R.drawable.full_star);
             }else {
                 this.favoriteView.setImageResource(R.drawable.empty_star);
+            }
+
+            ImageView wavingHand = itemView.findViewById(R.id.wavingHand);
+            if(person.getWaveFrom() > 0) {
+                wavingHand.setVisibility(VISIBLE);
+            } else {
+                wavingHand.setVisibility(INVISIBLE);
             }
         }
 

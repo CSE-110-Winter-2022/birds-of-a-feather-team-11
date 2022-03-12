@@ -1,5 +1,7 @@
 package com.example.birdsoffeather.model.db;
 
+import android.util.Log;
+
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.Ignore;
@@ -12,6 +14,11 @@ import java.util.Objects;
 
 @Entity(tableName = "courses")
 public class Course implements Serializable {
+
+    public static final String tinyClass = "Tiny (<40)", smallClass = "Small (40–75)", mediumClass = "Medium (75–150)",
+                         largeClass = "Large (150–250)", hugeClass = "Huge (250–400)", giganticClass = "Gigantic (400+)";
+
+
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "id")
     public int courseId;
@@ -40,7 +47,7 @@ public class Course implements Serializable {
         this.quarter = getFormattedQuarter(quarter);
         this.subject = subject.trim().toUpperCase();
         this.number = number.trim().toUpperCase();
-        this.classSize = classSize;
+        this.classSize = getFormattedClassSize(classSize);
     }
 
     public int getAge(int[] currentQuarterAndYear) {
@@ -79,6 +86,26 @@ public class Course implements Serializable {
         } else if(input.equals("SSS") || input.equals("SPECIAL SUMMER SESSION")){
             return "Special Summer Session";
         } else {
+            Log.w("Create Course", "invalid class quarter input");
+            return "";
+        }
+    }
+
+    private String getFormattedClassSize(String input) {
+        if(input.equals("Tiny") || input.equals(tinyClass)){
+            return tinyClass;
+        } else if(input.equals("Small") || input.equals(smallClass)){
+            return smallClass;
+        } else if(input.equals("Medium") || input.equals(mediumClass)){
+            return mediumClass;
+        } else if(input.equals("Large") || input.equals(largeClass)){
+            return largeClass;
+        } else if(input.equals("Huge") || input.equals(hugeClass)){
+            return hugeClass;
+        } else if(input.equals("Gigantic") || input.equals(giganticClass)){
+            return giganticClass;
+        } else {
+            Log.w("Create Course", "invalid class size input");
             return "";
         }
     }

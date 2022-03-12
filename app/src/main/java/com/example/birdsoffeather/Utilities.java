@@ -140,17 +140,17 @@ public class Utilities {
 
     public static double sizeScore(Course course) {
         switch (course.classSize) {
-            case "Tiny (<40)":
+            case Course.tinyClass:
                 return 1;
-            case "Small (40-75)":
+            case Course.smallClass:
                 return .33;
-            case "Medium (75-150)":
+            case Course.mediumClass:
                 return .18;
-            case "Large (150-250)":
+            case Course.largeClass:
                 return .1;
-            case "Huge (250-400)":
+            case Course.hugeClass:
                 return .06;
-            case "Gigantic (400+)":
+            case Course.giganticClass:
                 return .03;
         }
         return .03;

@@ -7,6 +7,7 @@ public interface IPerson {
     public String getName();
     public String getUrl();
     public List<Course> getCourses();
+    public int getWaveFrom();
     boolean sentWaveTo();
     public boolean getFavorite();
 }

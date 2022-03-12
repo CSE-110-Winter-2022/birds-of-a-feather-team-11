@@ -43,6 +43,7 @@
     <string name="session_name">session name</string>
     <string name="favorite_person">favorite person</string>
     <string name="profile_pic">profile_pic</string>
+    <string name="user_id">User ID</string>
 
     <string-array name="years_array">
         <item>2022</item>
