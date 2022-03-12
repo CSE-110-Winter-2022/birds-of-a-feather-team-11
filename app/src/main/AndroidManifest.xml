@@ -20,6 +20,9 @@
             android:name=".ViewSessions"
             android:exported="false" />
         <activity
+            android:name=".FavoriteListing"
+            android:exported="false" />
+        <activity
             android:name=".StopSave"
             android:exported="false" />
         <activity

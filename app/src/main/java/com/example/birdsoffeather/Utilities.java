@@ -5,6 +5,7 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 
 import com.example.birdsoffeather.model.db.AppDatabase;
+import com.example.birdsoffeather.model.db.BluetoothMessageComposite;
 import com.example.birdsoffeather.model.db.Course;
 import com.example.birdsoffeather.model.db.Person;
 import com.example.birdsoffeather.model.db.PersonWithCourses;
@@ -18,6 +19,7 @@ import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 
 public class Utilities {
@@ -47,15 +49,15 @@ public class Utilities {
     /**
      * Serializes the user's information to send over bluetooth
      *
-     * @param person user's information to be serialized to stream over bluetooth
+     * @param messageInfo user's information to be serialized to stream over bluetooth
      * @return serialized representation of the user's information
      * @throws IOException
      */
-    public static byte[] serializePerson(PersonWithCourses person) throws IOException {
+    public static byte[] serializeMessage(BluetoothMessageComposite messageInfo) throws IOException {
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         ObjectOutputStream out = new ObjectOutputStream(bos);
 
-        out.writeObject(person);
+        out.writeObject(messageInfo);
         out.flush();
 
         byte [] message = bos.toByteArray();
@@ -66,6 +68,10 @@ public class Utilities {
         return message;
     }
 
+    public static byte[] serializeMessage(PersonWithCourses person, List<String> wavedToUUID) throws IOException {
+        return serializeMessage(new BluetoothMessageComposite(person, wavedToUUID));
+    }
+
     /**
      * Deserializes a byte array into an object that represents a user's information
      *
@@ -74,16 +80,16 @@ public class Utilities {
      * @throws IOException
      * @throws ClassNotFoundException
      */
-    public static PersonWithCourses deserializePerson(byte [] message) throws IOException, ClassNotFoundException {
+    public static BluetoothMessageComposite deserializeMessage(byte [] message) throws IOException, ClassNotFoundException {
         ByteArrayInputStream bis = new ByteArrayInputStream(message);
         ObjectInputStream in = new ObjectInputStream(bis);
 
-        PersonWithCourses person = (PersonWithCourses) in.readObject();
+        BluetoothMessageComposite messageInfo = (BluetoothMessageComposite) in.readObject();
 
         in.close();
         bis.close();
 
-        return person;
+        return messageInfo;
     }
 
     /**
@@ -100,7 +106,8 @@ public class Utilities {
         List<Course> similarCourses = generateSimilarCourses(potentialBOF, db, userID);
         double sizeScore = calculateSizeScore(similarCourses);
         int ageScore = calculateAgeScore(similarCourses);
-        Person user = new Person(userInfo.personId, userInfo.name, userInfo.profile_url, sizeScore, ageScore);
+        int classScore = similarCourses.size();
+        Person user = new Person(userInfo.personId, userInfo.name, userInfo.profile_url, sizeScore, ageScore, classScore);
         db.personsWithCoursesDao().insertPerson(user);
         for (Course course : similarCourses)
             db.coursesDao().insert(course);
@@ -133,17 +140,17 @@ public class Utilities {
 
     public static double sizeScore(Course course) {
         switch (course.classSize) {
-            case "Tiny (<40)":
+            case Course.tinyClass:
                 return 1;
-            case "Small (40-75)":
+            case Course.smallClass:
                 return .33;
-            case "Medium (75-150)":
+            case Course.mediumClass:
                 return .18;
-            case "Large (150-250)":
+            case Course.largeClass:
                 return .1;
-            case "Huge (250-400)":
+            case Course.hugeClass:
                 return .06;
-            case "Gigantic (400+)":
+            case Course.giganticClass:
                 return .03;
         }
         return .03;
@@ -218,22 +225,12 @@ public class Utilities {
      * @param personId ID of the BoF being inputted
      */
     public static void addToSession(AppDatabase db, String sessionName, String personId){
+        if(sessionName == null || personId == null) {
+            return;
+        }
         if(db.sessionsDao().similarSession(sessionName, personId) == 0){
             db.sessionsDao().insert(new Session(sessionName, personId));
         }
-    }
-
-
-    /**
-     * Generates an ordering of the BOFs based on how many courses they have in common with the user
-     *
-     * @param db Singleton instance to access the Room database
-     * @return list of BOFs in order of how many courses they have in common with the user.
-     */
-    public static List<PersonWithCourses> generateSimilarityOrder(AppDatabase db, String userID) {
-        List<String> orderedIds = db.coursesDao().getSimilarityOrdering(userID);
-        List<PersonWithCourses> orderedBOFs = orderedIds.stream().map((id) -> db.personsWithCoursesDao().get(id)).collect(Collectors.toList());
-        return orderedBOFs;
     }
 
     public static List<PersonWithCourses> generateSizeScoreOrder(AppDatabase db) {
@@ -242,6 +239,15 @@ public class Utilities {
 
     public static List<PersonWithCourses> generateAgeScoreOrder(AppDatabase db) {
         return db.personsWithCoursesDao().getAgeScoreOrdering();
+    }
+
+    public static List<PersonWithCourses> generateClassScoreOrder(AppDatabase db) {
+        return db.personsWithCoursesDao().getClassScoreOrdering();
+    }
+
+    public static void updateWaves(AppDatabase db, String userID, String bofID, List<String> wavers) {
+        if (wavers.contains(userID))
+            db.personsWithCoursesDao().updateWaveFrom(bofID);
     }
 
     /**
@@ -256,5 +262,15 @@ public class Utilities {
             if (c.year.equals(newCourse.year) && c.quarter.equals(newCourse.quarter) && c.subject.equals(newCourse.subject) && c.number.equals(newCourse.number))
                 return true;
         return false;
+    }
+
+    /**
+     * Helper function that will wait for a thread to finish before returning
+     *
+     * @param future a future associated with a thread that indicates the threads status
+     */
+    public static void waitForThread(Future future) {
+        while(!future.isDone())
+            continue;
     }
 }

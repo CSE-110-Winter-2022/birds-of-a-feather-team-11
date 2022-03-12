@@ -27,17 +27,19 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.birdsoffeather.model.db.AppDatabase;
+import com.example.birdsoffeather.model.db.BluetoothMessageComposite;
+import com.example.birdsoffeather.model.db.Course;
 import com.example.birdsoffeather.model.db.IPerson;
+import com.example.birdsoffeather.model.db.Person;
 import com.example.birdsoffeather.model.db.PersonWithCourses;
-import com.example.birdsoffeather.model.db.Session;
 import com.google.android.gms.nearby.messages.Message;
 import com.google.android.gms.nearby.messages.MessageListener;
 
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -140,7 +142,7 @@ public class ListingBOF extends AppCompatActivity {
         personsRecyclerView.setLayoutManager(personsLayoutManager);
 
         // set adapter
-        personsViewAdapter = new PersonsViewAdapter(new ArrayList<>());
+        personsViewAdapter = new PersonsViewAdapter(new ArrayList<>(), db);
         personsRecyclerView.setAdapter(personsViewAdapter);
 
         //set filter spinner
@@ -182,6 +184,8 @@ public class ListingBOF extends AppCompatActivity {
         userID = preferences.getString("userID", null);
         sessionName = preferences.getString("currentSession", null);
 
+        updateTitle();
+
         // Get updated list of similar classes in background thread and then use ui thread to update UI
         this.future = backgroundThreadExecutor.submit(() -> {
             List<PersonWithCourses> persons = generateSortedList(Utilities.DEFAULT);
@@ -214,7 +218,7 @@ public class ListingBOF extends AppCompatActivity {
         else if (sortType.equals(Utilities.CLASS_AGE))
             orderedList = Utilities.generateAgeScoreOrder(db);
         else
-            orderedList = Utilities.generateSimilarityOrder(db, userID);
+            orderedList = Utilities.generateClassScoreOrder(db);
 
         //Get the list of people in that session
         List<String> sessionUUIDs = db.sessionsDao().getPeopleForSession(sessionName);
@@ -257,32 +261,46 @@ public class ListingBOF extends AppCompatActivity {
         }
 
         // Set up bluetooth Module
-        try {
-            Message selfMessage = new Message(Utilities.serializePerson(selfPerson));
-            bluetooth = new BluetoothModule(this, new MessageListener() {
-                @Override
-                public void onFound(@NonNull Message message) {
-                    try {
-                        PersonWithCourses person = Utilities.deserializePerson(message.getContent());
-                        future = backgroundThreadExecutor.submit(() -> {
-                            Utilities.inputBOF(person, db, userID, sessionName);
-                            updateUI(generateSortedList(Utilities.DEFAULT));
-                            Log.i("Bluetooth",person.toString() + " found");
-                            return null;
+        bluetooth = new BluetoothModule(this, new MessageListener() {
+            @Override
+            public void onFound(@NonNull Message message) {
+                try {
+                    BluetoothMessageComposite bluetoothMessage = Utilities.deserializeMessage(message.getContent());
+                    future = backgroundThreadExecutor.submit(() -> {
+                        PersonWithCourses potentialBOF = bluetoothMessage.person;
+                        Utilities.inputBOF(potentialBOF, db, userID, sessionName);
+                        Utilities.updateWaves(db, userID, potentialBOF.getId(), bluetoothMessage.wavedToUUID);
+                        List<PersonWithCourses> sortedList = generateSortedList(Utilities.DEFAULT);
+                        runOnUiThread(() -> {
+                            updateUI(sortedList);
                         });
-                    } catch (IOException | ClassNotFoundException e) {
-                        e.printStackTrace();
-                    }
-
+                        Log.i("Bluetooth",potentialBOF.toString() + " found");
+                        return null;
+                    });
+                } catch (IOException | ClassNotFoundException e) {
+                    e.printStackTrace();
                 }
-            });
-            bluetooth.setMessage(selfMessage);
-        } catch (IOException e) {
-            Toast.makeText(this, "Failed to setup bluetooth! Try restarting app.", Toast.LENGTH_SHORT).show();
-            onBluetoothFailed();
-            Log.w("Bluetooth","Bluetooth setup failed");
-            e.printStackTrace();
-        }
+
+            }
+        });
+
+        backgroundThreadExecutor.submit(() -> {
+            try {
+                List<String> sentWaveTo = db.personsWithCoursesDao().getSentWaveTo();
+                Message selfMessage = new Message(Utilities.serializeMessage(selfPerson, sentWaveTo));
+                bluetooth.setMessage(selfMessage);
+            } catch (IOException e) {
+                runOnUiThread(() -> {
+                    Toast.makeText(this, "Failed to setup bluetooth! Try restarting app.", Toast.LENGTH_SHORT).show();
+                });
+                onBluetoothFailed();
+                Log.w("Bluetooth","Bluetooth setup failed");
+                e.printStackTrace();
+            }
+
+            return null;
+        });
+
     }
 
     /**
@@ -314,12 +332,15 @@ public class ListingBOF extends AppCompatActivity {
     public void onStartStopClicked(View view) {
 
         // Stop button from being used if Bluetooth is not enabled
-        if (!bluetoothAdapter.isEnabled()) {
+        /*if (!bluetoothAdapter.isEnabled()) {
             Utilities.showAlert(this,"Don't forget to turn on Bluetooth");
             return;
-        }
+        }*/
 
         startStopBtn.setSelected(!startStopBtn.isSelected());
+
+        SharedPreferences preferences = getSharedPreferences("BoF", MODE_PRIVATE);
+        SharedPreferences.Editor editor = preferences.edit();
 
 
         if (bluetoothStarted) {
@@ -328,6 +349,9 @@ public class ListingBOF extends AppCompatActivity {
             // Unpublish and stop Listening
             bluetooth.unpublish();
             bluetooth.unsubscribe();
+
+            editor.putBoolean("isSessionRunning", false);
+            editor.apply();
 
             // Update State
             startStopBtn.setText("START");
@@ -342,6 +366,10 @@ public class ListingBOF extends AppCompatActivity {
         } else {
             //When start is pressed
             createSession();
+            updateUI(new ArrayList<>());
+
+            editor.putBoolean("isSessionRunning", true);
+            editor.apply();
 
             // Publish and Listen
             bluetooth.publish();
@@ -383,7 +411,7 @@ public class ListingBOF extends AppCompatActivity {
     private void createSession() {
         //Get current time for initial session name
         Calendar c = Calendar.getInstance();
-        String formattedDate = c.get(Calendar.MONTH) + "/" + c.get(Calendar.DAY_OF_MONTH) + "/" + c.get(Calendar.YEAR);
+        String formattedDate = (c.get(Calendar.MONTH)+1) + "/" + c.get(Calendar.DAY_OF_MONTH) + "/" + c.get(Calendar.YEAR);
         String AM_PM = c.get(Calendar.AM_PM) == 0 ? "AM" : "PM";
         String formattedTime = c.get(Calendar.HOUR) + ":" + c.get(Calendar.MINUTE) + AM_PM;
         String currTime = formattedDate + " " + formattedTime;
@@ -396,10 +424,13 @@ public class ListingBOF extends AppCompatActivity {
         sessionName = currTime;
 
         //Add default user to session
-        Utilities.addToSession(db, sessionName, userID);
+        this.future = backgroundThreadExecutor.submit(() -> {
+            Utilities.addToSession(db, sessionName, userID);
+            return null;
+        });
 
         //Change Name on title
-        title.setText(currTime);
+        updateTitle();
     }
 
     private boolean havePermissions() {
@@ -464,8 +495,11 @@ public class ListingBOF extends AppCompatActivity {
      * Updates title to the current session's name
      */
     private void updateTitle() {
-        // update title if it was changed
-        title.setText(sessionName);
+        if(sessionName == null) {
+            title.setText("BoF");
+        } else {
+            title.setText(sessionName);
+        }
     }
 
     /**
@@ -512,4 +546,11 @@ public class ListingBOF extends AppCompatActivity {
         Intent intent = new Intent(this, ViewSessions.class);
         activityLauncher.launch(intent);
     }
+
+    public void onFavoriteButtonClicked(View view) {
+
+        Intent intent = new Intent(this, FavoriteListing.class);
+        startActivity(intent);
+    }
+
 }

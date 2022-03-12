@@ -143,11 +143,18 @@ public class StopSave extends AppCompatActivity {
         } else if (isValidSessionName(newName)) {
             renameSession(newName);
 
+            //modify the session name in shared preferences
+            SharedPreferences preferences = getSharedPreferences("BoF", MODE_PRIVATE);
+            SharedPreferences.Editor editor = preferences.edit();
+            editor.putString("currentSession", newName);
+            editor.apply();
+
             // new session name will be passed
             Intent intent = new Intent();
             intent.putExtra(KEY_NAME, currentSessionName);
             Log.i("onConfirmName", currentSessionName);
             setResult(RESULT_OK, intent);
+
             finish();
         } else {
             Utilities.showAlert(this, "This name is invalid or already in use");

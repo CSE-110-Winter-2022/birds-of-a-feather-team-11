@@ -39,15 +39,15 @@ public class StopSessionTest {
     AppDatabase db;
 
     public void addUser() {
-        Person user = new Person(userID, "user", "", 0, 0);
+        Person user = new Person(userID, "user", "", 0, 0, 0);
         db.personsWithCoursesDao().insertPerson(user);
     }
     public void addUserClasses() {
-        db.coursesDao().insert(new Course(userID,"2022", "Winter", "CSE", "110", "Tiny (<40)"));
-        db.coursesDao().insert(new Course(userID,"2022", "Winter", "CSE", "10", "Tiny (<40)"));
-        db.coursesDao().insert(new Course(userID,"2021", "Winter", "CSE", "20", "Tiny (<40)"));
-        db.coursesDao().insert(new Course(userID,"2022", "Fall", "CSE", "21", "Tiny (<40)"));
-        db.coursesDao().insert(new Course(userID,"2022", "Fall", "CSE", "110", "Tiny (<40)"));
+        db.coursesDao().insert(new Course(userID,"2022", "Winter", "CSE", "110", Course.tinyClass));
+        db.coursesDao().insert(new Course(userID,"2022", "Winter", "CSE", "10", Course.tinyClass));
+        db.coursesDao().insert(new Course(userID,"2021", "Winter", "CSE", "20", Course.tinyClass));
+        db.coursesDao().insert(new Course(userID,"2022", "Fall", "CSE", "21", Course.tinyClass));
+        db.coursesDao().insert(new Course(userID,"2022", "Fall", "CSE", "110", Course.tinyClass));
     }
 
     public void createSession(String sessionName) {
@@ -72,8 +72,8 @@ public class StopSessionTest {
                 addUser();
                 addUserClasses();
                 List<Course> courses = new ArrayList<>();
-                courses.add(new Course(userID,"2022", "Winter", "CSE", "110", "Tiny (<40)"));
-                courses.add(new Course(userID,"2022", "Winter", "CSE", "10", "Tiny (<40)"));
+                courses.add(new Course(userID,"2022", "Winter", "CSE", "110", Course.tinyClass));
+                courses.add(new Course(userID,"2022", "Winter", "CSE", "10", Course.tinyClass));
                 List<Course> currCourses = activity.getCurrCourses(2022, 0, userID);
                 activity.runOnUiThread(() -> {
                     assertEquals(courses.toString(), currCourses.toString());

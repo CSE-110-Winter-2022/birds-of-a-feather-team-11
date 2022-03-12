@@ -53,22 +53,24 @@ public class EnterClassesUnitTest {
         scenario.moveToState(Lifecycle.State.CREATED);
 
         scenario.onActivity(activity -> {
-            backgroundThreadExecutor.submit(() -> {
+            Future future = backgroundThreadExecutor.submit(() -> {
                 AppDatabase db = AppDatabase.singleton(getApplicationContext());
                 List<Course> before = db.coursesDao().getForPerson(userID);
 
-                assertEquals(0, before.size());
+                activity.runOnUiThread(() -> {
+                    assertEquals(0, before.size());
+                });
 
                 Button enterButton = activity.findViewById(R.id.enter_btn);
                 enterButton.performClick();
                 List<Course> after = db.coursesDao().getForPerson(userID);
 
-                assertEquals(0, after.size());
-
-                db.clearAllTables();
-                db.close();
+                activity.runOnUiThread(() -> {
+                    assertEquals(0, after.size());
+                });
                 return null;
             });
+            Utilities.waitForThread(future);
         });
     }
 
@@ -80,7 +82,7 @@ public class EnterClassesUnitTest {
         scenario.moveToState(Lifecycle.State.CREATED);
 
         scenario.onActivity(activity -> {
-            backgroundThreadExecutor.submit(() -> {
+            Future future = backgroundThreadExecutor.submit(() -> {
                 AppDatabase db = AppDatabase.singleton(getApplicationContext());
                 EditText subjectView = activity.findViewById(R.id.subject_input);
                 EditText numView = activity.findViewById(R.id.course_nbr_input);
@@ -90,17 +92,19 @@ public class EnterClassesUnitTest {
                 enterButton.performClick();
                 List<Course> before = db.coursesDao().getForPerson(userID);
 
-                assertEquals(1, before.size());//1 class should be added
+                activity.runOnUiThread(() -> {
+                    assertEquals(1, before.size());//1 class should be added
+                });
 
                 enterButton.performClick();
                 List<Course> after = db.coursesDao().getForPerson(userID);
 
-                assertEquals(before, after);
-
-                db.clearAllTables();
-                db.close();
+                activity.runOnUiThread(() -> {
+                    assertEquals(before, after);
+                });
                 return null;
             });
+            Utilities.waitForThread(future);
         });
     }
 
@@ -112,7 +116,7 @@ public class EnterClassesUnitTest {
         scenario.moveToState(Lifecycle.State.CREATED);
 
         scenario.onActivity(activity -> {
-            backgroundThreadExecutor.submit(() -> {
+            Future future = backgroundThreadExecutor.submit(() -> {
                 AppDatabase db = AppDatabase.singleton(getApplicationContext());
                 EditText subjectView = activity.findViewById(R.id.subject_input);
                 EditText numView = activity.findViewById(R.id.course_nbr_input);
@@ -140,21 +144,23 @@ public class EnterClassesUnitTest {
                 enterButton.performClick();
 
                 List<Course> addedCourses = db.coursesDao().getForPerson(userID);
-                assertEquals(5, addedCourses.size());
+                activity.runOnUiThread(() -> {
+                    assertEquals(5, addedCourses.size());
+                });
 
                 List<Course> expectedCourses = new ArrayList<>();
-                expectedCourses.add(new Course(userID, "2022", "Fall", "CSE", "110", "Tiny (<40)"));
-                expectedCourses.add(new Course(userID, "2021", "Fall", "CSE", "110", "Tiny (<40)"));
-                expectedCourses.add(new Course(userID, "2021", "Spring", "CSE", "110", "Tiny (<40)"));
-                expectedCourses.add(new Course(userID, "2021", "Spring", "ECE", "110", "Small (40-75)"));
-                expectedCourses.add(new Course(userID, "2021", "Spring", "ECE", "101A", "Huge (250-400)"));
+                expectedCourses.add(new Course(userID, "2022", "Fall", "CSE", "110", Course.tinyClass));
+                expectedCourses.add(new Course(userID, "2021", "Fall", "CSE", "110", Course.tinyClass));
+                expectedCourses.add(new Course(userID, "2021", "Spring", "CSE", "110", Course.tinyClass));
+                expectedCourses.add(new Course(userID, "2021", "Spring", "ECE", "110", Course.smallClass));
+                expectedCourses.add(new Course(userID, "2021", "Spring", "ECE", "101A", Course.hugeClass));
 
-                assertEquals(expectedCourses.toString(), addedCourses.toString());
-
-                db.clearAllTables();
-                db.close();
+                activity.runOnUiThread(() -> {
+                    assertEquals(expectedCourses.toString(), addedCourses.toString());
+                });
                 return null;
             });
+            Utilities.waitForThread(future);
         });
 
     }
@@ -162,11 +168,11 @@ public class EnterClassesUnitTest {
     @Test
     public void testIsDuplicateTrue() {
         List<Course> courses = Arrays.asList(
-                new Course(userID, "2019", "Winter", "CSE", "1", "Tiny (<40)"),
-                new Course(userID, "2020", "Fall", "CSE", "2", "Tiny (<40)"),
-                new Course(userID, "2022", "Winter", "CSE", "110", "Large (150-250)"));
+                new Course(userID, "2019", "Winter", "CSE", "1", Course.tinyClass),
+                new Course(userID, "2020", "Fall", "CSE", "2", Course.tinyClass),
+                new Course(userID, "2022", "Winter", "CSE", "110", Course.largeClass));
 
-        Course cse110Duplicate = new Course(userID, "2022", "Winter", "CSE", "110", "Large (150-250)");
+        Course cse110Duplicate = new Course(userID, "2022", "Winter", "CSE", "110", Course.largeClass);
 
         assertTrue(Utilities.isDuplicate(cse110Duplicate, courses));
     }
@@ -174,14 +180,14 @@ public class EnterClassesUnitTest {
     @Test
     public void testIsDuplicateFalse() {
         List<Course> courses = Arrays.asList(
-                new Course(userID, "2019", "Winter", "CSE", "1", "Tiny (<40)"),
-                new Course(userID, "2020", "Fall", "CSE", "2", "Tiny (<40)"),
-                new Course(userID, "2022", "Winter", "CSE", "110", "Large (150-250)"));
+                new Course(userID, "2019", "Winter", "CSE", "1", Course.tinyClass),
+                new Course(userID, "2020", "Fall", "CSE", "2", Course.tinyClass),
+                new Course(userID, "2022", "Winter", "CSE", "110", Course.largeClass));
 
-        Course cse110DiffYear = new Course(userID, "2021", "Winter", "CSE", "110", "Large (150-250)");
-        Course cse110DiffQuarter = new Course(userID, "2022", "Fall", "CSE", "110", "Large (150-250)");
-        Course cse110DiffSubject = new Course(userID, "2022", "Winter", "ECE", "110", "Large (150-250)");
-        Course cse110DiffNumber = new Course(userID, "2022", "Winter", "CSE", "100", "Large (150-250)");
+        Course cse110DiffYear = new Course(userID, "2021", "Winter", "CSE", "110", Course.largeClass);
+        Course cse110DiffQuarter = new Course(userID, "2022", "Fall", "CSE", "110", Course.largeClass);
+        Course cse110DiffSubject = new Course(userID, "2022", "Winter", "ECE", "110", Course.largeClass);
+        Course cse110DiffNumber = new Course(userID, "2022", "Winter", "CSE", "100", Course.largeClass);
 
         assertFalse(Utilities.isDuplicate(cse110DiffYear, courses));
         assertFalse(Utilities.isDuplicate(cse110DiffQuarter, courses));
@@ -197,23 +203,24 @@ public class EnterClassesUnitTest {
         scenario.moveToState(Lifecycle.State.CREATED);
 
         scenario.onActivity(activity -> {
-            backgroundThreadExecutor.submit(() -> {
+            Future future = backgroundThreadExecutor.submit(() -> {
                 AppDatabase db = AppDatabase.singleton(getApplicationContext());
                 List<Course> before = db.coursesDao().getForPerson(userID);
 
-                assertEquals(0, before.size());
+                activity.runOnUiThread(() -> {
+                    assertEquals(0, before.size());
+                });
 
                 Button doneButton = activity.findViewById(R.id.done_btn);
                 doneButton.performClick();
 
                 SharedPreferences preferences = activity.getSharedPreferences("BoF", Context.MODE_PRIVATE);
-                assertFalse(preferences.getBoolean("Entered Classes", false));
-
-                db.clearAllTables();
-                db.close();
-
+                activity.runOnUiThread(() -> {
+                    assertFalse(preferences.getBoolean("Entered Classes", false));
+                });
                 return null;
             });
+            Utilities.waitForThread(future);
         });
     }
 
@@ -224,7 +231,7 @@ public class EnterClassesUnitTest {
         scenario.moveToState(Lifecycle.State.CREATED);
 
         scenario.onActivity(activity -> {
-            backgroundThreadExecutor.submit(() -> {
+            Future future = backgroundThreadExecutor.submit(() -> {
                 EditText subjectView = activity.findViewById(R.id.subject_input);
                 EditText numView = activity.findViewById(R.id.course_nbr_input);
 
@@ -237,9 +244,12 @@ public class EnterClassesUnitTest {
                 doneButton.performClick();
 
                 SharedPreferences preferences = activity.getSharedPreferences("BoF", Context.MODE_PRIVATE);
-                assertTrue(preferences.getBoolean("Entered Classes", false));
+                activity.runOnUiThread(() -> {
+                    assertTrue(preferences.getBoolean("Entered Classes", false));
+                });
                 return null;
             });
+            Utilities.waitForThread(future);
         });
     }
 
@@ -250,7 +260,7 @@ public class EnterClassesUnitTest {
         scenario.moveToState(Lifecycle.State.CREATED);
 
         scenario.onActivity(activity -> {
-            backgroundThreadExecutor.submit(() -> {
+            Future future = backgroundThreadExecutor.submit(() -> {
                 EditText subjectView = activity.findViewById(R.id.subject_input);
                 EditText numView = activity.findViewById(R.id.course_nbr_input);
 
@@ -263,9 +273,12 @@ public class EnterClassesUnitTest {
                 doneButton.performClick();
 
                 SharedPreferences preferences = activity.getSharedPreferences("BoF", Context.MODE_PRIVATE);
-                assertTrue(preferences.getBoolean("Entered Classes", false));
+                activity.runOnUiThread(() -> {
+                    assertTrue(preferences.getBoolean("Entered Classes", false));
+                });
                 return null;
             });
+            Utilities.waitForThread(future);
         });
     }
 }
