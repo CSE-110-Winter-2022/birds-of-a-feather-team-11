@@ -6,6 +6,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 
 import com.example.birdsoffeather.model.db.AppDatabase;
 
@@ -48,5 +49,9 @@ public class ViewSessions extends AppCompatActivity {
         // display saved sessions
         List<String> saved_sessions = db.sessionsDao().getSessionNames();
         sessionsViewAdapter.updateList(saved_sessions);
+    }
+
+    public void onBackClicked(View view) {
+        finish();
     }
 }
