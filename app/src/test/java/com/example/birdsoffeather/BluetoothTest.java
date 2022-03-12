@@ -30,6 +30,7 @@ import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 @RunWith(AndroidJUnit4.class)
 public class BluetoothTest {
@@ -107,6 +108,55 @@ public class BluetoothTest {
         }
 
         assertNotEquals(person2, serializedPerson);
+    }
+
+    @Test
+    public void testFakePersonSend() {
+        ActivityScenario<ListingBOF> scenario = scenarioRule.getScenario();
+
+        scenario.moveToState(Lifecycle.State.CREATED);
+        scenario.moveToState(Lifecycle.State.STARTED);
+
+
+        scenario.onActivity(activity -> {
+            AppDatabase db = AppDatabase.singleton(getApplicationContext());
+
+            String userID = UUID.randomUUID().toString();
+
+            PersonWithCourses fakePerson = new PersonWithCourses();
+            fakePerson.person = new Person(userID, "John", "www.google.com", 0, 0);
+            fakePerson.courses = Arrays.asList(
+                    new Course(userID, "2022", "Winter", "CSE", "110","Large (150-250)"));
+            MessageListener fake = new FakeMessageListener(activity.getMessageListener(), fakePerson, bofIDs);
+            activity.setMessageListener(fake);
+
+            //Wait because of async background thread processes
+            try {
+                TimeUnit.SECONDS.sleep(1);
+            } catch(Exception e) {
+                e.printStackTrace();
+            }
+
+            Future future = backgroundThreadExecutor.submit(() -> {
+                int numPeople = db.personsWithCoursesDao().count();
+
+                activity.runOnUiThread(() -> {
+                    assertEquals(1, numPeople);
+                });
+
+                String personName = db.personsWithCoursesDao().get(userID).person.name;
+
+                activity.runOnUiThread(() -> {
+                    assertEquals("John", personName);
+                });
+
+                db.close();
+
+                return null;
+            });
+
+            Utilities.waitForThread(future);
+        });
     }
 
 }

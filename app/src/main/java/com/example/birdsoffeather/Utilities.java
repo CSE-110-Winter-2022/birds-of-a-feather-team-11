@@ -224,6 +224,9 @@ public class Utilities {
      * @param personId ID of the BoF being inputted
      */
     public static void addToSession(AppDatabase db, String sessionName, String personId){
+        if(sessionName == null || personId == null) {
+            return;
+        }
         if(db.sessionsDao().similarSession(sessionName, personId) == 0){
             db.sessionsDao().insert(new Session(sessionName, personId));
         }
@@ -264,7 +267,11 @@ public class Utilities {
         return false;
     }
 
-
+    /**
+     * Helper function that will wait for a thread to finish before returning
+     *
+     * @param future a future associated with a thread that indicates the threads status
+     */
     public static void waitForThread(Future future) {
         while(!future.isDone())
             continue;
