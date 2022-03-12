@@ -26,6 +26,7 @@
     <string name="start">START</string>
     <string name="bof">BOF</string>
     <string name="add_mock">Add mock</string>
+    <string name="user_id">User ID</string>
 
     <string-array name="years_array">
         <item>2022</item>

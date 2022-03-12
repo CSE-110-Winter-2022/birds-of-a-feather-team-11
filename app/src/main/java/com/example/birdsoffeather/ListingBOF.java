@@ -207,7 +207,10 @@ public class ListingBOF extends AppCompatActivity {
                         PersonWithCourses potentialBOF = bluetoothMessage.person;
                         Utilities.inputBOF(potentialBOF, db, userID, sessionName);
                         Utilities.updateWaves(db, userID, potentialBOF.getId(), bluetoothMessage.wavedToUUID);
-                        updateUI(generateSortedList(Utilities.DEFAULT));
+                        List<PersonWithCourses> sortedList = generateSortedList(Utilities.DEFAULT);
+                        runOnUiThread(() -> {
+                            updateUI(sortedList);
+                        });
                         Log.i("Bluetooth",potentialBOF.toString() + " found");
                         return null;
                     });
@@ -274,6 +277,9 @@ public class ListingBOF extends AppCompatActivity {
         Button startStopBtn = findViewById(R.id.start_stop_btn);
         startStopBtn.setSelected(!startStopBtn.isSelected());
 
+        SharedPreferences preferences = getSharedPreferences("BoF", MODE_PRIVATE);
+        SharedPreferences.Editor editor = preferences.edit();
+
 
         if (bluetoothStarted) {
             //when stop is pressed
@@ -281,6 +287,9 @@ public class ListingBOF extends AppCompatActivity {
             // Unpublish and stop Listening
             bluetooth.unpublish();
             bluetooth.unsubscribe();
+
+            editor.putBoolean("isSessionRunning", false);
+            editor.apply();
 
             // Update State
             startStopBtn.setText("Start");
@@ -292,6 +301,9 @@ public class ListingBOF extends AppCompatActivity {
         } else {
             //When start is pressed
             createSession();
+
+            editor.putBoolean("isSessionRunning", true);
+            editor.apply();
 
             // Publish and Listen
             bluetooth.publish();

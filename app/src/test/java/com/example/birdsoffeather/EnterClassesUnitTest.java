@@ -149,11 +149,11 @@ public class EnterClassesUnitTest {
                 });
 
                 List<Course> expectedCourses = new ArrayList<>();
-                expectedCourses.add(new Course(userID, "2022", "Fall", "CSE", "110", "Tiny (<40)"));
-                expectedCourses.add(new Course(userID, "2021", "Fall", "CSE", "110", "Tiny (<40)"));
-                expectedCourses.add(new Course(userID, "2021", "Spring", "CSE", "110", "Tiny (<40)"));
-                expectedCourses.add(new Course(userID, "2021", "Spring", "ECE", "110", "Small (40-75)"));
-                expectedCourses.add(new Course(userID, "2021", "Spring", "ECE", "101A", "Huge (250-400)"));
+                expectedCourses.add(new Course(userID, "2022", "Fall", "CSE", "110", Course.tinyClass));
+                expectedCourses.add(new Course(userID, "2021", "Fall", "CSE", "110", Course.tinyClass));
+                expectedCourses.add(new Course(userID, "2021", "Spring", "CSE", "110", Course.tinyClass));
+                expectedCourses.add(new Course(userID, "2021", "Spring", "ECE", "110", Course.smallClass));
+                expectedCourses.add(new Course(userID, "2021", "Spring", "ECE", "101A", Course.hugeClass));
 
                 activity.runOnUiThread(() -> {
                     assertEquals(expectedCourses.toString(), addedCourses.toString());
@@ -168,11 +168,11 @@ public class EnterClassesUnitTest {
     @Test
     public void testIsDuplicateTrue() {
         List<Course> courses = Arrays.asList(
-                new Course(userID, "2019", "Winter", "CSE", "1", "Tiny (<40)"),
-                new Course(userID, "2020", "Fall", "CSE", "2", "Tiny (<40)"),
-                new Course(userID, "2022", "Winter", "CSE", "110", "Large (150-250)"));
+                new Course(userID, "2019", "Winter", "CSE", "1", Course.tinyClass),
+                new Course(userID, "2020", "Fall", "CSE", "2", Course.tinyClass),
+                new Course(userID, "2022", "Winter", "CSE", "110", Course.largeClass));
 
-        Course cse110Duplicate = new Course(userID, "2022", "Winter", "CSE", "110", "Large (150-250)");
+        Course cse110Duplicate = new Course(userID, "2022", "Winter", "CSE", "110", Course.largeClass);
 
         assertTrue(Utilities.isDuplicate(cse110Duplicate, courses));
     }
@@ -180,14 +180,14 @@ public class EnterClassesUnitTest {
     @Test
     public void testIsDuplicateFalse() {
         List<Course> courses = Arrays.asList(
-                new Course(userID, "2019", "Winter", "CSE", "1", "Tiny (<40)"),
-                new Course(userID, "2020", "Fall", "CSE", "2", "Tiny (<40)"),
-                new Course(userID, "2022", "Winter", "CSE", "110", "Large (150-250)"));
+                new Course(userID, "2019", "Winter", "CSE", "1", Course.tinyClass),
+                new Course(userID, "2020", "Fall", "CSE", "2", Course.tinyClass),
+                new Course(userID, "2022", "Winter", "CSE", "110", Course.largeClass));
 
-        Course cse110DiffYear = new Course(userID, "2021", "Winter", "CSE", "110", "Large (150-250)");
-        Course cse110DiffQuarter = new Course(userID, "2022", "Fall", "CSE", "110", "Large (150-250)");
-        Course cse110DiffSubject = new Course(userID, "2022", "Winter", "ECE", "110", "Large (150-250)");
-        Course cse110DiffNumber = new Course(userID, "2022", "Winter", "CSE", "100", "Large (150-250)");
+        Course cse110DiffYear = new Course(userID, "2021", "Winter", "CSE", "110", Course.largeClass);
+        Course cse110DiffQuarter = new Course(userID, "2022", "Fall", "CSE", "110", Course.largeClass);
+        Course cse110DiffSubject = new Course(userID, "2022", "Winter", "ECE", "110", Course.largeClass);
+        Course cse110DiffNumber = new Course(userID, "2022", "Winter", "CSE", "100", Course.largeClass);
 
         assertFalse(Utilities.isDuplicate(cse110DiffYear, courses));
         assertFalse(Utilities.isDuplicate(cse110DiffQuarter, courses));
