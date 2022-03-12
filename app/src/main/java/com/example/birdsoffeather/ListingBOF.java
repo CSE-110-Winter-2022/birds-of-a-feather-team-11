@@ -49,7 +49,7 @@ public class ListingBOF extends AppCompatActivity {
     private String userID = null;
     private String sessionName = null;
 
-    MessageListener messageListener = new MessageListener() {
+    private final MessageListener messageListener = new MessageListener() {
         @Override
         public void onFound(@NonNull Message message) {
             super.onFound(message);
@@ -174,7 +174,7 @@ public class ListingBOF extends AppCompatActivity {
         else if (sortType.equals(Utilities.CLASS_AGE))
             orderedList = Utilities.generateAgeScoreOrder(db);
         else
-            orderedList = Utilities.generateSimilarityOrder(db, userID);
+            orderedList = Utilities.generateClassScoreOrder(db);
 
         //Get the list of people in that session
         List<String> sessionUUIDs = db.sessionsDao().getPeopleForSession(sessionName);
