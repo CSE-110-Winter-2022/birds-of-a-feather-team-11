@@ -62,7 +62,6 @@ public class ListingBOF extends AppCompatActivity {
         // Obtain details of use
         backgroundThreadExecutor.submit(() -> {
             db = AppDatabase.singleton(getApplicationContext());
-
             PersonWithCourses person = db.personsWithCoursesDao().get(userID);
             setupBluetooth(person);
             return;
@@ -197,7 +196,6 @@ public class ListingBOF extends AppCompatActivity {
             Log.w("Bluetooth","Bluetooth setup failed");
             e.printStackTrace();
         }
-
 
     }
 
