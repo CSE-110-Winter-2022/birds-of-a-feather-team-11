@@ -266,10 +266,10 @@ public class ListingBOF extends AppCompatActivity {
     public void onStartStopClicked(View view) {
 
         // Stop button from being used if Bluetooth is not enabled
-        if (!bluetoothAdapter.isEnabled()) {
+        /*if (!bluetoothAdapter.isEnabled()) {
             Utilities.showAlert(this,"Don't forget to turn on Bluetooth");
             return;
-        }
+        }*/
 
         Button startStopBtn = findViewById(R.id.start_stop_btn);
         startStopBtn.setSelected(!startStopBtn.isSelected());
@@ -345,7 +345,10 @@ public class ListingBOF extends AppCompatActivity {
         sessionName = currTime;
 
         //Add default user to session
-        Utilities.addToSession(db, sessionName, userID);
+        this.future = backgroundThreadExecutor.submit(() -> {
+            Utilities.addToSession(db, sessionName, userID);
+            return null;
+        });
 
         //Change Name on title
         TextView title = (TextView) findViewById(R.id.bof_title);
