@@ -212,7 +212,10 @@ public class ListingBOF extends AppCompatActivity {
                         PersonWithCourses potentialBOF = bluetoothMessage.person;
                         Utilities.inputBOF(potentialBOF, db, userID, sessionName);
                         Utilities.updateWaves(db, userID, potentialBOF.getId(), bluetoothMessage.wavedToUUID);
-                        updateUI(generateSortedList(Utilities.DEFAULT));
+                        List<PersonWithCourses> sortedList = generateSortedList(Utilities.DEFAULT);
+                        runOnUiThread(() -> {
+                            updateUI(sortedList);
+                        });
                         Log.i("Bluetooth",potentialBOF.toString() + " found");
                         return null;
                     });
@@ -229,7 +232,9 @@ public class ListingBOF extends AppCompatActivity {
                 Message selfMessage = new Message(Utilities.serializeMessage(selfPerson, sentWaveTo));
                 bluetooth.setMessage(selfMessage);
             } catch (IOException e) {
-                Toast.makeText(this, "Failed to setup bluetooth! Try restarting app.", Toast.LENGTH_SHORT).show();
+                runOnUiThread(() -> {
+                    Toast.makeText(this, "Failed to setup bluetooth! Try restarting app.", Toast.LENGTH_SHORT).show();
+                });
                 onBluetoothFailed();
                 Log.w("Bluetooth","Bluetooth setup failed");
                 e.printStackTrace();
@@ -277,6 +282,9 @@ public class ListingBOF extends AppCompatActivity {
         Button startStopBtn = findViewById(R.id.start_stop_btn);
         startStopBtn.setSelected(!startStopBtn.isSelected());
 
+        SharedPreferences preferences = getSharedPreferences("BoF", MODE_PRIVATE);
+        SharedPreferences.Editor editor = preferences.edit();
+
 
         if (bluetoothStarted) {
             //when stop is pressed
@@ -284,6 +292,9 @@ public class ListingBOF extends AppCompatActivity {
             // Unpublish and stop Listening
             bluetooth.unpublish();
             bluetooth.unsubscribe();
+
+            editor.putBoolean("isSessionRunning", false);
+            editor.apply();
 
             // Update State
             startStopBtn.setText("Start");
@@ -296,7 +307,8 @@ public class ListingBOF extends AppCompatActivity {
             //When start is pressed
             createSession();
 
-            //addTestPerson();
+            editor.putBoolean("isSessionRunning", true);
+            editor.apply();
 
             // Publish and Listen
             bluetooth.publish();
@@ -405,24 +417,4 @@ public class ListingBOF extends AppCompatActivity {
         }
     }
 
-    private void addTestPerson() {
-        String userIDs = "test_id";
-        Person person1 = new Person(userIDs, "John", "", 0, 0, 0);
-        ArrayList<Course> courses= new ArrayList<>();
-        courses.add(new Course(userIDs,"2021", "Spring", "CSE", "110", "Large (150-250)"));
-        courses.add(new Course(userIDs,"2021", "Winter", "CSE", "100", "Huge (250-400)"));
-        courses.add(new Course(userIDs,"2020", "Spring", "CSE", "12", "Huge (250-450)"));
-        PersonWithCourses personWithCourses = new PersonWithCourses();
-        personWithCourses.courses = courses;
-        personWithCourses.person = person1;
-
-        backgroundThreadExecutor.submit(() -> {
-            Utilities.inputBOF(personWithCourses, db, userID, sessionName);
-            List<PersonWithCourses> list = generateSortedList(Utilities.DEFAULT);
-            Log.d("Test", list.toString());
-            runOnUiThread(() -> {
-                updateUI(list);
-            });
-        });
-    }
 }
